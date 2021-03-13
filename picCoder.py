@@ -77,6 +77,9 @@ class UI(QMainWindow):
         # Show appliction window.
         self.show()
 
+        # Attach to the Change Log menu item.
+        self.actionChangeLog.triggered.connect(self.changeLog)
+
     # *******************************************
     # About control selected.
     # Displays an "About" dialog box.
@@ -86,6 +89,16 @@ class UI(QMainWindow):
 
         # Create about dialog.        
         AboutDialog(progVersion, progDate)
+
+    # *******************************************
+    # Change Log control selected.
+    # Displays a "Change Log" dialog box.
+    # *******************************************
+    def changeLog(self):
+        logger.debug("User selected Change Log menu control.")
+
+        # Create about dialog.        
+        ChangeLogDialog()
 
 # *******************************************
 # About dialog class.
@@ -114,6 +127,41 @@ class AboutDialog(QDialog):
 
         # Update dialog icon.
         self.aboutIcon.setPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
+
+        # Show dialog.
+        self.exec_()
+
+# *******************************************
+# Change Log dialog class.
+# *******************************************
+class ChangeLogDialog(QDialog):
+    def __init__(self):
+        super(ChangeLogDialog, self).__init__()
+        uic.loadUi(res_path("changeLog.ui"), self)
+
+        # Show the change log.
+        self.showChangeLog()
+
+    # *******************************************
+    # Displays a "Change Log" dialog box.
+    # *******************************************
+    def showChangeLog(self):
+
+        # Set dialog window icon.
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
+        self.setWindowIcon(icon)
+
+        # Update change log.
+        self.changeLogText.textCursor().insertHtml("<h1><b>CHANGE LOG</b></h1><br>")
+        self.changeLogText.textCursor().insertHtml("<h2><b>Version 0.1</b></h2>")
+        self.changeLogText.textCursor().insertHtml("<ul>" \
+            "<li>Initial draft release.</li>" \
+            "</ul>")
+
+        # Scroll to top so that changes for most recent version are visible.
+        self.changeLogText.moveCursor(QtGui.QTextCursor.Start)
+        self.changeLogText.ensureCursorVisible()
 
         # Show dialog.
         self.exec_()

@@ -39,6 +39,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionChangeLog"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -53,6 +54,11 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionChangeLog">
+   <property name="text">
+    <string>Change Log</string>
    </property>
   </action>
  </widget>
