@@ -8,8 +8,7 @@ import time
 import os
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog
-# from PyQt5.QtWidgets import  QFileDialog, QColorDialog, QLabel, QPushButton, QMessageBox, qApp
+from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QStatusBar, QLabel, QFileDialog
 from PyQt5 import uic
 from PyQt5 import QtCore, QtGui
 
@@ -68,17 +67,61 @@ class UI(QMainWindow):
         super(UI, self).__init__()
         uic.loadUi(res_path("picCoder.ui"), self)
 
+        # Attach to the open (single file) menu item.
+        self.actionOpenFile.triggered.connect(self.openFile)
+
         # Attach to the Quit menu item.
         self.actionQuit.triggered.connect(app.quit)
 
         # Attach to the About menu item.
         self.actionAbout.triggered.connect(self.about)
 
+        # Attach to the Change Log menu item.
+        self.actionChangeLog.triggered.connect(self.changeLog)
+
+        # Initial statusbar message.
+        self.statusBar.showMessage('Initialising...', 2000)
+
+        # Define list of pictures loaded.
+        self.loadedPics = []
+
         # Show appliction window.
         self.show()
 
-        # Attach to the Change Log menu item.
-        self.actionChangeLog.triggered.connect(self.changeLog)
+    # *******************************************
+    # Open File control selected.
+    # Displays file browser to select a single pic.
+    # *******************************************
+    def openFile(self):
+        logger.debug("User selected Open File menu control.")
+
+        # Configure and launch file selection dialog.
+        dialog = QFileDialog(self)
+        dialog.setAcceptMode(QFileDialog.AcceptOpen)
+        dialog.setFileMode(QFileDialog.ExistingFiles)
+        dialog.setViewMode(QFileDialog.Detail)
+        dialog.setNameFilters(["Picture files (*.png)"])
+
+        # If have filename(s) then open.
+        if dialog.exec_():
+            filenames = dialog.selectedFiles()
+
+            # If have a filename then open.
+            if filenames[0] != "":
+                logger.info("Selected picture file : {0:s}".format(filenames[0]))
+
+                # Displaying image statusbar message.
+                self.statusBar.showMessage(f'Opening image file: {filenames[0]}...', 2000)
+                pixmap = QtGui.QPixmap(filenames[0]).scaled(self.picImageLbl.width(), self.picImageLbl.height(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+                self.picImageLbl.setPixmap(pixmap)
+                self.picImageLbl.adjustSize()
+                self.picImageLbl.show()
+
+                # Set the text associated with the label.
+                self.picDetailsLbl.setText(f'{filenames[0]}')
+                self.picDetailsLbl.setStyleSheet("background-color: rgb(210, 210, 210); border: 1px solid black;")
+            else:
+                logger.debug("No picture files selected.")
 
     # *******************************************
     # About control selected.

@@ -1,6 +1,6 @@
 {
     "ConfigVersion": 1,
-    "DebugLevel": 10,
+    "DebugLevel": 20,
     "LogFileSize": 100000,
     "LogBackups": 3
 }

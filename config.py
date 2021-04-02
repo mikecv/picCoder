@@ -60,7 +60,6 @@ class Config():
                     self.saveConfig()
 
         except Exception:
-            print("Error opening configuration file.")
             # Create default configuration file.
             print("Saving default configuration data.")
             self.saveConfig()
@@ -75,7 +74,7 @@ class Config():
             "ConfigVersion" : self.ConfigVersion,
             "DebugLevel" : self.DebugLevel,
             "LogFileSize" : self.LogFileSize,
-            "LogBackups" : self.LogBackups,
+            "LogBackups" : self.LogBackups
         }
 
         # Open file for writing.
