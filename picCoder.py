@@ -13,6 +13,7 @@ from PyQt5 import uic
 from PyQt5 import QtCore, QtGui
 
 from config import *
+from steganography import *
 
 # *******************************************
 # Program history.
@@ -45,7 +46,7 @@ logging.Formatter.converter = time.localtime
 logger.addHandler(handler)
 
 # Log program version.
-logger.info("Program version : {0:s}".format(progVersion))
+logger.info(f'Program version : {progVersion}')
 
 # *******************************************
 # Determine resource path being the relative path to the resource file.
@@ -80,7 +81,7 @@ class UI(QMainWindow):
         self.actionChangeLog.triggered.connect(self.changeLog)
 
         # Initial statusbar message.
-        self.statusBar.showMessage('Initialising...', 2000)
+        self.statusBar.showMessage("Initialising...", 2000)
 
         # Define list of pictures loaded.
         self.loadedPics = []
@@ -108,18 +109,25 @@ class UI(QMainWindow):
 
             # If have a filename then open.
             if filenames[0] != "":
-                logger.info("Selected picture file : {0:s}".format(filenames[0]))
+                logger.info(f'Selected picture file : {filenames[0]}')
 
                 # Displaying image statusbar message.
-                self.statusBar.showMessage(f'Opening image file: {filenames[0]}...', 2000)
+                self.statusBar.showMessage(f'Opening image file: {filenames[0]}...', 5000)
                 pixmap = QtGui.QPixmap(filenames[0]).scaled(self.picImageLbl.width(), self.picImageLbl.height(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
                 self.picImageLbl.setPixmap(pixmap)
                 self.picImageLbl.adjustSize()
                 self.picImageLbl.show()
 
-                # Set the text associated with the label.
+                # Now that we have a loaded image need to check if it is encoded.
+                self.stegPic = Steganography(config, logger, filenames[0])
+                # Set the text associated with the label (according to whether it is encoded or not).
+                self.stegPic.checkForCode()
                 self.picDetailsLbl.setText(f'{filenames[0]}')
-                self.picDetailsLbl.setStyleSheet("background-color: rgb(210, 210, 210); border: 1px solid black;")
+                if self.stegPic.picCoded == False:
+                    self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColDef"]};')
+                else:
+                    self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColCoded"]};')
+
             else:
                 logger.debug("No picture files selected.")
 

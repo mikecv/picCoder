@@ -1,6 +1,15 @@
 {
     "ConfigVersion": 1,
-    "DebugLevel": 20,
+    "DebugLevel": 10,
     "LogFileSize": 100000,
-    "LogBackups": 3
+    "LogBackups": 3,
+    "PicRendering": {
+        "PicCodedBgCol": "#dddddd",
+        "PicCodedBorderColDef": "#000000",
+        "PicCodedBorderColCoded": "#00ff00"
+    },
+    "PicEncoding": {
+        "ProgCode": "PICCODER",
+        "LenBytes": 8
+    }
 }

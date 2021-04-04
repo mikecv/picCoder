@@ -20,6 +20,19 @@ class Config():
         self.LogFileSize = 100000
         self.LogBackups = 3
 
+        # Image name status indication.
+        self.PicRendering = {
+            "PicCodedBgCol" : "#dddddd",
+            "PicCodedBorderColDef" : "#000000",
+            "PicCodedBorderColCoded" : "#00ff00"
+        }
+
+        # Image encoding constants.
+        self.PicEncoding = {
+            "ProgCode" : "PICCODER",
+            "LenBytes" : 8
+        }
+
         # Read / update configuration from file.
         self.readConfig()
 
@@ -53,6 +66,38 @@ class Config():
                     self.LogBackups = config["LogBackups"]
                 except Exception:
                     updateConfig = True
+                try:
+                    paramSaved = self.PicRendering["PicCodedBgCol"]
+                    self.PicRendering["PicCodedBgCol"] = config["PicRendering"]["PicCodedBgCol"]
+                except Exception:
+                    self.PicRendering["PicCodedBgCol"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.PicRendering["PicCodedBorderColDef"]
+                    self.PicRendering["PicCodedBorderColDef"] = config["PicRendering"]["PicCodedBorderColDef"]
+                except Exception:
+                    self.PicRendering["PicCodedBorderColDef"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.PicRendering["PicCodedBorderColCoded"]
+                    self.PicRendering["PicCodedBorderColCoded"] = config["PicRendering"]["PicCodedBorderColCoded"]
+                except Exception:
+                    self.PicRendering["PicCodedBorderColCoded"] = paramSaved
+                    updateConfig = True
+
+                try:
+                    paramSaved = self.PicEncoding["ProgCode"]
+                    self.PicEncoding["ProgCode"] = config["PicEncoding"]["ProgCode"]
+                except Exception:
+                    self.PicEncoding["ProgCode"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.PicEncoding["LenBytes"]
+                    self.PicEncoding["LenBytes"] = config["PicEncoding"]["LenBytes"]
+                except Exception:
+                    self.PicEncoding["LenBytes"] = paramSaved
+                    updateConfig = True
+
 
                 # If required, i.e. couldn't update all data from user configuration, then save default.
                 if updateConfig:
@@ -74,7 +119,9 @@ class Config():
             "ConfigVersion" : self.ConfigVersion,
             "DebugLevel" : self.DebugLevel,
             "LogFileSize" : self.LogFileSize,
-            "LogBackups" : self.LogBackups
+            "LogBackups" : self.LogBackups,
+            "PicRendering" : self.PicRendering,
+            "PicEncoding" : self.PicEncoding
         }
 
         # Open file for writing.
