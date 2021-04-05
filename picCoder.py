@@ -13,6 +13,7 @@ from PyQt5 import uic
 from PyQt5 import QtCore, QtGui
 
 from config import *
+from constants import *
 from steganography import *
 
 # *******************************************
@@ -111,22 +112,26 @@ class UI(QMainWindow):
             if filenames[0] != "":
                 logger.info(f'Selected picture file : {filenames[0]}')
 
+                # Create picCoded image object.
+                self.stegPic = Steganography(config, logger, filenames[0])
+
                 # Displaying image statusbar message.
-                self.statusBar.showMessage(f'Opening image file: {filenames[0]}...', 5000)
-                pixmap = QtGui.QPixmap(filenames[0]).scaled(self.picImageLbl.width(), self.picImageLbl.height(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-                self.picImageLbl.setPixmap(pixmap)
+                self.statusBar.showMessage(f'Image file: {filenames[0]}...', 5000)
+                self.picImageLbl.setPixmap(self.stegPic.bitmap.scaled(self.picImageLbl.width(), self.picImageLbl.height(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
                 self.picImageLbl.adjustSize()
                 self.picImageLbl.show()
 
-                # Now that we have a loaded image need to check if it is encoded.
-                self.stegPic = Steganography(config, logger, filenames[0])
                 # Set the text associated with the label (according to whether it is encoded or not).
-                self.stegPic.checkForCode()
-                self.picDetailsLbl.setText(f'{filenames[0]}')
-                if self.stegPic.picCoded == False:
-                    self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColDef"]};')
+                retStatus = self.stegPic.checkForCode()
+                if retStatus == ERRORNONE:
+                    self.picDetailsLbl.setText(f'{filenames[0]}')
+                    if self.stegPic.picCoded == False:
+                        self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColDef"]};')
+                    else:
+                        # Put special border around the picCoded image filename.
+                        self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColCoded"]};')
                 else:
-                    self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColCoded"]};')
+                    self.statusBar.showMessage("Error reading data from file.", 5000)
 
             else:
                 logger.debug("No picture files selected.")

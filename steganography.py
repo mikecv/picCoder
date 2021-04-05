@@ -3,6 +3,8 @@
 from PyQt5 import QtGui
 import os
 
+from constants import *
+
 # *******************************************
 # Steganography image class
 # *******************************************
@@ -21,6 +23,7 @@ class Steganography():
 
         # Default image flags.
         self.picCoded = False
+        self.codeType = CODETYPE_NONE
 
         # Get image information.
         self.picWidth = self.bitmap.width()
@@ -35,10 +38,15 @@ class Steganography():
         self.col = 0
         self.plane = 0
         self.bit = 0
+        self.bytesRead = 0
         self.codeBytes = []
 
         # Check if image file is picCode encoded.
         self.checkForCode()
+
+        # If is a picCoded image, then need to get type and associated data.
+        if self.picCoded:
+            self.getpicCodedData()
 
     # *******************************************
     # Check if picture file is encoded.
@@ -47,21 +55,66 @@ class Steganography():
     # *******************************************
     def checkForCode(self):
 
+        retStatus = ERRORNONE
+
         # Check if file even large enough to hold a code.
         self.fileSize = os.path.getsize(self.picFile)
-        if self.fileSize < (len(self.cfg.PicEncoding["ProgCode"]) + self.cfg.PicEncoding["LenBytes"]):
+        if self.fileSize < (len(PROGCODE) + LENBYTES):
             self.log.warning(f'File too small to be picCode encoded : {self.fileSize}')
         else:
             # Read from image file to see if it contains the header code.
-            self.readDataFromImage(len(self.cfg.PicEncoding["ProgCode"]))
-            progCode = ""
-            try:
-                progCode = self.codeBytes.decode('utf-8')
-            except:
-                self.log.debug("Image file did not contain header code.")
+            bytesToRead = len(PROGCODE)
+            self.readDataFromImage(bytesToRead)
+            # Check if we read the expected number of bytes.
+            if (self.bytesRead != bytesToRead):
+                self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                retStatus = ERRORXLEN
+            else:
+                # Check if the code matches the expected picCoder code.
+                progCode = ""
+                try:
+                    progCode = self.codeBytes.decode('utf-8')
+                except:
+                    self.log.debug("Image file did not contain header code.")
 
-            if progCode == self.cfg.PicEncoding["ProgCode"]:
-                self.picCoded = True
+                if progCode == PROGCODE:
+                    # Yes! We have a picCoded image.
+                    self.log.debug("Image file contains header code.")
+                    self.picCoded = True
+
+        return retStatus
+
+    # *******************************************
+    # Read picCoded data from image.
+    # *******************************************
+    def getpicCodedData(self):
+
+        retStatus = ERRORNONE
+
+        # Read the data type field.
+        bytesToRead = CODETYPEBYTES
+        self.readDataFromImage(CODETYPEBYTES)
+        # Check if we read the expected number of bytes.
+        if (self.bytesRead != bytesToRead):
+            self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+            retStatus = ERRORXLEN
+        else:
+            self.codeType = int(self.codeBytes.decode('utf-8'))
+            self.log.info(f'Image file has embedded data of type: {self.codeType}')
+
+            # Get data based on embedded data type:
+            if self.codeType == CODETYPE_TEXT:
+                pass
+            elif self.codeType == CODETYPE_FILE:
+                pass
+            elif self.codeType == CODETYPE_PIC:
+                pass
+            else:
+                # Unsupported embedded data type.
+                self.log.error("Unsupprted coded data type.")
+                retStatus = ERRORTYPE
+
+        return retStatus
 
     # *******************************************
     # Read buffer of data from image file.
@@ -120,3 +173,4 @@ class Steganography():
             self.col = colCnt
             self.plane = colPlane
             self.bit = bitsRead
+            self.bytesRead = bytesRead

@@ -27,12 +27,6 @@ class Config():
             "PicCodedBorderColCoded" : "#00ff00"
         }
 
-        # Image encoding constants.
-        self.PicEncoding = {
-            "ProgCode" : "PICCODER",
-            "LenBytes" : 8
-        }
-
         # Read / update configuration from file.
         self.readConfig()
 
@@ -85,20 +79,6 @@ class Config():
                     self.PicRendering["PicCodedBorderColCoded"] = paramSaved
                     updateConfig = True
 
-                try:
-                    paramSaved = self.PicEncoding["ProgCode"]
-                    self.PicEncoding["ProgCode"] = config["PicEncoding"]["ProgCode"]
-                except Exception:
-                    self.PicEncoding["ProgCode"] = paramSaved
-                    updateConfig = True
-                try:
-                    paramSaved = self.PicEncoding["LenBytes"]
-                    self.PicEncoding["LenBytes"] = config["PicEncoding"]["LenBytes"]
-                except Exception:
-                    self.PicEncoding["LenBytes"] = paramSaved
-                    updateConfig = True
-
-
                 # If required, i.e. couldn't update all data from user configuration, then save default.
                 if updateConfig:
                     print("Saving configuration file due to user changed parameter.")
@@ -121,7 +101,6 @@ class Config():
             "LogFileSize" : self.LogFileSize,
             "LogBackups" : self.LogBackups,
             "PicRendering" : self.PicRendering,
-            "PicEncoding" : self.PicEncoding
         }
 
         # Open file for writing.
