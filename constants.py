@@ -3,17 +3,17 @@
 # This file contains variables intended to be program constants.
 # They should be constants as they relate to the code applied to images.
 
+from enum import Enum
+
+# Program costants.
 PROGCODE = "PICCODER"
 LENBYTES = 8
+NAMELENBYTS = 2
 CODETYPEBYTES = 1
 
-# Error codes
-ERRORNONE = 0
-ERRORXLEN = 1
-ERRORTYPE = 2
-
 # Embedded code types.
-CODETYPE_NONE = -1
-CODETYPE_TEXT = 0
-CODETYPE_FILE = 1
-CODETYPE_PIC = 2
+class CodeType(Enum):
+    CODETYPE_NONE = 0
+    CODETYPE_TEXT = 0
+    CODETYPE_FILE = 1
+    CODETYPE_PIC = 2

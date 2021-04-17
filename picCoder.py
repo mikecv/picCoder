@@ -8,7 +8,7 @@ import time
 import os
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QStatusBar, QLabel, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QStatusBar, QLabel, QFileDialog, QPushButton, QHBoxLayout
 from PyQt5 import uic
 from PyQt5 import QtCore, QtGui
 
@@ -84,8 +84,10 @@ class UI(QMainWindow):
         # Initial statusbar message.
         self.statusBar.showMessage("Initialising...", 2000)
 
-        # Define list of pictures loaded.
-        self.loadedPics = []
+        # Initial state of extract file button is hidden.
+        # Also register callback for when button pressed.
+        self.getFileBtn.hide()
+        self.getFileBtn.clicked.connect(self.getEmbeddedFile)
 
         # Show appliction window.
         self.show()
@@ -122,19 +124,32 @@ class UI(QMainWindow):
                 self.picImageLbl.show()
 
                 # Set the text associated with the label (according to whether it is encoded or not).
-                retStatus = self.stegPic.checkForCode()
-                if retStatus == ERRORNONE:
-                    self.picDetailsLbl.setText(f'{filenames[0]}')
-                    if self.stegPic.picCoded == False:
-                        self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColDef"]};')
-                    else:
-                        # Put special border around the picCoded image filename.
-                        self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColCoded"]};')
+                fileDetails = filenames[0]
+                if self.stegPic.picCoded == False:
+                    # Hide the extract file button.
+                    self.getFileBtn.hide()
+                    self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColDef"]};')
                 else:
-                    self.statusBar.showMessage("Error reading data from file.", 5000)
+                    # Add details of embedded data.
+                    if self.stegPic.picCodeType == CodeType.CODETYPE_FILE.value:
+                        fileDetails += (f'\nImage contains embedded file : {self.stegPic.embeddedFileName}')
+                        # Show the button to extract the embedded file.
+                        self.getFileBtn.show()
+                        self.getFileBtn.setText("Extract Embedded File")
+                        self.getFileBtn.setStyleSheet(f'background-color: {config.PicRendering["PicCodedButton"]};')
+                    # Put special border around the picCoded image filename.
+                    self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColCoded"]};')
+                # Update image file details label.
+                self.picDetailsLbl.setText(f'{fileDetails}')
 
             else:
                 logger.debug("No picture files selected.")
+
+    # *******************************************
+    # Calback for extract embedded file button.
+    # *******************************************
+    def getEmbeddedFile(self):
+        print("Button pressed...")
 
     # *******************************************
     # About control selected.

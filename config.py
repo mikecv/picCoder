@@ -24,7 +24,8 @@ class Config():
         self.PicRendering = {
             "PicCodedBgCol" : "#dddddd",
             "PicCodedBorderColDef" : "#000000",
-            "PicCodedBorderColCoded" : "#00ff00"
+            "PicCodedBorderColCoded" : "#00ff00",
+            "PicCodedButton": "#00aa00"
         }
 
         # Read / update configuration from file.
@@ -77,6 +78,12 @@ class Config():
                     self.PicRendering["PicCodedBorderColCoded"] = config["PicRendering"]["PicCodedBorderColCoded"]
                 except Exception:
                     self.PicRendering["PicCodedBorderColCoded"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.PicRendering["PicCodedButton"]
+                    self.PicRendering["PicCodedButton"] = config["PicRendering"]["PicCodedButton"]
+                except Exception:
+                    self.PicRendering["PicCodedButton"] = paramSaved
                     updateConfig = True
 
                 # If required, i.e. couldn't update all data from user configuration, then save default.

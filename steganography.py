@@ -23,7 +23,11 @@ class Steganography():
 
         # Default image flags.
         self.picCoded = False
-        self.codeType = CODETYPE_NONE
+        self.picCodeType = CodeType.CODETYPE_NONE
+        self.picCodeNameLen = 0
+        self.embeddedFilePath = ""
+        self.embeddedFileName = ""
+        self.embeddedFileSize = 0
 
         # Get image information.
         self.picWidth = self.bitmap.width()
@@ -55,8 +59,6 @@ class Steganography():
     # *******************************************
     def checkForCode(self):
 
-        retStatus = ERRORNONE
-
         # Check if file even large enough to hold a code.
         self.fileSize = os.path.getsize(self.picFile)
         if self.fileSize < (len(PROGCODE) + LENBYTES):
@@ -68,7 +70,6 @@ class Steganography():
             # Check if we read the expected number of bytes.
             if (self.bytesRead != bytesToRead):
                 self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
-                retStatus = ERRORXLEN
             else:
                 # Check if the code matches the expected picCoder code.
                 progCode = ""
@@ -79,17 +80,13 @@ class Steganography():
 
                 if progCode == PROGCODE:
                     # Yes! We have a picCoded image.
-                    self.log.debug("Image file contains header code.")
+                    self.log.info("Image file contains header code.")
                     self.picCoded = True
-
-        return retStatus
 
     # *******************************************
     # Read picCoded data from image.
     # *******************************************
     def getpicCodedData(self):
-
-        retStatus = ERRORNONE
 
         # Read the data type field.
         bytesToRead = CODETYPEBYTES
@@ -97,24 +94,64 @@ class Steganography():
         # Check if we read the expected number of bytes.
         if (self.bytesRead != bytesToRead):
             self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
-            retStatus = ERRORXLEN
         else:
-            self.codeType = int(self.codeBytes.decode('utf-8'))
-            self.log.info(f'Image file has embedded data of type: {self.codeType}')
+            self.picCodeType = int(self.codeBytes.decode('utf-8'))
+            self.log.info(f'Image file has embedded data of type : {self.picCodeType}')
 
             # Get data based on embedded data type:
-            if self.codeType == CODETYPE_TEXT:
+ 
+            # ********************************************************
+            # Plain text.
+            # ********************************************************
+            if self.picCodeType == CodeType.CODETYPE_TEXT.value:
                 pass
-            elif self.codeType == CODETYPE_FILE:
+
+            # ********************************************************
+            # Embedded file.
+            # ********************************************************
+            elif self.picCodeType == CodeType.CODETYPE_FILE.value:
+                # Image has an embedded file.
+                # Read the length of the filename.
+                bytesToRead = NAMELENBYTS
+                self.readDataFromImage(bytesToRead)
+                # Check if we read the expected number of bytes.
+                if (self.bytesRead != bytesToRead):
+                    self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                else:
+                    self.picCodeNameLen = int(self.codeBytes.decode('utf-8'))
+                    self.log.info(f'Image file has embedded file with filename length : {self.picCodeNameLen}')
+                    # Read the filename.
+                    bytesToRead = self.picCodeNameLen
+                    self.readDataFromImage(bytesToRead)
+                    # Check if we read the expected number of bytes.
+                    if (self.bytesRead != bytesToRead):
+                        self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                    else:
+                        self.embeddedFilePath = self.codeBytes.decode('utf-8')
+                        self.log.info(f'Embedded file full path : {self.embeddedFilePath}')
+                        head, self.embeddedFileName = os.path.split(self.embeddedFilePath)
+                        self.log.info(f'Embedded file has filename : {self.embeddedFileName}')
+                        # Now that we have the filename we can read the file size.
+                        bytesToRead = LENBYTES
+                        self.readDataFromImage(bytesToRead)
+                        # Check if we read the expected number of bytes.
+                        if (self.bytesRead != bytesToRead):
+                            self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                        else:
+                            self.embeddedFileSize = int(self.codeBytes.decode('utf-8'))
+                            self.log.info(f'Embedded file has file size : {self.embeddedFileSize}')
+                            # Read data and save the file.
+                            # self.safeEmbeddedFile()
+
+            # ********************************************************
+            # Embedded image file.
+            # ********************************************************
+            elif self.picCodeType == CodeType.CODETYPE_PIC.value:
                 pass
-            elif self.codeType == CODETYPE_PIC:
-                pass
+
             else:
                 # Unsupported embedded data type.
-                self.log.error("Unsupprted coded data type.")
-                retStatus = ERRORTYPE
-
-        return retStatus
+                self.log.error("Unsupported coded data type.")
 
     # *******************************************
     # Read buffer of data from image file.
@@ -174,3 +211,23 @@ class Steganography():
             self.plane = colPlane
             self.bit = bitsRead
             self.bytesRead = bytesRead
+
+    # *******************************************
+    # Image has embedded file.
+    # Read the file data and save as file.
+    # *******************************************
+    def safeEmbeddedFile(self):
+
+        # Have the size of the embedded file, so can read the contents of the file.
+        bytesToRead = self.embeddedFileSize 
+        self.readDataFromImage(bytesToRead)
+
+        # Check if we read the expected number of bytes.
+        if (self.bytesRead != bytesToRead):
+            self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+        else:
+            self.log.debug("Writing embedded data to file...")
+            # Open the file and write data to it.
+            with open(self.embeddedFileName, mode='wb') as cf:
+                cf.write(self.codeBytes)
+
