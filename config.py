@@ -16,7 +16,7 @@ class Config():
         self.ConfigVersion = 1
 
         # Logger configuration values
-        self.DebugLevel = 20
+        self.DebugLevel = 10
         self.LogFileSize = 100000
         self.LogBackups = 3
 
@@ -27,6 +27,9 @@ class Config():
             "PicCodedBorderColCoded" : "#00ff00",
             "PicCodedButton": "#00aa00"
         }
+
+        # Maximum embedded file size ratio.
+        self.MaxEmbedRatio = 0.5
 
         # Read / update configuration from file.
         self.readConfig()
@@ -85,6 +88,10 @@ class Config():
                 except Exception:
                     self.PicRendering["PicCodedButton"] = paramSaved
                     updateConfig = True
+                try:
+                    self.MaxEmbedRatio = config["MaxEmbedRatio"]
+                except Exception:
+                    updateConfig = True
 
                 # If required, i.e. couldn't update all data from user configuration, then save default.
                 if updateConfig:
@@ -108,6 +115,7 @@ class Config():
             "LogFileSize" : self.LogFileSize,
             "LogBackups" : self.LogBackups,
             "PicRendering" : self.PicRendering,
+            "MaxEmbedRatio" : self.MaxEmbedRatio
         }
 
         # Open file for writing.

@@ -38,6 +38,10 @@ class Steganography():
         self.picColBits = self.picDepth // 3
         self.log.debug(f'Image colour bits : {self.picColBits}')
 
+        # Calclulate maximum space for embedding, i.e. every pixel, every colour, every bit.
+        self.picBytes = self.picWidth * self.picHeight * 3
+        self.log.debug(f'Absolute maximimum space for embedding (Bytes) : {self.picBytes}')
+
         # Initialise image file read parameters.
         self.row = 0
         self.col = 0
@@ -113,7 +117,7 @@ class Steganography():
             elif self.picCodeType == CodeType.CODETYPE_FILE.value:
                 # Image has an embedded file.
                 # Read the length of the filename.
-                bytesToRead = NAMELENBYTS
+                bytesToRead = NAMELENBYTES
                 self.readDataFromImage(bytesToRead)
                 # Check if we read the expected number of bytes.
                 if (self.bytesRead != bytesToRead):
@@ -215,7 +219,7 @@ class Steganography():
     # Image has embedded file.
     # Read the file data and save as file.
     # *******************************************
-    def saveEmbeddedFile(self):
+    def saveEmbeddedFile(self, saveToFilename):
 
         # Save the file data pointers so that they can be restored.
         # Need to do this so that we can save again if we have to.
@@ -232,8 +236,8 @@ class Steganography():
 
         # Open file to extract code to.
         try:
-            self.log.info(f'Opening code file : {self.embeddedFileName}')
-            with open(self.embeddedFileName, mode='wb') as cf:
+            self.log.info(f'Opening file to save to : {saveToFilename}')
+            with open(saveToFilename, mode='wb') as cf:
 
                 # Have the size of the embedded file, so can read the contents of the file.
                 bytesToRead = self.embeddedFileSize
@@ -274,7 +278,7 @@ class Steganography():
 
         # Failed to open the file for writing.
         except Exception as e:
-            self.log.error(f'Failed to open code file : {self.embeddedFileName}')
+            self.log.error(f'Failed to open file to save to : {saveToFilename}')
             self.log.error(f'Exception returned : {str(e)}')       
 
         # Restore the file data pointers, so that we can save again if we have to.

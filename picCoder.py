@@ -70,8 +70,17 @@ class UI(QMainWindow):
         super(UI, self).__init__()
         uic.loadUi(res_path("picCoder.ui"), self)
 
+        # Set window icon.
+        iconG = QtGui.QIcon()
+        iconG.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.setWindowIcon(iconG)
+
         # Attach to the open (single file) menu item.
         self.actionOpenFile.triggered.connect(self.openFile)
+
+        # Attach to the embed file menu item.
+        self.actionEmbedFile.triggered.connect(self.embedFile)
+        self.haveOpenPic = False
 
         # Attach to the Quit menu item.
         self.actionQuit.triggered.connect(app.quit)
@@ -92,9 +101,18 @@ class UI(QMainWindow):
 
         # Create progress bar for exports.
         self.progressBar = ProgressBar(config)
+ 
+        # Setup menu items visibility.
+        self.checkMenuItems()
 
         # Show appliction window.
         self.show()
+
+    # *******************************************
+    # Check state of menu items.
+    # *******************************************
+    def checkMenuItems(self):
+        self.actionEmbedFile.setEnabled(self.haveOpenPic)
 
     # *******************************************
     # Open File control selected.
@@ -146,8 +164,48 @@ class UI(QMainWindow):
                 # Update image file details label.
                 self.picDetailsLbl.setText(f'{fileDetails}')
 
+                # Set flag to indicate we have an open pic to play with.
+                self.haveOpenPic = True
+                # Update menu item visibility.
+                self.checkMenuItems()
+
             else:
                 logger.debug("No picture files selected.")
+
+    # *******************************************
+    # Embed File control selected.
+    # Displays file browser to select a file to embed into the current pic.
+    # *******************************************
+    def embedFile(self):
+        logger.debug("User selected Embed File menu control.")
+
+        # Configure and launch file selection dialog.
+        dialog = QFileDialog(self)
+        dialog.setAcceptMode(QFileDialog.AcceptOpen)
+        dialog.setFileMode(QFileDialog.ExistingFiles)
+        dialog.setViewMode(QFileDialog.Detail)
+        dialog.setNameFilters(["Any file (*.*)"])
+
+        # If have filename(s) then open.
+        if dialog.exec_():
+            filenames = dialog.selectedFiles()
+
+            # If have a filename then open.
+            if filenames[0] != "":
+                logger.info(f'Selected file to embed : {filenames[0]}')
+
+                # Need to do a quick check of gile size, as might not fit or look right.
+                # Size of file to embed
+                fileSize = os.path.getsize(filenames[0])
+                # PicCoder overhead size
+                extraInfo = len(PROGCODE) + CODETYPEBYTES + NAMELENBYTES + len(filenames[0]) + LENBYTES
+                # Maximum space available for embedding.
+                maxSpace = self.stegPic.picBytes
+                embedRatio = fileSize / maxSpace
+                # Warning if file to embed is more than a certain ratio.
+                if embedRatio > config.MaxEmbedRatio:
+                    logger.warning(f'File to embed exceeds maximum ratio : {embedRatio:.3f}')
+
 
     # *******************************************
     # Calback for extract embedded file button.
@@ -155,8 +213,25 @@ class UI(QMainWindow):
     def getEmbeddedFile(self):
         logger.debug("User selected control to extract embedded file.")
 
-        # Read data and save the file.
-        self.stegPic.saveEmbeddedFile()
+        # Get filename parts.
+        fnParts = os.path.splitext(self.stegPic.embeddedFileName)
+
+        # Configure and launch file selection dialog.
+        dialog = QFileDialog(self, directory = self.stegPic.embeddedFileName)
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setNameFilter(fnParts[1])
+        dialog.setDefaultSuffix(fnParts[1])
+        dialog.setViewMode(QFileDialog.List)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+
+        # If returned filename then open/create.
+        if dialog.exec_():
+            filenames = dialog.selectedFiles()
+
+            # If have a filename then open.
+            if filenames[0] != "":
+                logger.info(f'Selected file to save to : {filenames[0]}')
+                self.stegPic.saveEmbeddedFile(filenames[0])
 
     # *******************************************
     # About control selected.

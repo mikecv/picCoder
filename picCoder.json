@@ -8,5 +8,6 @@
         "PicCodedBorderColDef": "#000000",
         "PicCodedBorderColCoded": "#00ff00",
         "PicCodedButton": "#00aa00"
-    }
+    },
+    "MaxEmbedRatio": 0.5
 }

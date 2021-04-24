@@ -150,6 +150,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpenFile"/>
+    <addaction name="actionEmbedFile"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -204,6 +205,11 @@ color: rgb(255, 255, 255);</string>
   <action name="actionOpenFile">
    <property name="text">
     <string>Open File</string>
+   </property>
+  </action>
+  <action name="actionEmbedFile">
+   <property name="text">
+    <string>Embed File</string>
    </property>
   </action>
  </widget>

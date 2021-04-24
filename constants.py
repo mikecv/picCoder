@@ -8,7 +8,7 @@ from enum import Enum
 # Program costants.
 PROGCODE = "PICCODER"
 LENBYTES = 8
-NAMELENBYTS = 2
+NAMELENBYTES = 2
 CODETYPEBYTES = 1
 BYTESTACK = 10000
 
