@@ -15,6 +15,7 @@ from PyQt5 import QtCore, QtGui
 from config import *
 from constants import *
 from steganography import *
+from progressBar import *
 
 # *******************************************
 # Program history.
@@ -89,6 +90,9 @@ class UI(QMainWindow):
         self.getFileBtn.hide()
         self.getFileBtn.clicked.connect(self.getEmbeddedFile)
 
+        # Create progress bar for exports.
+        self.progressBar = ProgressBar(config)
+
         # Show appliction window.
         self.show()
 
@@ -115,7 +119,7 @@ class UI(QMainWindow):
                 logger.info(f'Selected picture file : {filenames[0]}')
 
                 # Create picCoded image object.
-                self.stegPic = Steganography(config, logger, filenames[0])
+                self.stegPic = Steganography(config, logger, self, filenames[0])
 
                 # Displaying image statusbar message.
                 self.statusBar.showMessage(f'Image file: {filenames[0]}...', 5000)
@@ -149,7 +153,10 @@ class UI(QMainWindow):
     # Calback for extract embedded file button.
     # *******************************************
     def getEmbeddedFile(self):
-        print("Button pressed...")
+        logger.debug("User selected control to extract embedded file.")
+
+        # Read data and save the file.
+        self.stegPic.saveEmbeddedFile()
 
     # *******************************************
     # About control selected.

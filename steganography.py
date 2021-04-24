@@ -9,10 +9,11 @@ from constants import *
 # Steganography image class
 # *******************************************
 class Steganography():   
-    def __init__(self, config, log, picFile):
+    def __init__(self, config, log, data, picFile):
         
         self.cfg = config
         self.log = log
+        self.data = data
 
         self.log.debug("Steganography class constructor.")
 
@@ -90,7 +91,7 @@ class Steganography():
 
         # Read the data type field.
         bytesToRead = CODETYPEBYTES
-        self.readDataFromImage(CODETYPEBYTES)
+        self.readDataFromImage(bytesToRead)
         # Check if we read the expected number of bytes.
         if (self.bytesRead != bytesToRead):
             self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
@@ -140,8 +141,6 @@ class Steganography():
                         else:
                             self.embeddedFileSize = int(self.codeBytes.decode('utf-8'))
                             self.log.info(f'Embedded file has file size : {self.embeddedFileSize}')
-                            # Read data and save the file.
-                            # self.safeEmbeddedFile()
 
             # ********************************************************
             # Embedded image file.
@@ -198,7 +197,7 @@ class Steganography():
                         rowCnt = 0
                         bitsRead += 1
                         mask = mask <<  1
-
+   
             # Append the character to the code byte array.
             self.codeBytes.append(codeData)
     
@@ -216,18 +215,70 @@ class Steganography():
     # Image has embedded file.
     # Read the file data and save as file.
     # *******************************************
-    def safeEmbeddedFile(self):
+    def saveEmbeddedFile(self):
 
-        # Have the size of the embedded file, so can read the contents of the file.
-        bytesToRead = self.embeddedFileSize 
-        self.readDataFromImage(bytesToRead)
+        # Save the file data pointers so that they can be restored.
+        # Need to do this so that we can save again if we have to.
+        rowCntSave = self.row
+        colCntSave = self.col
+        colPlaneSave = self.plane
+        bitsReadSave = self.bit
 
-        # Check if we read the expected number of bytes.
-        if (self.bytesRead != bytesToRead):
-            self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
-        else:
-            self.log.debug("Writing embedded data to file...")
-            # Open the file and write data to it.
+        # Create progress bar and initialise.
+        self.data.progressBar.setNote('Extracting file from image...')
+        self.data.progressBar.showProgressBar()
+        loopProgress = BYTESTACK / self.embeddedFileSize * 100.0
+        codeProgress = 0.0
+
+        # Open file to extract code to.
+        try:
+            self.log.info(f'Opening code file : {self.embeddedFileName}')
             with open(self.embeddedFileName, mode='wb') as cf:
-                cf.write(self.codeBytes)
 
+                # Have the size of the embedded file, so can read the contents of the file.
+                bytesToRead = self.embeddedFileSize
+
+                # Read and write a hung of data at a time.
+                # Update the progress as we go.
+                while bytesToRead > 0:
+                    if bytesToRead > BYTESTACK:
+                        bytesThisRead = BYTESTACK
+                        bytesToRead -= BYTESTACK
+                    else:
+                        bytesThisRead = bytesToRead
+                        bytesToRead = 0
+
+                    # Read the hunk of data.
+                    self.readDataFromImage(bytesThisRead)
+
+                    # Check if we read the expected number of bytes.
+                    if (self.bytesRead != bytesThisRead):
+                        self.log.error(f'Expected byte hunk : {bytesThisRead}; bytes read : {self.bytesRead}')
+                    else:
+                        self.log.debug("Writing embedded data hunk to file...")
+                        # Open the file and write data to it.
+                        try:
+                            cf.write(self.codeBytes)
+
+                            # Update progress bar.                            
+                            codeProgress += loopProgress
+                            if codeProgress > 100.0:
+                                codeProgress = 100.0
+                            self.data.progressBar.setProgress(int(codeProgress))
+                        except:
+                            self.log.error(f'Failed to write code hunk to file.')
+                            self.log.error(f'Exception returned : {str(e)}')       
+
+            # Done so can hide the progress bar.
+            self.data.progressBar.hideProgressBar()
+
+        # Failed to open the file for writing.
+        except Exception as e:
+            self.log.error(f'Failed to open code file : {self.embeddedFileName}')
+            self.log.error(f'Exception returned : {str(e)}')       
+
+        # Restore the file data pointers, so that we can save again if we have to.
+        self.row = rowCntSave
+        self.col = colCntSave
+        self.plane = colPlaneSave
+        self.bit = bitsReadSave

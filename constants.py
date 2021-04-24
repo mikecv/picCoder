@@ -10,6 +10,7 @@ PROGCODE = "PICCODER"
 LENBYTES = 8
 NAMELENBYTS = 2
 CODETYPEBYTES = 1
+BYTESTACK = 10000
 
 # Embedded code types.
 class CodeType(Enum):
