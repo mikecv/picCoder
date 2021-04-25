@@ -29,6 +29,8 @@ class Steganography():
         self.embeddedFilePath = ""
         self.embeddedFileName = ""
         self.embeddedFileSize = 0
+        self.toEmbedFilePath = ""
+        self.toEmbedFileSize = 0
 
         # Get image information.
         self.picWidth = self.bitmap.width()
@@ -221,6 +223,8 @@ class Steganography():
     # *******************************************
     def saveEmbeddedFile(self, saveToFilename):
 
+        self.log.info(f'Saving embedded image to : {saveToFilename}')
+
         # Save the file data pointers so that they can be restored.
         # Need to do this so that we can save again if we have to.
         rowCntSave = self.row
@@ -286,3 +290,113 @@ class Steganography():
         self.col = colCntSave
         self.plane = colPlaneSave
         self.bit = bitsReadSave
+
+    # *******************************************
+    # Read file and embed into the current image.
+    # *******************************************
+    def embedFileToImage(self):
+
+        self.log.info(f'Embedding into image from : {self.toEmbedFilePath}')
+
+        # Initialise loop counters counters.
+        noSpace = False
+        rowCnt = 0
+        colCnt = 0
+        colPlane = 0
+        bitsAdded = 0
+        colMask = 1 << bitsAdded
+
+        # Create progress bar and initialise.
+        self.data.progressBar.setNote('Embedding file into image...')
+        self.data.progressBar.showProgressBar()
+        loopProgress = BYTESTACK / self.toEmbedFileSize * 100.0
+        codeProgress = 0.0
+
+        # Open file to be embedded.
+        try:
+            self.log.info(f'Opening file to embed : {self.toEmbedFilePath}')
+            with open(self.toEmbedFilePath, mode='rb') as cf:
+
+                bytesToRead = self.toEmbedFileSize
+                noSpace = False
+
+                # Read and write a hung of data at a time.
+                # Update the progress as we go.
+                while (bytesToRead > 0) and (noSpace == False):
+                    if bytesToRead > BYTESTACK:
+                        bytesThisRead = BYTESTACK
+                        bytesToRead -= BYTESTACK
+                    else:
+                        bytesThisRead = bytesToRead
+                        bytesToRead = 0
+
+                    # Read the hunk of data.
+                    byteBuffer = cf.read(BYTESTACK)
+
+                    for byteData in byteBuffer:
+                        # Mask for reading byte bits.
+                        # Start from MSB so in bit order in the image (assume 8 bit byte).
+                        mask = 128
+
+                        # Cycle through 8 bits in each byte.
+                        for bitCnt in range(0, 8):
+                            # Check if we have any more space to store data.
+                            if noSpace == True: break
+                
+                            # Get next bit for byte in the array.
+                            if (byteData & mask) == 0:
+                                mappedBit = 0
+                            else: mappedBit = 1
+                            mappedBit = mappedBit << bitsAdded
+                
+                            # Get current colour value, and modify with byte mapped bit.
+                            colPixel = QtGui.QColor(self.image.pixel(colCnt, rowCnt))
+                            colPart = colPixel.getRgb()[colPlane]
+                            colPartModified = (colPart & ~colMask) + mappedBit
+
+                            # Modify the colour plane component that we are up to.
+                            if colPlane == 0:
+                                colPixel.setRed(colPartModified)
+                            elif colPlane == 1:
+                                colPixel.setGreen(colPartModified)
+                            elif colPlane == 2:
+                                colPixel.setBlue(colPartModified)
+                            # Update the pixel colour now that the colour component has been modified.
+                            self.image.setPixel(colCnt, rowCnt, colPixel.rgb())
+                            
+                            # Shift mask right (towards LSB).
+                            mask = mask >> 1
+                
+                            # Point to next colour plane.
+                            # Take into account number of planes.
+                            colPlane += 1
+                            if colPlane == 3: colPlane = 0
+
+                            # Point to next column.
+                            colCnt += 1
+                            if colCnt == self.picWidth:
+                                colCnt = 0
+                                rowCnt += 1
+                                # If we have reached the end of the image then go
+                                # back to the top and go to the text bit.
+                                if rowCnt == self.picHeight:
+                                    rowCnt = 0
+                                    bitsAdded += 1
+                                    colMask = colMask << 1
+                                    if bitsAdded == 8:
+                                        # No more pixels
+                                        noSpace = True
+
+                    # Update progress bar.                            
+                    codeProgress += loopProgress
+                    if codeProgress > 100.0:
+                        codeProgress = 100.0
+                    self.data.progressBar.setProgress(int(codeProgress))
+
+            # Done so can hide the progress bar.
+            self.data.progressBar.hideProgressBar()
+
+        # Failed to open the file for reading.
+        except Exception as e:
+            self.log.error(f'Failed to open file to read from : {self.toEmbedFilePath}')
+            self.log.error(f'Exception returned : {str(e)}')

@@ -53,6 +53,7 @@ class ProgressBar(QDialog):
     # Displays the progress bar.
     # *******************************************
     def showProgressBar(self):
+        QApplication.processEvents()
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
         self.setWindowIcon(icon)

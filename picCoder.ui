@@ -150,7 +150,6 @@
      <string>File</string>
     </property>
     <addaction name="actionOpenFile"/>
-    <addaction name="actionEmbedFile"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -158,6 +157,7 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <addaction name="actionEmbedFile"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">

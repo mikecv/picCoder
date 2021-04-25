@@ -8,9 +8,10 @@ import time
 import os
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QStatusBar, QLabel, QFileDialog, QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QDialog, QStatusBar, QLabel, QFileDialog, QPushButton, QHBoxLayout
 from PyQt5 import uic
 from PyQt5 import QtCore, QtGui
+from PIL import Image
 
 from config import *
 from constants import *
@@ -123,6 +124,7 @@ class UI(QMainWindow):
 
         # Configure and launch file selection dialog.
         dialog = QFileDialog(self)
+        dialog.setWindowTitle("Select PNG image file...")
         dialog.setAcceptMode(QFileDialog.AcceptOpen)
         dialog.setFileMode(QFileDialog.ExistingFiles)
         dialog.setViewMode(QFileDialog.Detail)
@@ -140,7 +142,7 @@ class UI(QMainWindow):
                 self.stegPic = Steganography(config, logger, self, filenames[0])
 
                 # Displaying image statusbar message.
-                self.statusBar.showMessage(f'Image file: {filenames[0]}...', 5000)
+                self.statusBar.showMessage(f'Image file: {filenames[0]}...', 2000)
                 self.picImageLbl.setPixmap(self.stegPic.bitmap.scaled(self.picImageLbl.width(), self.picImageLbl.height(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
                 self.picImageLbl.adjustSize()
                 self.picImageLbl.show()
@@ -161,11 +163,13 @@ class UI(QMainWindow):
                         self.getFileBtn.setStyleSheet(f'background-color: {config.PicRendering["PicCodedButton"]};')
                     # Put special border around the picCoded image filename.
                     self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColCoded"]};')
-                # Update image file details label.
-                self.picDetailsLbl.setText(f'{fileDetails}')
 
                 # Set flag to indicate we have an open pic to play with.
                 self.haveOpenPic = True
+
+                # Update image file details label.
+                self.picDetailsLbl.setText(f'{fileDetails}')
+
                 # Update menu item visibility.
                 self.checkMenuItems()
 
@@ -181,6 +185,7 @@ class UI(QMainWindow):
 
         # Configure and launch file selection dialog.
         dialog = QFileDialog(self)
+        dialog.setWindowTitle("Select file to embed into image...")
         dialog.setAcceptMode(QFileDialog.AcceptOpen)
         dialog.setFileMode(QFileDialog.ExistingFiles)
         dialog.setViewMode(QFileDialog.Detail)
@@ -195,17 +200,22 @@ class UI(QMainWindow):
                 logger.info(f'Selected file to embed : {filenames[0]}')
 
                 # Need to do a quick check of gile size, as might not fit or look right.
-                # Size of file to embed
+                # Size of file to embed.
                 fileSize = os.path.getsize(filenames[0])
                 # PicCoder overhead size
                 extraInfo = len(PROGCODE) + CODETYPEBYTES + NAMELENBYTES + len(filenames[0]) + LENBYTES
-                # Maximum space available for embedding.
+                # Maximum space availablefrom PIL import Image for embedding.
                 maxSpace = self.stegPic.picBytes
                 embedRatio = fileSize / maxSpace
                 # Warning if file to embed is more than a certain ratio.
                 if embedRatio > config.MaxEmbedRatio:
                     logger.warning(f'File to embed exceeds maximum ratio : {embedRatio:.3f}')
-
+                else:
+                    # Proceed to embedding file into image.
+                    self.stegPic.toEmbedFilePath = filenames[0]
+                    self.stegPic.toEmbedFileSize = fileSize
+                    self.stegPic.embedFileToImage()
+                    self.stegPic.image.save('rat.png', 'PNG')
 
     # *******************************************
     # Calback for extract embedded file button.
@@ -218,6 +228,7 @@ class UI(QMainWindow):
 
         # Configure and launch file selection dialog.
         dialog = QFileDialog(self, directory = self.stegPic.embeddedFileName)
+        dialog.setWindowTitle("Select file to save embedded file to...")
         dialog.setFileMode(QFileDialog.AnyFile)
         dialog.setNameFilter(fnParts[1])
         dialog.setDefaultSuffix(fnParts[1])
@@ -232,6 +243,16 @@ class UI(QMainWindow):
             if filenames[0] != "":
                 logger.info(f'Selected file to save to : {filenames[0]}')
                 self.stegPic.saveEmbeddedFile(filenames[0])
+
+                # If the image is a picture we can display it as well.
+                eObj = Image.open(filenames[0])
+                try:
+                    imgType = eObj.format
+                    logger.debug(f'Embedded file is image type : {imgType}')
+                    # Launch dialog box to show the embedded inage.
+                    self.showDisplayedImage(filenames[0])
+                except:
+                    logger.debug("Embedded file is not an image file.")
 
     # *******************************************
     # About control selected.
@@ -252,6 +273,51 @@ class UI(QMainWindow):
 
         # Create about dialog.        
         ChangeLogDialog()
+
+    # *******************************************
+    # Displaying embedded image dialog.
+    # *******************************************
+    def showDisplayedImage(self, imgFile):
+        logger.debug(f'Displaying embedded image : {imgFile}')
+
+        # Create embedded image dialog.        
+        EmbeddedImageDialog(imgFile)
+
+# *******************************************
+# Embedded image dialog class.
+# *******************************************
+class EmbeddedImageDialog(QDialog):
+    def __init__(self, imgFile, parent=None):
+        super(EmbeddedImageDialog, self).__init__()
+        uic.loadUi(res_path("embeddedPic.ui"), self)
+
+        # Show the change log.
+        self.showEmbeddedImage(imgFile)
+
+    # *******************************************
+    # Displays embedded image in dialog box.
+    # *******************************************
+    def showEmbeddedImage(self, imgFile):
+
+        # Set dialog window icon.
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
+        self.setWindowIcon(icon)
+
+        # Create bitmap for display.
+        bitmap = QtGui.QPixmap(imgFile)
+        picWidth = bitmap.width()
+        picHeight = bitmap.height()
+
+        # Display bitmap.
+        self.pictureLbl.setPixmap(bitmap.scaled(picWidth, picHeight, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+        self.pictureLbl.adjustSize()
+        self.pictureLbl.show()
+        # Update image file details label.
+        self.pictureNameLbl.setText(f'{imgFile}')
+
+        # Show dialog.
+        self.exec_()
 
 # *******************************************
 # About dialog class.
@@ -319,8 +385,6 @@ class ChangeLogDialog(QDialog):
         # Show dialog.
         self.exec_()
 
-# *******************************************
-# Create UI
 # *******************************************
 app = QApplication(sys.argv)
 picCoder = UI()
