@@ -35,25 +35,31 @@ class ProgressBar(QDialog):
     # Method to set note in progress bar.
     # *******************************************
     def setNote(self, note):
+
         # Process events to make progress bar responsive.
-        QApplication.processEvents()
         self.progBarNote.setText(note)
+
+        # Show dialog.
         self.show()
 
     # *******************************************
     # Method to set progress in the progress bar.
     # *******************************************
     def setProgress(self, progress):
-        # Process events to make progress bar responsive.
+
         QApplication.processEvents()
+
+        # Process events to make progress bar responsive.
         self.progressBar.setValue(progress)
+
+        # Show dialog.
         self.show()
 
     # *******************************************
     # Displays the progress bar.
     # *******************************************
     def showProgressBar(self):
-        QApplication.processEvents()
+
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
         self.setWindowIcon(icon)

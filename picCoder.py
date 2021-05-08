@@ -242,6 +242,8 @@ class UI(QMainWindow):
             # If have a filename then open.
             if filenames[0] != "":
                 logger.info(f'Selected file to save to : {filenames[0]}')
+
+                # Call method to extract embedded file.
                 self.stegPic.saveEmbeddedFile(filenames[0])
 
                 # If the image is a picture we can display it as well.
