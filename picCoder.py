@@ -78,10 +78,17 @@ class UI(QMainWindow):
 
         # Attach to the open (single file) menu item.
         self.actionOpenFile.triggered.connect(self.openFile)
+        self.haveOpenPic = False
+
+        # Attach to the save image menu item.
+        self.actionSaveCodedImage.triggered.connect(self.saveFile)
+        self.haveEmbededPic = False
 
         # Attach to the embed file menu item.
         self.actionEmbedFile.triggered.connect(self.embedFile)
-        self.haveOpenPic = False
+
+        # Attach to the embed comment menu item.
+        self.actionEmbedComment.triggered.connect(self.embedComment)
 
         # Attach to the Quit menu item.
         self.actionQuit.triggered.connect(app.quit)
@@ -94,10 +101,6 @@ class UI(QMainWindow):
 
         # Initial statusbar message.
         self.statusBar.showMessage("Initialising...", 2000)
-
-        # Initial state of extract file button is hidden.
-        # Also register callback for when button pressed.
-        self.getFileBtn.hide()
         self.getFileBtn.clicked.connect(self.getEmbeddedFile)
 
         # Create progress bar for exports.
@@ -114,13 +117,15 @@ class UI(QMainWindow):
     # *******************************************
     def checkMenuItems(self):
         self.actionEmbedFile.setEnabled(self.haveOpenPic)
+        self.actionEmbedComment.setEnabled(self.haveOpenPic)
+        self.actionSaveCodedImage.setEnabled((self.haveOpenPic and self.haveEmbededPic))
 
     # *******************************************
     # Open File control selected.
     # Displays file browser to select a single pic.
     # *******************************************
     def openFile(self):
-        logger.debug("User selected Open File menu control.")
+        logger.debug("User selected Open Image menu control.")
 
         # Configure and launch file selection dialog.
         dialog = QFileDialog(self)
@@ -215,7 +220,27 @@ class UI(QMainWindow):
                     self.stegPic.toEmbedFilePath = filenames[0]
                     self.stegPic.toEmbedFileSize = fileSize
                     self.stegPic.embedFileToImage()
-                    self.stegPic.image.save('rat.png', 'PNG')
+
+                    # Set flag for image save control.
+                    self.haveEmbededPic = True
+
+        # Update menu item visibility.
+        self.checkMenuItems()
+
+    # *******************************************
+    # Embed Comment control selected.
+    # Start comment thread or add to comment thread.
+    # *******************************************
+    def embedComment(self):
+        logger.debug("User selected Embed Comment menu control.")
+
+    # *******************************************
+    # Save File control selected.
+    # Displays file browser to safe current (embedded) pic.
+    # *******************************************
+    def saveFile(self):
+        logger.debug("User selected Save Image menu control.")
+        self.stegPic.image.save('rat.png', 'PNG')
 
     # *******************************************
     # Calback for extract embedded file button.

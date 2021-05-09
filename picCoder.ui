@@ -150,6 +150,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpenFile"/>
+    <addaction name="actionSaveCodedImage"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -158,6 +159,7 @@
      <string>Edit</string>
     </property>
     <addaction name="actionEmbedFile"/>
+    <addaction name="actionEmbedComment"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -204,12 +206,22 @@ color: rgb(255, 255, 255);</string>
   </action>
   <action name="actionOpenFile">
    <property name="text">
-    <string>Open File</string>
+    <string>Open Image</string>
    </property>
   </action>
   <action name="actionEmbedFile">
    <property name="text">
     <string>Embed File</string>
+   </property>
+  </action>
+  <action name="actionSaveCodedImage">
+   <property name="text">
+    <string>Save Coded Image</string>
+   </property>
+  </action>
+  <action name="actionEmbedComment">
+   <property name="text">
+    <string>Embed Comment</string>
    </property>
   </action>
  </widget>
