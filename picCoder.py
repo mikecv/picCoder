@@ -8,7 +8,7 @@ import time
 import os
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QDialog, QStatusBar, QLabel, QFileDialog, QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QDialog, QStatusBar, QLabel, QFileDialog, QPushButton, QHBoxLayout, QMessageBox
 from PyQt5 import uic
 from PyQt5 import QtCore, QtGui
 from PIL import Image
@@ -26,6 +26,9 @@ from progressBar import *
 # *******************************************
 # TODO List
 #
+# Look at alternate bit embedding order to distribute change more evenly.
+# Add warning message if embedding capacity exceeded.
+# Add support for embedded text messaging.
 # *******************************************
 
 # Program version.
@@ -79,6 +82,8 @@ class UI(QMainWindow):
         # Attach to the open (single file) menu item.
         self.actionOpenFile.triggered.connect(self.openFile)
         self.haveOpenPic = False
+        self.picDetailsLbl.setHidden(True)
+        self.getFileBtn.setHidden(True)
 
         # Attach to the save image menu item.
         self.actionSaveCodedImage.triggered.connect(self.saveFile)
@@ -101,7 +106,6 @@ class UI(QMainWindow):
 
         # Initial statusbar message.
         self.statusBar.showMessage("Initialising...", 2000)
-        self.getFileBtn.clicked.connect(self.getEmbeddedFile)
 
         # Create progress bar for exports.
         self.progressBar = ProgressBar(config)
@@ -119,6 +123,7 @@ class UI(QMainWindow):
         self.actionEmbedFile.setEnabled(self.haveOpenPic)
         self.actionEmbedComment.setEnabled(self.haveOpenPic)
         self.actionSaveCodedImage.setEnabled((self.haveOpenPic and self.haveEmbededPic))
+        self.picDetailsLbl.setHidden(not self.haveOpenPic)
 
     # *******************************************
     # Open File control selected.
@@ -156,18 +161,20 @@ class UI(QMainWindow):
                 fileDetails = filenames[0]
                 if self.stegPic.picCoded == False:
                     # Hide the extract file button.
-                    self.getFileBtn.hide()
                     self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColDef"]};')
+                    self.getFileBtn.hide()
                 else:
                     # Add details of embedded data.
                     if self.stegPic.picCodeType == CodeType.CODETYPE_FILE.value:
                         fileDetails += (f'\nImage contains embedded file : {self.stegPic.embeddedFileName}')
                         # Show the button to extract the embedded file.
-                        self.getFileBtn.show()
                         self.getFileBtn.setText("Extract Embedded File")
                         self.getFileBtn.setStyleSheet(f'background-color: {config.PicRendering["PicCodedButton"]};')
+                        self.getFileBtn.show()
                     # Put special border around the picCoded image filename.
                     self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColCoded"]};')
+                    # Attach callback to get embedded file button.
+                    self.getFileBtn.clicked.connect(self.getEmbeddedFile)
 
                 # Set flag to indicate we have an open pic to play with.
                 self.haveOpenPic = True
@@ -240,7 +247,27 @@ class UI(QMainWindow):
     # *******************************************
     def saveFile(self):
         logger.debug("User selected Save Image menu control.")
-        self.stegPic.image.save('rat.png', 'PNG')
+
+        # Configure and launch file selection dialog.
+        dialog = QFileDialog(self, directory = self.stegPic.embeddedFileName)
+        dialog.setWindowTitle("Select file to save picCoded image to...")
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setViewMode(QFileDialog.List)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        dialog.setNameFilters(["Picture files (*.png)"])
+
+        # If returned filename then open/create.
+        if dialog.exec_():
+            filenames = dialog.selectedFiles()
+
+            # If have a filename then open.
+            if filenames[0] != "":
+                logger.info(f'Selected file to save to : {filenames[0]}')
+
+                try:
+                    self.stegPic.image.save(filenames[0], 'PNG')
+                except:
+                    logger.error("Failed to save picCoded image to file.")
 
     # *******************************************
     # Calback for extract embedded file button.
@@ -272,14 +299,15 @@ class UI(QMainWindow):
                 self.stegPic.saveEmbeddedFile(filenames[0])
 
                 # If the image is a picture we can display it as well.
-                eObj = Image.open(filenames[0])
                 try:
+                    eObj = Image.open(filenames[0])
                     imgType = eObj.format
                     logger.debug(f'Embedded file is image type : {imgType}')
                     # Launch dialog box to show the embedded inage.
                     self.showDisplayedImage(filenames[0])
                 except:
                     logger.debug("Embedded file is not an image file.")
+                    showPopup("picCoder File Extraction", "Embedded file saved.\nEmbedded file is not an image, open with associated application.")
 
     # *******************************************
     # About control selected.
@@ -411,6 +439,27 @@ class ChangeLogDialog(QDialog):
 
         # Show dialog.
         self.exec_()
+
+# *******************************************
+# Pop-up message box.
+# *******************************************
+def showPopup(title, msg, info="", details=""):
+    # Create pop-up message box.
+    # Mandatory title and message.
+    # Optional information and details.
+    mb = QMessageBox()
+    icon = QtGui.QIcon()
+    icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
+    mb.setWindowIcon(icon)
+    mb.setIcon(QMessageBox.Information)
+    mb.setText(msg)
+    if (info != ""):
+        mb.setInformativeText(info)
+    mb.setWindowTitle(title)
+    if (details != ""):
+        mb.setDetailedText(details)
+    # Show message box.
+    mb.exec_()
 
 # *******************************************
 app = QApplication(sys.argv)
