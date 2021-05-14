@@ -26,7 +26,9 @@ from progressBar import *
 # *******************************************
 # TODO List
 #
-# Look at alternate bit embedding order to distribute change more evenly.
+# Sort out error saving particular embedded images (e.g. Bergen.png).
+# Display image with embedded file in separate window so that you can see what it looks like before saving.
+# Look at making hunk size file dependent on file size.
 # Add warning message if embedding capacity exceeded.
 # Add support for embedded text messaging.
 # *******************************************

@@ -185,10 +185,6 @@ class Steganography():
                 codeData = codeData << 1
                 codeData = codeData | byteBit                 
     
-                # Point to next colour plane.
-                colPlane += 1
-                if colPlane == 3: colPlane = 0
-                
                 # Point to next column.
                 colCnt += 1
                 if colCnt == self.picWidth:
@@ -198,8 +194,11 @@ class Steganography():
                     # back to the top and go to the text bit.
                     if rowCnt == self.picHeight:
                         rowCnt = 0
-                        bitsRead += 1
-                        mask = mask <<  1
+                        if colPlane == 3:
+                            colPlane = 0
+                            # Used all colour planes so move to next bit.
+                            bitsRead += 1
+                            mask = mask <<  1
    
             # Append the character to the code byte array.
             self.codeBytes.append(codeData)
@@ -343,11 +342,6 @@ class Steganography():
                 # Shift mask right (towards LSB).
                 mask = mask >> 1
     
-                # Point to next colour plane.
-                # Take into account number of planes.
-                colPlane += 1
-                if colPlane == 3: colPlane = 0
-
                 # Point to next column.
                 colCnt += 1
                 if colCnt == self.picWidth:
@@ -357,11 +351,17 @@ class Steganography():
                     # back to the top and go to the text bit.
                     if rowCnt == self.picHeight:
                         rowCnt = 0
-                        bitWrite += 1
-                        colMask = colMask << 1
-                        if bitWrite == 8:
-                            # No more pixels
-                            noSpace = True
+                        # Point to next colour plane.
+                        # Take into account number of planes.
+                        colPlane += 1
+                        if colPlane == 3:
+                            colPlane = 0
+                            # Used all colour planes so move to next bit.
+                            bitWrite += 1
+                            colMask = colMask << 1
+                            if bitWrite == 8:
+                                # No more pixels
+                                noSpace = True
     
             # Increment characters read counter.
             bytesWritten += 1
