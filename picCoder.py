@@ -216,6 +216,7 @@ class UI(QMainWindow):
                 # Need to do a quick check of gile size, as might not fit or look right.
                 # Size of file to embed.
                 fileSize = os.path.getsize(filenames[0])
+                logger.info(f'Selected file to embed has filesize : {fileSize}')
                 # PicCoder overhead size
                 extraInfo = len(PROGCODE) + CODETYPEBYTES + NAMELENBYTES + len(filenames[0]) + LENBYTES
                 # Maximum space availablefrom PIL import Image for embedding.

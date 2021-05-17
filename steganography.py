@@ -194,6 +194,7 @@ class Steganography():
                     # back to the top and go to the text bit.
                     if rowCnt == self.picHeight:
                         rowCnt = 0
+                        colPlane += 1
                         if colPlane == 3:
                             colPlane = 0
                             # Used all colour planes so move to next bit.
