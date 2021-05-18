@@ -26,7 +26,6 @@ from progressBar import *
 # *******************************************
 # TODO List
 #
-# Sort out error saving particular embedded images (e.g. Bergen.png).
 # Display image with embedded file in separate window so that you can see what it looks like before saving.
 # Look at making hunk size file dependent on file size.
 # Add warning message if embedding capacity exceeded.
@@ -309,8 +308,8 @@ class UI(QMainWindow):
                     # Launch dialog box to show the embedded inage.
                     self.showDisplayedImage(filenames[0])
                 except:
-                    logger.debug("Embedded file is not an image file.")
-                    showPopup("picCoder File Extraction", "Embedded file saved.\nEmbedded file is not an image, open with associated application.")
+                    logger.info("Embedded file is not an image file.")
+                    showPopup("picCoder File Extraction", f'Embedded file {filenames[0]} saved.', "Embedded file is not an image, open with associated application.")
 
     # *******************************************
     # About control selected.

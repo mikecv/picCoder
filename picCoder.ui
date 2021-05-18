@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>588</width>
     <height>600</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>800</width>
+    <width>588</width>
     <height>600</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>800</width>
+    <width>588</width>
     <height>600</height>
    </size>
   </property>
@@ -30,22 +30,6 @@
     <normaloff>resources/about.png</normaloff>resources/about.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QFrame" name="picDataFrame">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>9</y>
-      <width>201</width>
-      <height>541</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-   </widget>
    <widget class="QFrame" name="picImageFrame">
     <property name="geometry">
      <rect>
@@ -141,7 +125,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>588</width>
      <height>22</height>
     </rect>
    </property>
