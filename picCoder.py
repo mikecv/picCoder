@@ -26,6 +26,7 @@ from progressBar import *
 # *******************************************
 # TODO List
 #
+# Sort out error saving particular embedded images (e.g. Bergen.png).
 # Display image with embedded file in separate window so that you can see what it looks like before saving.
 # Look at making hunk size file dependent on file size.
 # Add warning message if embedding capacity exceeded.
@@ -224,6 +225,7 @@ class UI(QMainWindow):
                 # Warning if file to embed is more than a certain ratio.
                 if embedRatio > config.MaxEmbedRatio:
                     logger.warning(f'File to embed exceeds maximum ratio : {embedRatio:.3f}')
+                    showPopup("Warning", "picCoder Embedding File", "File to embed would exceed allowed embedding ratio.")
                 else:
                     # Proceed to embedding file into image.
                     self.stegPic.toEmbedFilePath = filenames[0]
@@ -287,6 +289,7 @@ class UI(QMainWindow):
         dialog.setNameFilter(fnParts[1])
         dialog.setDefaultSuffix(fnParts[1])
         dialog.setViewMode(QFileDialog.List)
+        dialog.setNameFilters([f'{fnParts[1][1:]} files (*{fnParts[1]})'])
         dialog.setAcceptMode(QFileDialog.AcceptSave)
 
         # If returned filename then open/create.
@@ -309,7 +312,7 @@ class UI(QMainWindow):
                     self.showDisplayedImage(filenames[0])
                 except:
                     logger.info("Embedded file is not an image file.")
-                    showPopup("picCoder File Extraction", f'Embedded file {filenames[0]} saved.', "Embedded file is not an image, open with associated application.")
+                    showPopup("Info", "picCoder File Extraction", "Embedded file saved.\nEmbedded file is not an image, open with associated application.")
 
     # *******************************************
     # About control selected.
@@ -445,7 +448,7 @@ class ChangeLogDialog(QDialog):
 # *******************************************
 # Pop-up message box.
 # *******************************************
-def showPopup(title, msg, info="", details=""):
+def showPopup(puType, title, msg, info="", details=""):
     # Create pop-up message box.
     # Mandatory title and message.
     # Optional information and details.
@@ -453,7 +456,10 @@ def showPopup(title, msg, info="", details=""):
     icon = QtGui.QIcon()
     icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
     mb.setWindowIcon(icon)
-    mb.setIcon(QMessageBox.Information)
+    if (puType == "Info"):
+        mb.setIcon(QMessageBox.Information)
+    elif (puType == "Warning"):
+        mb.setIcon(QMessageBox.Warning)
     mb.setText(msg)
     if (info != ""):
         mb.setInformativeText(info)
