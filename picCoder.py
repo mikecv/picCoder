@@ -26,10 +26,8 @@ from progressBar import *
 # *******************************************
 # TODO List
 #
-# Sort out error saving particular embedded images (e.g. Bergen.png).
 # Display image with embedded file in separate window so that you can see what it looks like before saving.
 # Look at making hunk size file dependent on file size.
-# Add warning message if embedding capacity exceeded.
 # Add support for embedded text messaging.
 # *******************************************
 
@@ -94,8 +92,8 @@ class UI(QMainWindow):
         # Attach to the embed file menu item.
         self.actionEmbedFile.triggered.connect(self.embedFile)
 
-        # Attach to the embed comment menu item.
-        self.actionEmbedComment.triggered.connect(self.embedComment)
+        # Attach to the start conversation menu item.
+        self.actionStartConversation.triggered.connect(self.startConversation)
 
         # Attach to the Quit menu item.
         self.actionQuit.triggered.connect(app.quit)
@@ -123,7 +121,7 @@ class UI(QMainWindow):
     # *******************************************
     def checkMenuItems(self):
         self.actionEmbedFile.setEnabled(self.haveOpenPic)
-        self.actionEmbedComment.setEnabled(self.haveOpenPic)
+        self.actionStartConversation.setEnabled(self.haveOpenPic)
         self.actionSaveCodedImage.setEnabled((self.haveOpenPic and self.haveEmbededPic))
         self.picDetailsLbl.setHidden(not self.haveOpenPic)
 
@@ -239,11 +237,10 @@ class UI(QMainWindow):
         self.checkMenuItems()
 
     # *******************************************
-    # Embed Comment control selected.
-    # Start comment thread or add to comment thread.
+    # Start conversation control selected.
     # *******************************************
-    def embedComment(self):
-        logger.debug("User selected Embed Comment menu control.")
+    def startConversation(self):
+        logger.debug("User selected start conversation menu control.")
 
     # *******************************************
     # Save File control selected.
@@ -366,11 +363,9 @@ class EmbeddedImageDialog(QDialog):
 
         # Create bitmap for display.
         bitmap = QtGui.QPixmap(imgFile)
-        picWidth = bitmap.width()
-        picHeight = bitmap.height()
 
         # Display bitmap.
-        self.pictureLbl.setPixmap(bitmap.scaled(picWidth, picHeight, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+        self.pictureLbl.setPixmap(bitmap.scaled(self.pictureLbl.width(), self.pictureLbl.height(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
         self.pictureLbl.adjustSize()
         self.pictureLbl.show()
         # Update image file details label.

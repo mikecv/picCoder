@@ -1,16 +1,63 @@
 #!/usr/bin/env python3
 
 from PyQt5 import QtGui
+import datetime
 import os
 
 from constants import *
+
+# *******************************************
+# Consealing and retrieving data in/from image pixel colour.
+# Require a lossless pixel format to be able to retrieve data from image.
+#
+# Data encoded into the image:
+# "PICCODER"    - Indicates that the image is encodded.
+# <CodeType>    - CODETYPEBYTES bytes, indicates the type of data encoded.
+# 
+# Depending on the <CodeType> the format of the encoded data is different.
+#
+# <CodeType> = CODETYPE_FILE indicates a file is embedded, with the following format:
+# <NameLength>  - NAMELENBYTES bytes, indicates the length of the file name (including path).
+# <FileName>    - <NameLength> bytes, the path and filename of the embedded file.
+# <FileLength>  - LENBYTES bytes, indicates the length of the embedded file.
+# <File>        - <FileLength> bytes, the actual embedded file.
+#
+# <CodeType> = CODETYPE_TEXT indicates a text conversion is embedded, with the following format:
+# <NumTexts>    - NUMSMSBYTES bytes, indicates the number of text messages in the file.
+#               - Repeat the following for each text message.
+# <TextNum>     - NUMSMSBYTES bytes, indicates the number of this text messages, starts from 1.
+# <NameLength>  - NAMELENBYTES bytes, indicates the length of this message's writer name.
+# <Name>        - <NameLength> bytes, the name of the writer of this message.
+# <TimeLength>  - TIMELENBYTES bytes, the length of the message timestamp.
+# <MsgTime>     - <TimeLength> bytes, the timestamp of this message.
+# <MsgLength>   - SMSLENBYTES bytes, indicates the length of the message.
+# <Message>     - <MsgLength> bytes, the actual message text.
+#
+# Data is stored in the RGB colour data of pixels.
+# Bit by bit the data is stored by ROW, then by COLUMN, then by colour bit starting with the LSB.
+# One bit of each pixel for one colour is encoded before encoding in the next colour.
+# When all colours (RGB) are encoded for one bit for every pixel the process repeats for the next bit.
+# There is a limit to the number of bits that should be encoded ti avoid too much colour distortion of the
+# image after it has been encoded.
+# *******************************************
+
+# *******************************************
+# Text message class
+# *******************************************
+class TextMessage():   
+    def __init__(self, msgNum, writer, msgText):
+
+        self.msgNum = msgNum
+        self.writer = writer
+        self.msgTime = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        self.msgText = msgText
 
 # *******************************************
 # Steganography image class
 # *******************************************
 class Steganography():   
     def __init__(self, config, log, data, picFile):
-        
+
         self.cfg = config
         self.log = log
         self.data = data
@@ -111,7 +158,7 @@ class Steganography():
             # Get data based on embedded data type:
  
             # ********************************************************
-            # Plain text.
+            # Text conversation.
             # ********************************************************
             if self.picCodeType == CodeType.CODETYPE_TEXT.value:
                 pass

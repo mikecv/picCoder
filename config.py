@@ -20,6 +20,9 @@ class Config():
         self.LogFileSize = 100000
         self.LogBackups = 3
 
+        # My handle for text messaging.
+        self.MyHandle = "MDC"
+
         # Image name status indication.
         self.PicRendering = {
             "PicCodedBgCol" : "#dddddd",
@@ -62,6 +65,10 @@ class Config():
                     updateConfig = True
                 try:
                     self.LogBackups = config["LogBackups"]
+                except Exception:
+                    updateConfig = True
+                try:
+                    self.MyHandle = config["MyHandle"]
                 except Exception:
                     updateConfig = True
                 try:
@@ -114,6 +121,7 @@ class Config():
             "DebugLevel" : self.DebugLevel,
             "LogFileSize" : self.LogFileSize,
             "LogBackups" : self.LogBackups,
+            "MyHandle" : self.MyHandle,
             "PicRendering" : self.PicRendering,
             "MaxEmbedRatio" : self.MaxEmbedRatio
         }

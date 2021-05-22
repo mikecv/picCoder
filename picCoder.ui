@@ -143,7 +143,7 @@
      <string>Edit</string>
     </property>
     <addaction name="actionEmbedFile"/>
-    <addaction name="actionEmbedComment"/>
+    <addaction name="actionStartConversation"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -203,9 +203,9 @@ color: rgb(255, 255, 255);</string>
     <string>Save Coded Image</string>
    </property>
   </action>
-  <action name="actionEmbedComment">
+  <action name="actionStartConversation">
    <property name="text">
-    <string>Embed Comment</string>
+    <string>Start Conversation</string>
    </property>
   </action>
  </widget>
