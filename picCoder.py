@@ -83,7 +83,7 @@ class UI(QMainWindow):
         self.actionOpenFile.triggered.connect(self.openFile)
         self.haveOpenPic = False
         self.picDetailsLbl.setHidden(True)
-        self.getFileBtn.setHidden(True)
+        self.getEmbeddedDataBtn.setHidden(True)
 
         # Attach to the save image menu item.
         self.actionSaveCodedImage.triggered.connect(self.saveFile)
@@ -162,19 +162,37 @@ class UI(QMainWindow):
                 if self.stegPic.picCoded == False:
                     # Hide the extract file button.
                     self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColDef"]};')
-                    self.getFileBtn.hide()
+                    self.getEmbeddedDataBtn.hide()
                 else:
                     # Add details of embedded data.
                     if self.stegPic.picCodeType == CodeType.CODETYPE_FILE.value:
                         fileDetails += (f'\nImage contains embedded file : {self.stegPic.embeddedFileName}')
                         # Show the button to extract the embedded file.
-                        self.getFileBtn.setText("Extract Embedded File")
-                        self.getFileBtn.setStyleSheet(f'background-color: {config.PicRendering["PicCodedButton"]};')
-                        self.getFileBtn.show()
+                        self.getEmbeddedDataBtn.setText("Extract Embedded File")
+                        self.getEmbeddedDataBtn.setStyleSheet(f'background-color: {config.PicRendering["PicCodedButton"]};')
+                        self.getEmbeddedDataBtn.show()
+                        # Attach callback to get embedded file button.
+                        # Need to disconnect first in case already connected to previous image.
+                        try:
+                            self.getEmbeddedDataBtn.clicked.disconnect()
+                        except TypeError:
+                            pass
+                        self.getEmbeddedDataBtn.clicked.connect(self.getEmbeddedFile)
+                    elif self.stegPic.picCodeType == CodeType.CODETYPE_TEXT.value:
+                        fileDetails += (f'\nImage contains embedded conversation.')
+                        # Show the button to extract the embedded file.
+                        self.getEmbeddedDataBtn.setText("Open Embedded Conversation")
+                        self.getEmbeddedDataBtn.setStyleSheet(f'background-color: {config.PicRendering["PicCodedButton"]};')
+                        self.getEmbeddedDataBtn.show()
+                        # Attach callback to open the embedded conversation button.
+                        # Need to disconnect first in case already connected to previous image.
+                        try:
+                            self.getEmbeddedDataBtn.clicked.disconnect()
+                        except TypeError:
+                            pass
+                        self.getEmbeddedDataBtn.clicked.connect(self.openEmbeddedConversation)
                     # Put special border around the picCoded image filename.
                     self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColCoded"]};')
-                    # Attach callback to get embedded file button.
-                    self.getFileBtn.clicked.connect(self.getEmbeddedFile)
 
                 # Set flag to indicate we have an open pic to play with.
                 self.haveOpenPic = True
@@ -211,18 +229,18 @@ class UI(QMainWindow):
             if filenames[0] != "":
                 logger.info(f'Selected file to embed : {filenames[0]}')
 
-                # Need to do a quick check of gile size, as might not fit or look right.
+                # Need to do a quick check of file size, as might not fit or look right.
                 # Size of file to embed.
                 fileSize = os.path.getsize(filenames[0])
                 logger.info(f'Selected file to embed has filesize : {fileSize}')
-                # PicCoder overhead size
+                # PicCoder embeded data size.
                 extraInfo = len(PROGCODE) + CODETYPEBYTES + NAMELENBYTES + len(filenames[0]) + LENBYTES
-                # Maximum space availablefrom PIL import Image for embedding.
+                # Maximum space available from PIL import Image for embedding.
                 maxSpace = self.stegPic.picBytes
-                embedRatio = fileSize / maxSpace
+                embedRatio = (fileSize + extraInfo) / maxSpace
                 # Warning if file to embed is more than a certain ratio.
                 if embedRatio > config.MaxEmbedRatio:
-                    logger.warning(f'File to embed exceeds maximum ratio : {embedRatio:.3f}')
+                    logger.warning(f'Data to embed exceeds maximum ratio : {embedRatio:.3f}')
                     showPopup("Warning", "picCoder Embedding File", "File to embed would exceed allowed embedding ratio.")
                 else:
                     # Proceed to embedding file into image.
@@ -241,6 +259,44 @@ class UI(QMainWindow):
     # *******************************************
     def startConversation(self):
         logger.debug("User selected start conversation menu control.")
+
+        self.conversation = Conversation()
+
+        # Temporary messages for testing.
+        self.conversation.addMsg(config.MyHandle, "This is a starting conversation message.")
+        self.conversation.addMsg("Bill", "This is Bill's message.")
+
+        # Need to do a quick check of conversation size, as might not fit or look right.
+        # Size of conversation to embed.
+        convLength = 0
+        for msg in self.conversation.messages:
+            convLength += NUMSMSBYTES
+            convLength += NAMELENBYTES
+            convLength += len(msg.writer)
+            convLength += TIMELENBYTES
+            convLength += len(msg.msgTime)
+            convLength += SMSLENBYTES
+            convLength += len(msg.msgText)
+
+        # PicCoder embeded data size.
+        embedData = len(PROGCODE) + CODETYPEBYTES + NUMSMSBYTES + convLength
+        # Maximum space available from PIL import Image for embedding.
+        maxSpace = self.stegPic.picBytes
+        embedRatio = embedData / maxSpace
+        # Warning if embedded data to embed is more than a certain ratio.
+        if embedRatio > config.MaxEmbedRatio:
+            logger.warning(f'Data to embed exceeds maximum ratio : {embedRatio:.3f}')
+            showPopup("Warning", "picCoder Embedding Conversation", "Conversation to embed would exceed allowed embedding ratio.")
+        else:
+            # Embed conversation.
+            logger.debug(f'Embedding conversion.')
+            self.stegPic.embedConversationIntoImage(self.conversation)
+
+        # Set flag for image save control.
+        self.haveEmbededPic = True
+
+        # Update menu item visibility.
+        self.checkMenuItems()
 
     # *******************************************
     # Save File control selected.
@@ -310,6 +366,12 @@ class UI(QMainWindow):
                 except:
                     logger.info("Embedded file is not an image file.")
                     showPopup("Info", "picCoder File Extraction", "Embedded file saved.\nEmbedded file is not an image, open with associated application.")
+
+    # *******************************************
+    # Calback for open embedded conversation button.
+    # *******************************************
+    def openEmbeddedConversation(self):
+        logger.debug("User selected control to opem embedded conversation.")
 
     # *******************************************
     # About control selected.

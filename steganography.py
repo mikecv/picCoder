@@ -45,12 +45,42 @@ from constants import *
 # Text message class
 # *******************************************
 class TextMessage():   
-    def __init__(self, msgNum, writer, msgText):
+    def __init__(self, writer, msgText):
 
-        self.msgNum = msgNum
         self.writer = writer
         self.msgTime = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         self.msgText = msgText
+    
+    # *******************************************
+    # Overriding print() output.
+    # *******************************************
+    def __str__(self):
+        return(
+            f'Writer : {self.writer}\n'
+            f'Time stamp :  {self.msgTime}\n'
+            f'Message :  {self.msgText}\n'
+        )
+
+# *******************************************
+# Conversation class
+# *******************************************
+class Conversation():   
+    def __init__(self):
+
+        self.messages = []
+
+    # *******************************************
+    # Add another message to the conversation.
+    # *******************************************
+    def addMsg(self, writer, msgText):
+        # Create message and add to list of messages.
+        self.messages.append(TextMessage(writer, msgText))
+
+    # *******************************************
+    # Return number of messages in the conversation.
+    # *******************************************
+    def numMessages(self):
+        return (len(self.messages))
 
 # *******************************************
 # Steganography image class
@@ -161,6 +191,7 @@ class Steganography():
             # Text conversation.
             # ********************************************************
             if self.picCodeType == CodeType.CODETYPE_TEXT.value:
+                # Image has an embedded conversation.
                 pass
 
             # ********************************************************
@@ -450,7 +481,7 @@ class Steganography():
             with open(self.toEmbedFilePath, mode='rb') as cf:
 
                 # Need to add picCoder encoding to image first.
-                frmtString = ('%%s%%d%%0%dd%%s%%0%dd') % (NAMELENBYTES, LENBYTES)
+                frmtString = ('%%s%%0%dd%%0%dd%%s%%0%dd') % (CODETYPEBYTES, NAMELENBYTES, LENBYTES)
                 picCodeHdr = frmtString % (PROGCODE, CodeType.CODETYPE_FILE.value, len(self.toEmbedFilePath), self.toEmbedFilePath, self.toEmbedFileSize)
                 self.log.info(f'Composed piCoder code to insert into image : {picCodeHdr}')
                 self.log.info('Embedding picCoder encoding information into start of image.')
@@ -498,3 +529,50 @@ class Steganography():
         except Exception as e:
             self.log.error(f'Failed to open file to read from : {self.toEmbedFilePath}')
             self.log.error(f'Exception returned : {str(e)}')
+
+    # *******************************************
+    # Embed conversantion into the current image.
+    # *******************************************
+    def embedConversationIntoImage(self, conversation):
+
+        self.log.info(f'Embedding conversation into image.')
+
+        # Create progress bar and initialise.
+        msg = 0
+        self.data.progressBar.setNote('Embedding conversation into image...')
+        self.data.progressBar.showProgressBar()
+        loopProgress = msg / len(conversation.messages) * 100.0
+        codeProgress = 0.0
+
+        self.data.progressBar.setProgress(int(codeProgress))
+
+        # Initialise image file read parameters.
+        self.row = 0
+        self.col = 0
+        self.plane = 0
+        self.bit = 0
+        self.bytesWritten = 0
+
+        # Need to add picCoder encoding to image.
+        frmtString = ('%%s%%0%dd%%0%dd') % (CODETYPEBYTES, NUMSMSBYTES)
+        picCodeHdr = frmtString % (PROGCODE, CodeType.CODETYPE_TEXT.value, len(conversation.messages))
+        self.log.info(f'Composed piCoder code to insert into image : {picCodeHdr}')
+        self.log.info('Embedding picCoder encoding information into start of image.')
+        self.writeDataToImage(bytearray(picCodeHdr, encoding='utf-8'))
+
+        for idx, msg in enumerate(conversation.messages):
+            # Construct the message.
+            frmtString = ('%%0%dd%%0%dd%%s%%0%dd%%s%%0%dd%%s') % (NUMSMSBYTES, NAMELENBYTES, TIMELENBYTES, SMSLENBYTES)
+            msgDetail = frmtString % ((idx+1), len(msg.writer), msg.writer, len(msg.msgTime), msg.msgTime, len(msg.msgText), msg.msgText)
+            self.log.info(f'Composed code for message  : {msgDetail}')
+            self.log.info('Embedding message encoding data into image.')
+            self.writeDataToImage(bytearray(msgDetail, encoding='utf-8'))
+
+            # Update the progress bar as we go along.
+            codeProgress += loopProgress
+            if codeProgress > 100.0:
+                codeProgress = 100.0
+            self.data.progressBar.setProgress(int(codeProgress))
+
+        # Done so can hide the progress bar.
+        self.data.progressBar.hideProgressBar()

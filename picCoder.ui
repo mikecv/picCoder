@@ -99,7 +99,7 @@
       <item>
        <layout class="QHBoxLayout" name="controlLayout">
         <item>
-         <widget class="QPushButton" name="getFileBtn">
+         <widget class="QPushButton" name="getEmbeddedDataBtn">
           <property name="enabled">
            <bool>true</bool>
           </property>
