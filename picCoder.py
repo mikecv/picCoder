@@ -373,6 +373,9 @@ class UI(QMainWindow):
     def openEmbeddedConversation(self):
         logger.debug("User selected control to opem embedded conversation.")
 
+        # Show the conversation dialog.
+        ConversationDialog(self.stegPic.conversation)
+
     # *******************************************
     # About control selected.
     # Displays an "About" dialog box.
@@ -432,6 +435,34 @@ class EmbeddedImageDialog(QDialog):
         self.pictureLbl.show()
         # Update image file details label.
         self.pictureNameLbl.setText(f'{imgFile}')
+
+        # Show dialog.
+        self.exec_()
+
+# *******************************************
+# Conversation dialog class.
+# *******************************************
+class ConversationDialog(QDialog):
+    def __init__(self, smsConv, parent=None):
+        super(ConversationDialog, self).__init__()
+        uic.loadUi(res_path("messenger.ui"), self)
+
+        # Show the change log.
+        self.showConversation(smsConv)
+
+    # *******************************************
+    # Displays embedded image in dialog box.
+    # *******************************************
+    def showConversation(self, conv):
+
+        # Set dialog window icon.
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
+        self.setWindowIcon(icon)
+
+        # Populate the dialog with the conversation messages.
+        for msg in conv.messages:
+            pass
 
         # Show dialog.
         self.exec_()

@@ -45,11 +45,14 @@ from constants import *
 # Text message class
 # *******************************************
 class TextMessage():   
-    def __init__(self, writer, msgText):
+    def __init__(self, writer, msgText, msgTime=None):
 
         self.writer = writer
-        self.msgTime = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         self.msgText = msgText
+        if msgTime == None:
+            self.msgTime = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        else:
+            self.msgTime = msgTime
     
     # *******************************************
     # Overriding print() output.
@@ -72,9 +75,9 @@ class Conversation():
     # *******************************************
     # Add another message to the conversation.
     # *******************************************
-    def addMsg(self, writer, msgText):
+    def addMsg(self, writer, msgText, msgTime=None):
         # Create message and add to list of messages.
-        self.messages.append(TextMessage(writer, msgText))
+        self.messages.append(TextMessage(writer, msgText, msgTime))
 
     # *******************************************
     # Return number of messages in the conversation.
@@ -94,10 +97,14 @@ class Steganography():
 
         self.log.debug("Steganography class constructor.")
 
+        # Image to open and read/store data from/to.
         self.picFile = picFile
         self.log.debug(f'Opening image file for analysis : {self.picFile}')
         self.bitmap = QtGui.QPixmap(picFile)
         self.image = QtGui.QImage(picFile)
+
+        # Initialise conversation to accept embedded conversation.
+        self.conversation = Conversation()
 
         # Default image flags.
         self.picCoded = False
@@ -192,7 +199,84 @@ class Steganography():
             # ********************************************************
             if self.picCodeType == CodeType.CODETYPE_TEXT.value:
                 # Image has an embedded conversation.
-                pass
+                # Read the number of messages in the convesation.
+                bytesToRead = NUMSMSBYTES
+                self.readDataFromImage(bytesToRead)
+                # Check if we read the expected number of bytes.
+                if (self.bytesRead != bytesToRead):
+                    self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                else:
+                    numMsgs = int(self.codeBytes.decode('utf-8'))
+                    self.log.info(f'Image file has embedded conversion with number of messages : {numMsgs}')
+                    for idx in range(numMsgs):
+                        # Read the number of this message.
+                        bytesToRead = NUMSMSBYTES
+                        self.readDataFromImage(bytesToRead)
+                        # Check if we read the expected number of bytes.
+                        if (self.bytesRead != bytesToRead):
+                            self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                        else:
+                            msgNum = int(self.codeBytes.decode('utf-8'))
+                            # Check if message number is incrementing correctly.
+                            if msgNum != (idx+1):
+                                self.log.error(f'Message number out of sequence : {msgNum}')
+                                break
+                            else:
+                                self.log.info(f'Processing message number : {msgNum}')
+                                # Read the length of the writers name of this message.
+                                bytesToRead = NAMELENBYTES
+                                self.readDataFromImage(bytesToRead)
+                                # Check if we read the expected number of bytes.
+                                if (self.bytesRead != bytesToRead):
+                                    self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                                else:
+                                    lenWriter = int(self.codeBytes.decode('utf-8'))
+                                    # Read the name of the writer of this message.
+                                    bytesToRead = lenWriter
+                                    self.readDataFromImage(bytesToRead)
+                                    # Check if we read the expected number of bytes.
+                                    if (self.bytesRead != bytesToRead):
+                                        self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                                    else:
+                                        nameWriter = self.codeBytes.decode('utf-8')
+                                        self.log.info(f'Message from writer : {nameWriter}')
+                                        # Read the length of the timestamp of this message.
+                                        bytesToRead = TIMELENBYTES
+                                        self.readDataFromImage(bytesToRead)
+                                        # Check if we read the expected number of bytes.
+                                        if (self.bytesRead != bytesToRead):
+                                            self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                                        else:
+                                            lenTime = int(self.codeBytes.decode('utf-8'))
+                                            # Read the timestamp of this message.
+                                            bytesToRead = lenTime
+                                            self.readDataFromImage(bytesToRead)
+                                            # Check if we read the expected number of bytes.
+                                            if (self.bytesRead != bytesToRead):
+                                                self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                                            else:
+                                                msgTime = self.codeBytes.decode('utf-8')
+                                                self.log.info(f'Message timestamp : {msgTime}')
+                                                # Read the length of this message.
+                                                bytesToRead = SMSLENBYTES
+                                                self.readDataFromImage(bytesToRead)
+                                                # Check if we read the expected number of bytes.
+                                                if (self.bytesRead != bytesToRead):
+                                                    self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                                                else:
+                                                    lenMsg = int(self.codeBytes.decode('utf-8'))
+                                                    # Read the timestamp of this message.
+                                                    bytesToRead = lenMsg
+                                                    self.readDataFromImage(bytesToRead)
+                                                    # Check if we read the expected number of bytes.
+                                                    if (self.bytesRead != bytesToRead):
+                                                        self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                                                    else:
+                                                        msgText = self.codeBytes.decode('utf-8')
+                                                        self.log.info(f'Message text : {msgText}')
+
+                                                        # Add message to conversion object.
+                                                        self.conversation.addMsg(nameWriter, msgText)
 
             # ********************************************************
             # Embedded file.
