@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>900</width>
-    <height>800</height>
+    <width>600</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -41,6 +41,18 @@
    </item>
    <item row="0" column="0">
     <widget class="QScrollArea" name="messageScrollArea">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>585</width>
+       <height>530</height>
+      </size>
+     </property>
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
@@ -49,17 +61,17 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>880</width>
-        <height>751</height>
+        <width>580</width>
+        <height>528</height>
        </rect>
       </property>
       <widget class="QWidget" name="verticalLayoutWidget">
        <property name="geometry">
         <rect>
-         <x>-1</x>
-         <y>-1</y>
-         <width>891</width>
-         <height>761</height>
+         <x>5</x>
+         <y>0</y>
+         <width>571</width>
+         <height>521</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
