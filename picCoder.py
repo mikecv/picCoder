@@ -10,7 +10,7 @@ import sys
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QDialog, QStatusBar, QLabel, QFileDialog, QPushButton, QHBoxLayout, QMessageBox
 from PyQt5 import uic
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PIL import Image
 
 from config import *
@@ -462,7 +462,16 @@ class ConversationDialog(QDialog):
 
         # Populate the dialog with the conversation messages.
         for msg in conv.messages:
-            pass
+            lbl = QLabel(f'{msg.msgText}', self)
+            lbl.setMinimumSize(300, 50)
+            lbl.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+            lbl.setStyleSheet("border :3px solid blue;"
+                                "border-top-left-radius :35px;"
+                                " border-top-right-radius : 20px; "
+                                "border-bottom-left-radius : 50px; "
+                                "border-bottom-right-radius : 10px")
+            # Add label to layout.
+            self.verticalLayout.addWidget(lbl)
 
         # Show dialog.
         self.exec_()
