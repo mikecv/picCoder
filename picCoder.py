@@ -8,7 +8,7 @@ import time
 import os
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QDialog, QStatusBar, QLabel, QFileDialog, QPushButton, QHBoxLayout, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QDialog, QStatusBar, QLabel, QFileDialog, QPushButton, QHBoxLayout, QMessageBox, QScrollArea
 from PyQt5 import uic
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PIL import Image
@@ -461,18 +461,19 @@ class ConversationDialog(QDialog):
         self.setWindowIcon(icon)
 
         # Populate the dialog with the conversation messages.
-        for msg in conv.messages:
-            lbl = QLabel(f'<b>{msg.writer} : {msg.msgTime}</b><br><br>{msg.msgText}', self)
-            lbl.setMinimumSize(400, 50)
-            lbl.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.MinimumExpanding)
-            lbl.setStyleSheet("border :3px solid blue; padding :10px;"
-                                "border-top-left-radius : 20px;"
-                                "border-top-right-radius : 20px;"
-                                "border-bottom-left-radius : 20px;"
-                                "border-bottom-right-radius : 20px"
-                                )
-            # Add label to layout.
-            self.verticalLayout.addWidget(lbl)
+        for idx in range(10):
+            for msg in conv.messages:
+                lbl = QLabel(f'<b>{msg.writer} : {msg.msgTime}</b><br><br>{msg.msgText}', self)
+                lbl.setMinimumSize(400, 50)
+                lbl.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.MinimumExpanding)
+                lbl.setStyleSheet("border :3px solid blue; padding :10px;"
+                                    "border-top-left-radius : 20px;"
+                                    "border-top-right-radius : 20px;"
+                                    "border-bottom-left-radius : 20px;"
+                                    "border-bottom-right-radius : 20px"
+                                    )
+                # Add label to layout.
+                self.verticalLayout.addWidget(lbl)
         # Add a stretch widget at the bottom to consume space.
         self.verticalLayout.addStretch(1)
 
