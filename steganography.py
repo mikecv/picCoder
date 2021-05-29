@@ -276,7 +276,7 @@ class Steganography():
                                                         self.log.info(f'Message text : {msgText}')
 
                                                         # Add message to conversion object.
-                                                        self.conversation.addMsg(nameWriter, msgText)
+                                                        self.conversation.addMsg(nameWriter, msgText, msgTime)
 
             # ********************************************************
             # Embedded file.

@@ -4,11 +4,12 @@ import argparse
 import logging
 import logging.handlers
 import json
+import datetime
 import time
 import os
 import sys
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QDialog, QStatusBar, QLabel, QFileDialog, QPushButton, QHBoxLayout, QMessageBox, QScrollArea
+from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QDialog, QStatusBar, QLabel, QFileDialog, QPushButton, QHBoxLayout, QVBoxLayout, QMessageBox
 from PyQt5 import uic
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PIL import Image
@@ -29,6 +30,8 @@ from progressBar import *
 # Display image with embedded file in separate window so that you can see what it looks like before saving.
 # Look at making hunk size file dependent on file size.
 # Add support for embedded text messaging.
+# Add message entry to conversation dialog; currently messages are hardcoded when created (testing).
+# Fix scrolling of conversation messages.
 # *******************************************
 
 # Program version.
@@ -263,8 +266,13 @@ class UI(QMainWindow):
         self.conversation = Conversation()
 
         # Temporary messages for testing.
-        self.conversation.addMsg(config.MyHandle, "This is a starting conversation message.")
-        self.conversation.addMsg("Bill", "This is Bill's message.")
+        self.conversation.addMsg(config.MyHandle, "This is a starting conversation message.", "29-05-2021 12:57:31")
+        self.conversation.addMsg("Bill", "This is Bill's message.", "29-05-2021 12:58:12")
+        self.conversation.addMsg("Bill", "This is a second of Bill's message at the same time.", "29-05-2021 12:58:23")
+        self.conversation.addMsg("Bill", "Believe it or not Bill is at it again.", "29-05-2021 12:59:14")
+        self.conversation.addMsg(config.MyHandle, "Another message from me at the same time.", "30-05-2021 07:26:12")
+        self.conversation.addMsg(config.MyHandle, "Another message from me but at a much later time.", "30-05-2021 07:26:20")
+        self.conversation.addMsg(config.MyHandle, "Another message from me but at a much later time.")
 
         # Need to do a quick check of conversation size, as might not fit or look right.
         # Size of conversation to embed.
@@ -460,22 +468,80 @@ class ConversationDialog(QDialog):
         icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
         self.setWindowIcon(icon)
 
-        # Populate the dialog with the conversation messages.
-        for idx in range(10):
-            for msg in conv.messages:
+        numSMSes = conv.numMessages()
+        for idx, msg in enumerate(conv.messages):
+
+            # Flag to include write and timestamp.
+            incWriter = True
+
+            # Group messages using cornered outlines if messages from the same writer are within a certain time.
+            # Get time and writer of this message.
+            thisTime = datetime.datetime.strptime(msg.msgTime, "%d-%m-%Y %H:%M:%S")
+            thisWriter = msg.writer
+            # Get time and writer of next message.
+            if (idx != (numSMSes - 1)):
+                nextWriter = conv.messages[idx + 1].writer
+                nextTime = datetime.datetime.strptime(conv.messages[idx + 1].msgTime, "%d-%m-%Y %H:%M:%S")
+
+            # Top of top message is rounded.
+            if idx == 0:
+                topRadius = config.SmsRender["BubbleRadius"]
+            else:
+                # If message is by same writer AND within certain time of previous message the top is not rounded.
+                if (thisWriter == prevWriter) and ((thisTime - prevTime).total_seconds() < config.SmsRender["SameMsgTime"]):
+                    topRadius = 0
+                    incWriter = False
+                # Else top is rounded.
+                else:
+                    topRadius = config.SmsRender["BubbleRadius"]
+            # Bottom of bottom message is rounded.
+            if idx == (numSMSes - 1):
+                botRadius = config.SmsRender["BubbleRadius"]
+            else:
+                # If message is by same writer AND within certain time of next message the not rounded.
+                if (msg.writer == nextWriter) and ((nextTime - thisTime).total_seconds() < config.SmsRender["SameMsgTime"]):
+                    botRadius = 0
+                else:
+                    botRadius = config.SmsRender["BubbleRadius"]
+
+            # Update time and writer of previous message.
+            prevTime = thisTime
+            prevWriter = thisWriter
+
+            hBox = QHBoxLayout()
+            if incWriter == True:
                 lbl = QLabel(f'<b>{msg.writer} : {msg.msgTime}</b><br><br>{msg.msgText}', self)
-                lbl.setMinimumSize(400, 50)
-                lbl.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.MinimumExpanding)
-                lbl.setStyleSheet("border :3px solid blue; padding :10px;"
-                                    "border-top-left-radius : 20px;"
-                                    "border-top-right-radius : 20px;"
-                                    "border-bottom-left-radius : 20px;"
-                                    "border-bottom-right-radius : 20px"
-                                    )
-                # Add label to layout.
-                self.verticalLayout.addWidget(lbl)
+            else:
+                lbl = QLabel(f'{msg.msgText}', self)
+            lbl.setFixedWidth(config.SmsRender["TextWidth"])
+            lbl.setWordWrap(True)
+            lbl.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.MinimumExpanding)
+
+            # Add label to horizontal layout.
+            # Pad out so my messages on the right, others on the left.
+            if msg.writer == config.MyHandle:
+                hBox.addStretch()
+                lbl.setStyleSheet(f'border : 3px solid {config.SmsRender["MeSMSBorderCol"]}; background : {config.SmsRender["MeSMSBkGrndCol"]}; padding :10px;'
+                            f'border-top-left-radius : {topRadius}px;'
+                            f'border-top-right-radius : {topRadius}px;'
+                            f'border-bottom-left-radius : {botRadius}px;'
+                            f'border-bottom-right-radius : {botRadius}px'
+                        )
+                hBox.addWidget(lbl)
+            else:
+                lbl.setStyleSheet(f'border : 3px solid {config.SmsRender["ThemSMSBorderCol"]}; background : {config.SmsRender["ThemSMSBkGrndCol"]}; padding :10px;'
+                            f'border-top-left-radius : {topRadius}px;'
+                            f'border-top-right-radius : {topRadius}px;'
+                            f'border-bottom-left-radius : {botRadius}px;'
+                            f'border-bottom-right-radius : {botRadius}px'
+                        )
+                hBox.addWidget(lbl)
+                hBox.addStretch()
+
+            # Add horizontal layout containing the label to vertical layout.
+            self.verticalLayout.addLayout(hBox)
         # Add a stretch widget at the bottom to consume space.
-        self.verticalLayout.addStretch(1)
+        self.verticalLayout.addStretch()
 
         # Show dialog.
         self.exec_()

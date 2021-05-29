@@ -40,18 +40,18 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QScrollArea" name="messageScrollArea">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+    <widget class="QScrollArea" name="scrollArea">
      <property name="maximumSize">
       <size>
-       <width>585</width>
-       <height>530</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
      <property name="widgetResizable">
       <bool>true</bool>
@@ -61,25 +61,34 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>580</width>
-        <height>528</height>
+        <width>567</width>
+        <height>546</height>
        </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777215</height>
+       </size>
       </property>
       <widget class="QWidget" name="verticalLayoutWidget">
        <property name="geometry">
         <rect>
-         <x>5</x>
-         <y>0</y>
-         <width>571</width>
-         <height>521</height>
+         <x>9</x>
+         <y>9</y>
+         <width>541</width>
+         <height>531</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
-        <property name="spacing">
-         <number>1</number>
-        </property>
         <property name="sizeConstraint">
-         <enum>QLayout::SetDefaultConstraint</enum>
+         <enum>QLayout::SetMinAndMaxSize</enum>
         </property>
         <property name="leftMargin">
          <number>5</number>

@@ -10,5 +10,14 @@
         "PicCodedBorderColCoded": "#00ff00",
         "PicCodedButton": "#00aa00"
     },
-    "MaxEmbedRatio": 0.5
+    "MaxEmbedRatio": 0.5,
+    "SmsRender": {
+        "TextWidth": 450,
+        "SameMsgTime": 30,
+        "BubbleRadius": 20,
+        "MeSMSBorderCol": "#0080ff",
+        "ThemSMSBorderCol": "#ff6600",
+        "MeSMSBkGrndCol": "#e6f2ff",
+        "ThemSMSBkGrndCol": "#ffe0cc"
+    }
 }

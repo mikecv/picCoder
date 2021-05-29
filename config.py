@@ -31,6 +31,17 @@ class Config():
             "PicCodedButton": "#00aa00"
         }
 
+        # Conversation rendering.
+        self.SmsRender = {
+            "TextWidth" : 450,
+            "SameMsgTime" : 30,
+            "BubbleRadius" : 20,
+            "MeSMSBorderCol" : "#0080ff",
+            "ThemSMSBorderCol" : "#ff6600",
+            "MeSMSBkGrndCol" : "#e6f2ff",
+            "ThemSMSBkGrndCol" : "#ffe0cc"
+        }
+
         # Maximum embedded file size ratio.
         self.MaxEmbedRatio = 0.5
 
@@ -55,6 +66,7 @@ class Config():
                 # Update configuration values if possible.
                 # If not, just update with default + whatever values read.
                 updateConfig = False
+                paramSaved = ""
                 try:
                     self.DebugLevel = config["DebugLevel"]
                 except Exception:
@@ -96,6 +108,48 @@ class Config():
                     self.PicRendering["PicCodedButton"] = paramSaved
                     updateConfig = True
                 try:
+                    paramSaved = self.SmsRender["TextWidth"]
+                    self.SmsRender["TextWidth"] = config["SmsRender"]["TextWidth"]
+                except Exception:
+                    self.SmsRender["TextWidth"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.SmsRender["SameMsgTime"]
+                    self.SmsRender["SameMsgTime"] = config["SmsRender"]["SameMsgTime"]
+                except Exception:
+                    self.SmsRender["SameMsgTime"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.SmsRender["BubbleRadius"]
+                    self.SmsRender["BubbleRadius"] = config["SmsRender"]["BubbleRadius"]
+                except Exception:
+                    self.SmsRender["BubbleRadius"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.SmsRender["MeSMSBorderCol"]
+                    self.SmsRender["MeSMSBorderCol"] = config["SmsRender"]["MeSMSBorderCol"]
+                except Exception:
+                    self.SmsRender["MeSMSBorderCol"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.SmsRender["ThemSMSBorderCol"]
+                    self.SmsRender["ThemSMSBorderCol"] = config["SmsRender"]["ThemSMSBorderCol"]
+                except Exception:
+                    self.SmsRender["ThemSMSBorderCol"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.SmsRender["MeSMSBkGrndCol"]
+                    self.SmsRender["MeSMSBkGrndCol"] = config["SmsRender"]["MeSMSBkGrndCol"]
+                except Exception:
+                    self.SmsRender["MeSMSBkGrndCol"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.SmsRender["ThemSMSBkGrndCol"]
+                    self.SmsRender["ThemSMSBkGrndCol"] = config["SmsRender"]["ThemSMSBkGrndCol"]
+                except Exception:
+                    self.SmsRender["ThemSMSBkGrndCol"] = paramSaved
+                    updateConfig = True
+                try:
                     self.MaxEmbedRatio = config["MaxEmbedRatio"]
                 except Exception:
                     updateConfig = True
@@ -123,7 +177,8 @@ class Config():
             "LogBackups" : self.LogBackups,
             "MyHandle" : self.MyHandle,
             "PicRendering" : self.PicRendering,
-            "MaxEmbedRatio" : self.MaxEmbedRatio
+            "MaxEmbedRatio" : self.MaxEmbedRatio,
+            "SmsRender" : self.SmsRender,
         }
 
         # Open file for writing.
