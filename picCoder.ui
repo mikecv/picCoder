@@ -208,6 +208,11 @@ color: rgb(255, 255, 255);</string>
     <string>Start Conversation</string>
    </property>
   </action>
+  <action name="actionEmbedConversation">
+   <property name="text">
+    <string>Embed Conversation</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

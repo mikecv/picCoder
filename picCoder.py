@@ -28,10 +28,8 @@ from progressBar import *
 # TODO List
 #
 # Display image with embedded file in separate window so that you can see what it looks like before saving.
-# Look at making hunk size file dependent on file size.
 # Add support for embedded text messaging.
 # Add message entry to conversation dialog; currently messages are hardcoded when created (testing).
-# Fix scrolling of conversation messages.
 # *******************************************
 
 # Program version.
@@ -263,48 +261,58 @@ class UI(QMainWindow):
     def startConversation(self):
         logger.debug("User selected start conversation menu control.")
 
-        self.conversation = Conversation()
+        self.newConversation = Conversation()
 
         # Temporary messages for testing.
-        self.conversation.addMsg(config.MyHandle, "This is a starting conversation message.", "29-05-2021 12:57:31")
-        self.conversation.addMsg("Bill", "This is Bill's message.", "29-05-2021 12:58:12")
-        self.conversation.addMsg("Bill", "This is a second of Bill's message at the same time.", "29-05-2021 12:58:23")
-        self.conversation.addMsg("Bill", "Believe it or not Bill is at it again.", "29-05-2021 12:59:14")
-        self.conversation.addMsg(config.MyHandle, "Another message from me at the same time.", "30-05-2021 07:26:12")
-        self.conversation.addMsg(config.MyHandle, "Another message from me but at a much later time.", "30-05-2021 07:26:20")
-        self.conversation.addMsg(config.MyHandle, "Another message from me but at a much later time.")
+        self.newConversation.addMsg(config.MyHandle, "This is a starting conversation message.", "29-05-2021 12:57:31")
+        self.newConversation.addMsg("Bill", "This is Bill's message.", "29-05-2021 12:58:12")
+        self.newConversation.addMsg("Bill", "This is a second of Bill's message at the same time.", "29-05-2021 12:58:23")
+        self.newConversation.addMsg("Bill", "Believe it or not Bill is at it again.", "29-05-2021 12:59:14")
+        self.newConversation.addMsg(config.MyHandle, "Another message from me at the same time.", "30-05-2021 07:26:12")
+        self.newConversation.addMsg(config.MyHandle, "Another message from me but at a much later time.", "30-05-2021 07:26:20")
+        self.newConversation.addMsg(config.MyHandle, "Another message from me but at a much later time.")
+        self.newConversation.addMsg("Berty Beetle", "Who is this new guy sending a message?\nHaven't heard from him before.")
 
-        # Need to do a quick check of conversation size, as might not fit or look right.
-        # Size of conversation to embed.
-        convLength = 0
-        for msg in self.conversation.messages:
-            convLength += NUMSMSBYTES
-            convLength += NAMELENBYTES
-            convLength += len(msg.writer)
-            convLength += TIMELENBYTES
-            convLength += len(msg.msgTime)
-            convLength += SMSLENBYTES
-            convLength += len(msg.msgText)
-
-        # PicCoder embeded data size.
-        embedData = len(PROGCODE) + CODETYPEBYTES + NUMSMSBYTES + convLength
-        # Maximum space available from PIL import Image for embedding.
-        maxSpace = self.stegPic.picBytes
-        embedRatio = embedData / maxSpace
-        # Warning if embedded data to embed is more than a certain ratio.
-        if embedRatio > config.MaxEmbedRatio:
-            logger.warning(f'Data to embed exceeds maximum ratio : {embedRatio:.3f}')
-            showPopup("Warning", "picCoder Embedding Conversation", "Conversation to embed would exceed allowed embedding ratio.")
-        else:
-            # Embed conversation.
-            logger.debug(f'Embedding conversion.')
-            self.stegPic.embedConversationIntoImage(self.conversation)
+        ConversationDialog(self.newConversation)
 
         # Set flag for image save control.
-        self.haveEmbededPic = True
+        self.haveConversation = True
 
         # Update menu item visibility.
         self.checkMenuItems()
+
+    # *******************************************
+    # Embed Conversation control selected.
+    # Embeds current conversation into the current pic.
+    # *******************************************
+    def embedConversation(self):
+        logger.debug("User selected Embed Conversation menu control.")
+
+        # # Need to do a quick check of conversation size, as might not fit or look right.
+        # # Size of conversation to embed.
+        # convLength = 0
+        # for msg in self.newConversation.messages:
+        #     convLength += NUMSMSBYTES
+        #     convLength += NAMELENBYTES
+        #     convLength += len(msg.writer)
+        #     convLength += TIMELENBYTES
+        #     convLength += len(msg.msgTime)
+        #     convLength += SMSLENBYTES
+        #     convLength += len(msg.msgText)
+
+        # # PicCoder embeded data size.
+        # embedData = len(PROGCODE) + CODETYPEBYTES + NUMSMSBYTES + convLength
+        # # Maximum space available from PIL import Image for embedding.
+        # maxSpace = self.stegPic.picBytes
+        # embedRatio = embedData / maxSpace
+        # # Warning if embedded data to embed is more than a certain ratio.
+        # if embedRatio > config.MaxEmbedRatio:
+        #     logger.warning(f'Data to embed exceeds maximum ratio : {embedRatio:.3f}')
+        #     showPopup("Warning", "picCoder Embedding Conversation", "Conversation to embed would exceed allowed embedding ratio.")
+        # else:
+        #     # Embed conversation.
+        #     logger.debug(f'Embedding conversion.')
+        #     self.stegPic.embedConversationIntoImage(self.newConversation)
 
     # *******************************************
     # Save File control selected.
@@ -509,10 +517,17 @@ class ConversationDialog(QDialog):
             prevWriter = thisWriter
 
             hBox = QHBoxLayout()
+
+            # If there are newline characters in the text string they won't be rendered in the conversation messages
+            # which use html format. Need to replace newlines with break tokens.
+            messageText = "<br>".join(msg.msgText.split("\n"))
+
             if incWriter == True:
-                lbl = QLabel(f'<b>{msg.writer} : {msg.msgTime}</b><br><br>{msg.msgText}', self)
+                lbl = QLabel(f'<b>{msg.writer} : {msg.msgTime}</b><br><br>{messageText}', self)
             else:
-                lbl = QLabel(f'{msg.msgText}', self)
+                lbl = QLabel(f'{messageText}', self)
+
+            # Set label with and wordwrapping, and restrict expanding to vertical only.
             lbl.setFixedWidth(config.SmsRender["TextWidth"])
             lbl.setWordWrap(True)
             lbl.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.MinimumExpanding)
@@ -542,6 +557,10 @@ class ConversationDialog(QDialog):
             self.verticalLayout.addLayout(hBox)
         # Add a stretch widget at the bottom to consume space.
         self.verticalLayout.addStretch()
+
+        # Couple scroll area to layout contents.
+        self.scrollAreaWidgetContents.setLayout(self.verticalLayout)
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
         # Show dialog.
         self.exec_()
@@ -616,6 +635,7 @@ class ChangeLogDialog(QDialog):
 # Pop-up message box.
 # *******************************************
 def showPopup(puType, title, msg, info="", details=""):
+
     # Create pop-up message box.
     # Mandatory title and message.
     # Optional information and details.
@@ -633,6 +653,7 @@ def showPopup(puType, title, msg, info="", details=""):
     mb.setWindowTitle(title)
     if (details != ""):
         mb.setDetailedText(details)
+
     # Show message box.
     mb.exec_()
 
