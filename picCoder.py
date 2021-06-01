@@ -29,7 +29,8 @@ from progressBar import *
 #
 # Display image with embedded file in separate window so that you can see what it looks like before saving.
 # Add support for embedded text messaging.
-# Add message entry to conversation dialog; currently messages are hardcoded when created (testing).
+# Reword calculation of text messages. Total number and total length.
+# Add a help page.
 # *******************************************
 
 # Program version.
@@ -95,6 +96,10 @@ class UI(QMainWindow):
 
         # Attach to the start conversation menu item.
         self.actionStartConversation.triggered.connect(self.startConversation)
+        self.haveOpenConversation = False
+
+        # Attach to the embed conversation menu item.
+        self.actionEmbedConversation.triggered.connect(self.embedConversation)
 
         # Attach to the Quit menu item.
         self.actionQuit.triggered.connect(app.quit)
@@ -123,7 +128,8 @@ class UI(QMainWindow):
     def checkMenuItems(self):
         self.actionEmbedFile.setEnabled(self.haveOpenPic)
         self.actionStartConversation.setEnabled(self.haveOpenPic)
-        self.actionSaveCodedImage.setEnabled((self.haveOpenPic and self.haveEmbededPic))
+        self.actionEmbedConversation.setEnabled(self.haveOpenPic and self.haveOpenConversation)
+        self.actionSaveCodedImage.setEnabled((self.haveOpenPic and (self.haveEmbededPic or self.haveOpenConversation)))
         self.picDetailsLbl.setHidden(not self.haveOpenPic)
 
     # *******************************************
@@ -276,7 +282,7 @@ class UI(QMainWindow):
         ConversationDialog(self.newConversation)
 
         # Set flag for image save control.
-        self.haveConversation = True
+        self.haveOpenConversation = True
 
         # Update menu item visibility.
         self.checkMenuItems()
@@ -288,31 +294,31 @@ class UI(QMainWindow):
     def embedConversation(self):
         logger.debug("User selected Embed Conversation menu control.")
 
-        # # Need to do a quick check of conversation size, as might not fit or look right.
-        # # Size of conversation to embed.
-        # convLength = 0
-        # for msg in self.newConversation.messages:
-        #     convLength += NUMSMSBYTES
-        #     convLength += NAMELENBYTES
-        #     convLength += len(msg.writer)
-        #     convLength += TIMELENBYTES
-        #     convLength += len(msg.msgTime)
-        #     convLength += SMSLENBYTES
-        #     convLength += len(msg.msgText)
+        # Need to do a quick check of conversation size, as might not fit or look right.
+        # Size of conversation to embed.
+        convLength = 0
+        for msg in self.newConversation.messages:
+            convLength += NUMSMSBYTES
+            convLength += NAMELENBYTES
+            convLength += len(msg.writer)
+            convLength += TIMELENBYTES
+            convLength += len(msg.msgTime)
+            convLength += SMSLENBYTES
+            convLength += len(msg.msgText)
 
-        # # PicCoder embeded data size.
-        # embedData = len(PROGCODE) + CODETYPEBYTES + NUMSMSBYTES + convLength
-        # # Maximum space available from PIL import Image for embedding.
-        # maxSpace = self.stegPic.picBytes
-        # embedRatio = embedData / maxSpace
-        # # Warning if embedded data to embed is more than a certain ratio.
-        # if embedRatio > config.MaxEmbedRatio:
-        #     logger.warning(f'Data to embed exceeds maximum ratio : {embedRatio:.3f}')
-        #     showPopup("Warning", "picCoder Embedding Conversation", "Conversation to embed would exceed allowed embedding ratio.")
-        # else:
-        #     # Embed conversation.
-        #     logger.debug(f'Embedding conversion.')
-        #     self.stegPic.embedConversationIntoImage(self.newConversation)
+        # PicCoder embeded data size.
+        embedData = len(PROGCODE) + CODETYPEBYTES + NUMSMSBYTES + convLength
+        # Maximum space available from PIL import Image for embedding.
+        maxSpace = self.stegPic.picBytes
+        embedRatio = embedData / maxSpace
+        # Warning if embedded data to embed is more than a certain ratio.
+        if embedRatio > config.MaxEmbedRatio:
+            logger.warning(f'Data to embed exceeds maximum ratio : {embedRatio:.3f}')
+            showPopup("Warning", "picCoder Embedding Conversation", "Conversation to embed would exceed allowed embedding ratio.")
+        else:
+            # Embed conversation.
+            logger.debug(f'Embedding conversion.')
+            self.stegPic.embedConversationIntoImage(self.newConversation)
 
     # *******************************************
     # Save File control selected.
@@ -463,21 +469,54 @@ class ConversationDialog(QDialog):
         super(ConversationDialog, self).__init__()
         uic.loadUi(res_path("messenger.ui"), self)
 
-        # Show the change log.
-        self.showConversation(smsConv)
+        # Initialise class conversation object.
+        self.conversation = smsConv
+
+        # Show the conversation.
+        self.showConversation()
 
     # *******************************************
-    # Displays embedded image in dialog box.
+    # Displays conversation messages in dialog box.
     # *******************************************
-    def showConversation(self, conv):
+    def showConversation(self):
 
         # Set dialog window icon.
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
         self.setWindowIcon(icon)
 
-        numSMSes = conv.numMessages()
-        for idx, msg in enumerate(conv.messages):
+        # Set conversation dialog icons.
+        iconS = QtGui.QIcon()
+        iconS.addPixmap(QtGui.QPixmap(res_path("./resources/send.png")))
+        self.sendButton.setIcon(iconS)
+        iconC = QtGui.QIcon()
+        iconC.addPixmap(QtGui.QPixmap(res_path("./resources/clear.png")))
+        self.clearButton.setIcon(iconC)
+
+        # Connect callbacks to message buttons.
+        self.sendButton.setEnabled(True)
+        self.sendButton.clicked.connect(self.sendClicked)
+        self.clearButton.setEnabled(True)
+        self.clearButton.clicked.connect(self.clearClicked)
+
+        # Couple scroll area to layout contents.
+        self.scrollAreaWidgetContents.setLayout(self.verticalLayout)
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+
+        # Populate messages.
+        self.populateMessages()
+
+        # Show dialog.
+        self.exec_()
+
+    # *******************************************
+    # Populate messages in coversation.
+    # *******************************************
+    def populateMessages(self):
+
+        # Populate messages in the layout.
+        numSMSes = self.conversation.numMessages()
+        for idx, msg in enumerate(self.conversation.messages):
 
             # Flag to include write and timestamp.
             incWriter = True
@@ -488,8 +527,8 @@ class ConversationDialog(QDialog):
             thisWriter = msg.writer
             # Get time and writer of next message.
             if (idx != (numSMSes - 1)):
-                nextWriter = conv.messages[idx + 1].writer
-                nextTime = datetime.datetime.strptime(conv.messages[idx + 1].msgTime, "%d-%m-%Y %H:%M:%S")
+                nextWriter = self.conversation.messages[idx + 1].writer
+                nextTime = datetime.datetime.strptime(self.conversation.messages[idx + 1].msgTime, "%d-%m-%Y %H:%M:%S")
 
             # Top of top message is rounded.
             if idx == 0:
@@ -555,15 +594,67 @@ class ConversationDialog(QDialog):
 
             # Add horizontal layout containing the label to vertical layout.
             self.verticalLayout.addLayout(hBox)
+
         # Add a stretch widget at the bottom to consume space.
         self.verticalLayout.addStretch()
 
-        # Couple scroll area to layout contents.
-        self.scrollAreaWidgetContents.setLayout(self.verticalLayout)
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        # Scroll to the bottom of the scroll area.
+        self.scrollArea.verticalScrollBar().rangeChanged.connect(lambda: self.scrollArea.verticalScrollBar().setValue(self.scrollArea.verticalScrollBar().maximum()))
 
-        # Show dialog.
-        self.exec_()
+    # *******************************************
+    # Clear coversation fo messages in layout.
+    # *******************************************
+    def clearConversationLayout(self):
+
+        # Iterate through conversation layout and delete.
+        # Deletes layouts and spacers that make up each message bubble.
+        # Delete the message labels themselves.
+        for i in reversed(range(self.verticalLayout.count())):
+            item = self.verticalLayout.itemAt(i)
+            if type(item) == QtWidgets.QHBoxLayout:
+                for j in range(item.count()):
+                    subItem = item.itemAt(j)
+                    if type(subItem) == QtWidgets.QWidgetItem:
+                        subItem.widget().setParent(None)
+                    elif type(subItem) == QtWidgets.QSpacerItem:
+                        item.layout().removeItem(subItem)
+                self.verticalLayout.removeItem(item)
+            elif type(item) == QtWidgets.QWidgetItem:
+                item.widget().setParent(None)
+            elif type(item) == QtWidgets.QSpacerItem:
+                self.verticalLayout.removeItem(item)
+
+    # *******************************************
+    # User clicked to send new message.
+    # This adds the edit message to the conversation.
+    # *******************************************
+    def sendClicked(self):
+
+        logger.debug("User selected send message control.")
+
+        # Clear the conversation contents.
+        self.clearConversationLayout()
+
+        # Read contents of text edit box and add as new message to conversation.
+        if self.messageEdit.toPlainText() != "":
+            self.conversation.addMsg(config.MyHandle, self.messageEdit.toPlainText())
+
+        # Repopulate conversation, now with additional message.
+        self.populateMessages()
+
+        # Clear the contents of the text edit box.
+        self.messageEdit.clear()
+
+    # *******************************************
+    # User clicked to clear message.
+    # This clears the edit message.
+    # *******************************************
+    def clearClicked(self):
+
+        logger.debug("User selected clear message control.")
+
+        # Clear the contents of the text edit box.
+        self.messageEdit.clear()
 
 # *******************************************
 # About dialog class.
