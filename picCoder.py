@@ -30,6 +30,7 @@ from progressBar import *
 # Display image with embedded file in separate window so that you can see what it looks like before saving.
 # Add support for embedded text messaging.
 # Reword calculation of text messages. Total number and total length.
+# See if the conversation dialog and embedded preview dialogs can be made non-modal.
 # Add a help page.
 # *******************************************
 
