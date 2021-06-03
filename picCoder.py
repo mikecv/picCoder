@@ -30,7 +30,7 @@ from progressBar import *
 # Display image with embedded file in separate window so that you can see what it looks like before saving.
 # Add support for embedded text messaging.
 # Reword calculation of text messages. Total number and total length.
-# See if the conversation dialog and embedded preview dialogs can be made non-modal.
+# Resolve updating and swapping between conversation dialogs.
 # Add a help page.
 # *******************************************
 
@@ -119,6 +119,15 @@ class UI(QMainWindow):
  
         # Setup menu items visibility.
         self.checkMenuItems()
+
+        # Create about and change log dialogs.
+        # This is so that they can be displayed non-modally later.
+        self.aboutDlg = AboutDialog(progVersion, progDate)
+        self.changeDlg = ChangeLogDialog()
+
+        # Create conversation dialog.
+        # This is so that it can be displayed non-modally later.
+        self.conversationDlg = ConversationDialog()
 
         # Show appliction window.
         self.show()
@@ -268,19 +277,14 @@ class UI(QMainWindow):
     def startConversation(self):
         logger.debug("User selected start conversation menu control.")
 
+        # Create a new conversation.
         self.newConversation = Conversation()
 
-        # Temporary messages for testing.
-        self.newConversation.addMsg(config.MyHandle, "This is a starting conversation message.", "29-05-2021 12:57:31")
-        self.newConversation.addMsg("Bill", "This is Bill's message.", "29-05-2021 12:58:12")
-        self.newConversation.addMsg("Bill", "This is a second of Bill's message at the same time.", "29-05-2021 12:58:23")
-        self.newConversation.addMsg("Bill", "Believe it or not Bill is at it again.", "29-05-2021 12:59:14")
-        self.newConversation.addMsg(config.MyHandle, "Another message from me at the same time.", "30-05-2021 07:26:12")
-        self.newConversation.addMsg(config.MyHandle, "Another message from me but at a much later time.", "30-05-2021 07:26:20")
-        self.newConversation.addMsg(config.MyHandle, "Another message from me but at a much later time.")
-        self.newConversation.addMsg("Berty Beetle", "Who is this new guy sending a message?\nHaven't heard from him before.")
-
-        ConversationDialog(self.newConversation)
+        # Set the new conversation for the conversation dialog.
+        # Populate the dialog and display.
+        self.conversationDlg.setConversation(self.newConversation)
+        self.conversationDlg.populateMessages()
+        self.conversationDlg.show()
 
         # Set flag for image save control.
         self.haveOpenConversation = True
@@ -397,17 +401,23 @@ class UI(QMainWindow):
         logger.debug("User selected control to opem embedded conversation.")
 
         # Show the conversation dialog.
-        ConversationDialog(self.stegPic.conversation)
+        # ConversationDialog(self.stegPic.conversation)
+
+        # Set the embedded conversation for the conversation dialog.
+        # Populate the dialog and display.
+        self.conversationDlg.setConversation(self.stegPic.conversation)
+        self.conversationDlg.populateMessages()
+        self.conversationDlg.show()
 
     # *******************************************
     # About control selected.
-    # Displays an "About" dialog box.
+    # Displays the "About" dialog box.
     # *******************************************
     def about(self):
         logger.debug("User selected About menu control.")
 
-        # Create about dialog.        
-        AboutDialog(progVersion, progDate)
+        # Show the about dialog.
+        self.aboutDlg.show()
 
     # *******************************************
     # Change Log control selected.
@@ -416,8 +426,8 @@ class UI(QMainWindow):
     def changeLog(self):
         logger.debug("User selected Change Log menu control.")
 
-        # Create about dialog.        
-        ChangeLogDialog()
+        # Show the change log dialog.        
+        self.changeDlg.show()
 
     # *******************************************
     # Displaying embedded image dialog.
@@ -466,20 +476,13 @@ class EmbeddedImageDialog(QDialog):
 # Conversation dialog class.
 # *******************************************
 class ConversationDialog(QDialog):
-    def __init__(self, smsConv, parent=None):
+    def __init__(self, parent=None):
+    # def __init__(self, smsConv, parent=None):
         super(ConversationDialog, self).__init__()
         uic.loadUi(res_path("messenger.ui"), self)
 
         # Initialise class conversation object.
-        self.conversation = smsConv
-
-        # Show the conversation.
-        self.showConversation()
-
-    # *******************************************
-    # Displays conversation messages in dialog box.
-    # *******************************************
-    def showConversation(self):
+        self.conversation = None
 
         # Set dialog window icon.
         icon = QtGui.QIcon()
@@ -504,11 +507,12 @@ class ConversationDialog(QDialog):
         self.scrollAreaWidgetContents.setLayout(self.verticalLayout)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
-        # Populate messages.
-        self.populateMessages()
-
-        # Show dialog.
-        self.exec_()
+    # *******************************************
+    # Set a particular conversation for display in the conversation dialog.
+    # *******************************************
+    def setConversation(self, conv):
+        self.conversation = conv
+        self.clearConversationLayout()
 
     # *******************************************
     # Populate messages in coversation.
@@ -665,12 +669,6 @@ class AboutDialog(QDialog):
         super(AboutDialog, self).__init__()
         uic.loadUi(res_path("about.ui"), self)
 
-        self.showAbout(version, aboutDate)
-
-    # *******************************************
-    # Displays an "About" dialog box.
-    # *******************************************
-    def showAbout(self, version, aboutDate):
         # Set dialog window icon.
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
@@ -685,9 +683,6 @@ class AboutDialog(QDialog):
         # Update dialog icon.
         self.aboutIcon.setPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
 
-        # Show dialog.
-        self.exec_()
-
 # *******************************************
 # Change Log dialog class.
 # *******************************************
@@ -695,14 +690,6 @@ class ChangeLogDialog(QDialog):
     def __init__(self):
         super(ChangeLogDialog, self).__init__()
         uic.loadUi(res_path("changeLog.ui"), self)
-
-        # Show the change log.
-        self.showChangeLog()
-
-    # *******************************************
-    # Displays a "Change Log" dialog box.
-    # *******************************************
-    def showChangeLog(self):
 
         # Set dialog window icon.
         icon = QtGui.QIcon()
@@ -719,9 +706,6 @@ class ChangeLogDialog(QDialog):
         # Scroll to top so that changes for most recent version are visible.
         self.changeLogText.moveCursor(QtGui.QTextCursor.Start)
         self.changeLogText.ensureCursorVisible()
-
-        # Show dialog.
-        self.exec_()
 
 # *******************************************
 # Pop-up message box.
