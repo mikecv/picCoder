@@ -31,6 +31,7 @@ from progressBar import *
 # Add support for embedded text messaging.
 # Reword calculation of text messages. Total number and total length.
 # Resolve updating and swapping between conversation dialogs.
+# Conversage messages should have a minimum height and expand to the right size.
 # Add a help page.
 # *******************************************
 
@@ -277,13 +278,10 @@ class UI(QMainWindow):
     def startConversation(self):
         logger.debug("User selected start conversation menu control.")
 
-        # Create a new conversation.
-        self.newConversation = Conversation()
-
         # Set the new conversation for the conversation dialog.
         # Populate the dialog and display.
-        self.conversationDlg.setConversation(self.newConversation)
-        self.conversationDlg.populateMessages()
+        self.stegPic.conversation.clearMessages()
+        self.conversationDlg.populateMessages(self.stegPic.conversation)
         self.conversationDlg.show()
 
         # Set flag for image save control.
@@ -302,7 +300,7 @@ class UI(QMainWindow):
         # Need to do a quick check of conversation size, as might not fit or look right.
         # Size of conversation to embed.
         convLength = 0
-        for msg in self.newConversation.messages:
+        for msg in self.stegPic.conversation.messages:
             convLength += NUMSMSBYTES
             convLength += NAMELENBYTES
             convLength += len(msg.writer)
@@ -323,7 +321,7 @@ class UI(QMainWindow):
         else:
             # Embed conversation.
             logger.debug(f'Embedding conversion.')
-            self.stegPic.embedConversationIntoImage(self.newConversation)
+            self.stegPic.embedConversationIntoImage()
 
     # *******************************************
     # Save File control selected.
@@ -400,13 +398,9 @@ class UI(QMainWindow):
     def openEmbeddedConversation(self):
         logger.debug("User selected control to opem embedded conversation.")
 
-        # Show the conversation dialog.
-        # ConversationDialog(self.stegPic.conversation)
-
         # Set the embedded conversation for the conversation dialog.
         # Populate the dialog and display.
-        self.conversationDlg.setConversation(self.stegPic.conversation)
-        self.conversationDlg.populateMessages()
+        self.conversationDlg.populateMessages(self.stegPic.conversation)
         self.conversationDlg.show()
 
     # *******************************************
@@ -476,13 +470,12 @@ class EmbeddedImageDialog(QDialog):
 # Conversation dialog class.
 # *******************************************
 class ConversationDialog(QDialog):
-    def __init__(self, parent=None):
-    # def __init__(self, smsConv, parent=None):
+    def __init__(self):
         super(ConversationDialog, self).__init__()
         uic.loadUi(res_path("messenger.ui"), self)
 
         # Initialise class conversation object.
-        self.conversation = None
+        self.conversation = []
 
         # Set dialog window icon.
         icon = QtGui.QIcon()
@@ -508,19 +501,22 @@ class ConversationDialog(QDialog):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
     # *******************************************
-    # Set a particular conversation for display in the conversation dialog.
-    # *******************************************
-    def setConversation(self, conv):
-        self.conversation = conv
-        self.clearConversationLayout()
-
-    # *******************************************
     # Populate messages in coversation.
     # *******************************************
-    def populateMessages(self):
+    def populateMessages(self, conversation=None):
+
+        # Point to conversation for image.
+        if conversation != None:
+            self.conversation = conversation
+
+        # Clear the dialog.
+        self.clearConversationLayout()
 
         # Populate messages in the layout.
         numSMSes = self.conversation.numMessages()
+        self.hBoxes = []
+
+        # Loop through messages.
         for idx, msg in enumerate(self.conversation.messages):
 
             # Flag to include write and timestamp.
@@ -596,6 +592,9 @@ class ConversationDialog(QDialog):
                         )
                 hBox.addWidget(lbl)
                 hBox.addStretch()
+            
+            # Save horizontal box that holds the message.
+            self.hBoxes.append(hBox)
 
             # Add horizontal layout containing the label to vertical layout.
             self.verticalLayout.addLayout(hBox)
@@ -607,9 +606,11 @@ class ConversationDialog(QDialog):
         self.scrollArea.verticalScrollBar().rangeChanged.connect(lambda: self.scrollArea.verticalScrollBar().setValue(self.scrollArea.verticalScrollBar().maximum()))
 
     # *******************************************
-    # Clear coversation fo messages in layout.
+    # Clear coversation dialog of messages.
     # *******************************************
     def clearConversationLayout(self):
+
+        logger.debug("Clearing conversation dialog of messages...")
 
         # Iterate through conversation layout and delete.
         # Deletes layouts and spacers that make up each message bubble.
@@ -629,6 +630,10 @@ class ConversationDialog(QDialog):
             elif type(item) == QtWidgets.QSpacerItem:
                 self.verticalLayout.removeItem(item)
 
+        for i in reversed(range(self.verticalLayout.count())):
+            item = self.verticalLayout.itemAt(i)
+            print(type(item))
+
     # *******************************************
     # User clicked to send new message.
     # This adds the edit message to the conversation.
@@ -646,6 +651,7 @@ class ConversationDialog(QDialog):
 
         # Repopulate conversation, now with additional message.
         self.populateMessages()
+        self.show()
 
         # Clear the contents of the text edit box.
         self.messageEdit.clear()

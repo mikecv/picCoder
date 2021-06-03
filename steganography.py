@@ -85,6 +85,12 @@ class Conversation():
     def numMessages(self):
         return (len(self.messages))
 
+    # *******************************************
+    # Clear all messages in the conversation.
+    # *******************************************
+    def clearMessages(self):
+        self.messages = []
+
 # *******************************************
 # Steganography image class
 # *******************************************
@@ -617,7 +623,7 @@ class Steganography():
     # *******************************************
     # Embed conversantion into the current image.
     # *******************************************
-    def embedConversationIntoImage(self, conversation):
+    def embedConversationIntoImage(self):
 
         self.log.info(f'Embedding conversation into image.')
 
@@ -625,7 +631,7 @@ class Steganography():
         msg = 0
         self.data.progressBar.setNote('Embedding conversation into image...')
         self.data.progressBar.showProgressBar()
-        loopProgress = msg / len(conversation.messages) * 100.0
+        loopProgress = msg / len(self.conversation.messages) * 100.0
         codeProgress = 0.0
 
         self.data.progressBar.setProgress(int(codeProgress))
@@ -639,12 +645,12 @@ class Steganography():
 
         # Need to add picCoder encoding to image.
         frmtString = ('%%s%%0%dd%%0%dd') % (CODETYPEBYTES, NUMSMSBYTES)
-        picCodeHdr = frmtString % (PROGCODE, CodeType.CODETYPE_TEXT.value, len(conversation.messages))
+        picCodeHdr = frmtString % (PROGCODE, CodeType.CODETYPE_TEXT.value, len(self.conversation.messages))
         self.log.info(f'Composed piCoder code to insert into image : {picCodeHdr}')
         self.log.info('Embedding picCoder encoding information into start of image.')
         self.writeDataToImage(bytearray(picCodeHdr, encoding='utf-8'))
 
-        for idx, msg in enumerate(conversation.messages):
+        for idx, msg in enumerate(self.conversation.messages):
             # Construct the message.
             frmtString = ('%%0%dd%%0%dd%%s%%0%dd%%s%%0%dd%%s') % (NUMSMSBYTES, NAMELENBYTES, TIMELENBYTES, SMSLENBYTES)
             msgDetail = frmtString % ((idx+1), len(msg.writer), msg.writer, len(msg.msgTime), msg.msgTime, len(msg.msgText), msg.msgText)
