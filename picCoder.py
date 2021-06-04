@@ -514,7 +514,7 @@ class ConversationDialog(QDialog):
 
         # Populate messages in the layout.
         numSMSes = self.conversation.numMessages()
-        self.hBoxes = []
+        logger.debug(f'Populating conversation with messages : {numSMSes}')
 
         # Loop through messages.
         for idx, msg in enumerate(self.conversation.messages):
@@ -593,9 +593,6 @@ class ConversationDialog(QDialog):
                 hBox.addWidget(lbl)
                 hBox.addStretch()
             
-            # Save horizontal box that holds the message.
-            self.hBoxes.append(hBox)
-
             # Add horizontal layout containing the label to vertical layout.
             self.verticalLayout.addLayout(hBox)
 
@@ -615,8 +612,10 @@ class ConversationDialog(QDialog):
         # Iterate through conversation layout and delete.
         # Deletes layouts and spacers that make up each message bubble.
         # Delete the message labels themselves.
+        print("[---\n")
         for i in reversed(range(self.verticalLayout.count())):
             item = self.verticalLayout.itemAt(i)
+            print(f'Initial - {type(item)}')
             if type(item) == QtWidgets.QHBoxLayout:
                 for j in range(item.count()):
                     subItem = item.itemAt(j)
@@ -629,10 +628,14 @@ class ConversationDialog(QDialog):
                 item.widget().setParent(None)
             elif type(item) == QtWidgets.QSpacerItem:
                 self.verticalLayout.removeItem(item)
+            else:
+                print("Some other item.")
 
+        print("---\n")
         for i in reversed(range(self.verticalLayout.count())):
             item = self.verticalLayout.itemAt(i)
-            print(type(item))
+            print(f'Final - {type(item)}')
+        print("---]")
 
     # *******************************************
     # User clicked to send new message.
@@ -641,9 +644,6 @@ class ConversationDialog(QDialog):
     def sendClicked(self):
 
         logger.debug("User selected send message control.")
-
-        # Clear the conversation contents.
-        self.clearConversationLayout()
 
         # Read contents of text edit box and add as new message to conversation.
         if self.messageEdit.toPlainText() != "":
