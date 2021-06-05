@@ -21,7 +21,7 @@ class Config():
         self.LogBackups = 3
 
         # My handle for text messaging.
-        self.MyHandle = "MDC"
+        self.MyHandle = ""
 
         # Image name status indication.
         self.PicRendering = {

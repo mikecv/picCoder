@@ -29,9 +29,10 @@ from progressBar import *
 #
 # Display image with embedded file in separate window so that you can see what it looks like before saving.
 # Add support for embedded text messaging.
-# Reword calculation of text messages. Total number and total length.
+# Rework calculation of text messages. Total number and total length.
 # Resolve updating and swapping between conversation dialogs.
-# Conversage messages should have a minimum height and expand to the right size.
+# When adding to embedded conversation, messages are saved twice when embedded.
+# After embedding file/conversation display the QImage, i.e. before saving. 
 # Add a help page.
 # *******************************************
 
@@ -126,12 +127,18 @@ class UI(QMainWindow):
         self.aboutDlg = AboutDialog(progVersion, progDate)
         self.changeDlg = ChangeLogDialog()
 
+        # Create picCoded image object.
+        self.stegPic = Steganography(config, logger, self)
+
         # Create conversation dialog.
         # This is so that it can be displayed non-modally later.
-        self.conversationDlg = ConversationDialog()
+        self.conversationDlg = ConversationDialog(self.stegPic.conversation)
 
         # Show appliction window.
         self.show()
+
+        # Check if user has updated configuration with name for messaging function.
+        self.checkMsgHandle()
 
     # *******************************************
     # Check state of menu items.
@@ -144,6 +151,15 @@ class UI(QMainWindow):
         self.picDetailsLbl.setHidden(not self.haveOpenPic)
 
     # *******************************************
+    # Check if there is a user handle in configuration.
+    # This is the handle printed in message bubbles for 'this' user.
+    # *******************************************
+    def checkMsgHandle(self):
+        if config.MyHandle == "":
+            logger.warning("User configuration does not have a handle for messaging.")
+            showPopup("Warning", "Embedded Messaging", "No message handle in configuration.\nUpdate parameter \"MyHandle\" in picCoder.json")
+
+# *******************************************
     # Open File control selected.
     # Displays file browser to select a single pic.
     # *******************************************
@@ -166,8 +182,8 @@ class UI(QMainWindow):
             if filenames[0] != "":
                 logger.info(f'Selected picture file : {filenames[0]}')
 
-                # Create picCoded image object.
-                self.stegPic = Steganography(config, logger, self, filenames[0])
+                # Load new, ptentially picCoded image object.
+                self.stegPic.loadNewImage(filenames[0])
 
                 # Displaying image statusbar message.
                 self.statusBar.showMessage(f'Image file: {filenames[0]}...', 2000)
@@ -281,7 +297,7 @@ class UI(QMainWindow):
         # Set the new conversation for the conversation dialog.
         # Populate the dialog and display.
         self.stegPic.conversation.clearMessages()
-        self.conversationDlg.populateMessages(self.stegPic.conversation)
+        self.conversationDlg.populateMessages()
         self.conversationDlg.show()
 
         # Set flag for image save control.
@@ -347,6 +363,7 @@ class UI(QMainWindow):
                 logger.info(f'Selected file to save to : {filenames[0]}')
 
                 try:
+                    # Save the file with the embedded data.
                     self.stegPic.image.save(filenames[0], 'PNG')
                 except:
                     logger.error("Failed to save picCoded image to file.")
@@ -400,8 +417,14 @@ class UI(QMainWindow):
 
         # Set the embedded conversation for the conversation dialog.
         # Populate the dialog and display.
-        self.conversationDlg.populateMessages(self.stegPic.conversation)
+        self.conversationDlg.populateMessages()
         self.conversationDlg.show()
+
+        # Set flag for image save control.
+        self.haveOpenConversation = True
+
+        # Update menu item visibility.
+        self.checkMenuItems()
 
     # *******************************************
     # About control selected.
@@ -440,7 +463,7 @@ class EmbeddedImageDialog(QDialog):
         super(EmbeddedImageDialog, self).__init__()
         uic.loadUi(res_path("embeddedPic.ui"), self)
 
-        # Show the change log.
+        # Show the embedded image.
         self.showEmbeddedImage(imgFile)
 
     # *******************************************
@@ -470,12 +493,12 @@ class EmbeddedImageDialog(QDialog):
 # Conversation dialog class.
 # *******************************************
 class ConversationDialog(QDialog):
-    def __init__(self):
+    def __init__(self, conversation):
         super(ConversationDialog, self).__init__()
         uic.loadUi(res_path("messenger.ui"), self)
 
         # Initialise class conversation object.
-        self.conversation = []
+        self.conversation = conversation
 
         # Set dialog window icon.
         icon = QtGui.QIcon()
@@ -501,13 +524,9 @@ class ConversationDialog(QDialog):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
     # *******************************************
-    # Populate messages in coversation.
+    # Populate messages in conversation.
     # *******************************************
-    def populateMessages(self, conversation=None):
-
-        # Point to conversation for image.
-        if conversation != None:
-            self.conversation = conversation
+    def populateMessages(self):
 
         # Clear the dialog.
         self.clearConversationLayout()
@@ -615,27 +634,14 @@ class ConversationDialog(QDialog):
         print("[---\n")
         for i in reversed(range(self.verticalLayout.count())):
             item = self.verticalLayout.itemAt(i)
-            print(f'Initial - {type(item)}')
             if type(item) == QtWidgets.QHBoxLayout:
-                for j in range(item.count()):
+                for j in reversed(range(item.count())):
                     subItem = item.itemAt(j)
                     if type(subItem) == QtWidgets.QWidgetItem:
                         subItem.widget().setParent(None)
                     elif type(subItem) == QtWidgets.QSpacerItem:
                         item.layout().removeItem(subItem)
                 self.verticalLayout.removeItem(item)
-            elif type(item) == QtWidgets.QWidgetItem:
-                item.widget().setParent(None)
-            elif type(item) == QtWidgets.QSpacerItem:
-                self.verticalLayout.removeItem(item)
-            else:
-                print("Some other item.")
-
-        print("---\n")
-        for i in reversed(range(self.verticalLayout.count())):
-            item = self.verticalLayout.itemAt(i)
-            print(f'Final - {type(item)}')
-        print("---]")
 
     # *******************************************
     # User clicked to send new message.
@@ -651,7 +657,6 @@ class ConversationDialog(QDialog):
 
         # Repopulate conversation, now with additional message.
         self.populateMessages()
-        self.show()
 
         # Clear the contents of the text edit box.
         self.messageEdit.clear()

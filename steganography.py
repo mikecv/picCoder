@@ -95,7 +95,7 @@ class Conversation():
 # Steganography image class
 # *******************************************
 class Steganography():   
-    def __init__(self, config, log, data, picFile):
+    def __init__(self, config, log, data):
 
         self.cfg = config
         self.log = log
@@ -103,24 +103,43 @@ class Steganography():
 
         self.log.debug("Steganography class constructor.")
 
-        # Image to open and read/store data from/to.
-        self.picFile = picFile
-        self.log.debug(f'Opening image file for analysis : {self.picFile}')
-        self.bitmap = QtGui.QPixmap(picFile)
-        self.image = QtGui.QImage(picFile)
-
-        # Initialise conversation to accept embedded conversation.
-        self.conversation = Conversation()
+        # Initialise picture file
+        self.picFile = ""
 
         # Default image flags.
         self.picCoded = False
         self.picCodeType = CodeType.CODETYPE_NONE
         self.picCodeNameLen = 0
+
+        # Initialise parameters for embedded file.
         self.embeddedFilePath = ""
         self.embeddedFileName = ""
         self.embeddedFileSize = 0
         self.toEmbedFilePath = ""
         self.toEmbedFileSize = 0
+
+        # Initialise conversation to accept embedded conversation.
+        self.conversation = Conversation()
+
+        # Initialise image file read parameters.
+        self.row = 0
+        self.col = 0
+        self.plane = 0
+        self.bit = 0
+        self.bytesRead = 0
+        self.bytesWritten = 0
+        self.codeBytes = []
+
+    # *******************************************
+    # Load an image to analyze.
+    # *******************************************
+    def loadNewImage(self, picFile):
+
+        # Image to open and read/store data from/to.
+        self.picFile = picFile
+        self.log.debug(f'Opening image file for analysis : {self.picFile}')
+        self.bitmap = QtGui.QPixmap(picFile)
+        self.image = QtGui.QImage(picFile)
 
         # Get image information.
         self.picWidth = self.bitmap.width()
