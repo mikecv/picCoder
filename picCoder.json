@@ -7,8 +7,10 @@
     "PicRendering": {
         "PicCodedBgCol": "#dddddd",
         "PicCodedBorderColDef": "#000000",
-        "PicCodedBorderColCoded": "#00ff00",
-        "PicCodedButton": "#00aa00"
+        "PicCodedBorderColFileCoded": "#00e600",
+        "PicCodedFileButton": "#99ff99",
+        "PicCodedBorderColSmsCoded": "#ff8c1a",
+        "PicCodedSmsButton": "#ffcc99"
     },
     "MaxEmbedRatio": 0.5,
     "SmsRender": {

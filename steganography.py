@@ -135,6 +135,9 @@ class Steganography():
     # *******************************************
     def loadNewImage(self, picFile):
 
+        # Initislise conversation in case image has embedded conversation.
+        self.conversation.clearMessages()
+
         # Image to open and read/store data from/to.
         self.picFile = picFile
         self.log.debug(f'Opening image file for analysis : {self.picFile}')

@@ -145,6 +145,7 @@
     <addaction name="actionEmbedFile"/>
     <addaction name="actionStartConversation"/>
     <addaction name="actionEmbedConversation"/>
+    <addaction name="actionPreviewImage"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -217,6 +218,11 @@ color: rgb(255, 255, 255);</string>
   <action name="actionEmbedConversation_2">
    <property name="text">
     <string>Embed Conversation</string>
+   </property>
+  </action>
+  <action name="actionPreviewImage">
+   <property name="text">
+    <string>Preview Image</string>
    </property>
   </action>
  </widget>

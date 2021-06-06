@@ -25,10 +25,12 @@ class Config():
 
         # Image name status indication.
         self.PicRendering = {
-            "PicCodedBgCol" : "#dddddd",
-            "PicCodedBorderColDef" : "#000000",
-            "PicCodedBorderColCoded" : "#00ff00",
-            "PicCodedButton": "#00aa00"
+            "PicCodedBgCol": "#dddddd",
+            "PicCodedBorderColDef": "#000000",
+            "PicCodedBorderColFileCoded": "#00e600",
+            "PicCodedFileButton": "#99ff99",
+            "PicCodedBorderColSmsCoded": "#ff8c1a",
+            "PicCodedSmsButton": "#ffcc99"
         }
 
         # Conversation rendering.
@@ -96,16 +98,28 @@ class Config():
                     self.PicRendering["PicCodedBorderColDef"] = paramSaved
                     updateConfig = True
                 try:
-                    paramSaved = self.PicRendering["PicCodedBorderColCoded"]
-                    self.PicRendering["PicCodedBorderColCoded"] = config["PicRendering"]["PicCodedBorderColCoded"]
+                    paramSaved = self.PicRendering["PicCodedBorderColFileCoded"]
+                    self.PicRendering["PicCodedBorderColFileCoded"] = config["PicRendering"]["PicCodedBorderColFileCoded"]
                 except Exception:
-                    self.PicRendering["PicCodedBorderColCoded"] = paramSaved
+                    self.PicRendering["PicCodedBorderColFileCoded"] = paramSaved
                     updateConfig = True
                 try:
-                    paramSaved = self.PicRendering["PicCodedButton"]
-                    self.PicRendering["PicCodedButton"] = config["PicRendering"]["PicCodedButton"]
+                    paramSaved = self.PicRendering["PicCodedFileButton"]
+                    self.PicRendering["PicCodedFileButton"] = config["PicRendering"]["PicCodedFileButton"]
                 except Exception:
-                    self.PicRendering["PicCodedButton"] = paramSaved
+                    self.PicRendering["PicCodedFileButton"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.PicRendering["PicCodedBorderColSmsCoded"]
+                    self.PicRendering["PicCodedBorderColSmsCoded"] = config["PicRendering"]["PicCodedBorderColSmsCoded"]
+                except Exception:
+                    self.PicRendering["PicCodedBorderColSmsCoded"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.PicRendering["PicCodedSmsButton"]
+                    self.PicRendering["PicCodedSmsButton"] = config["PicRendering"]["PicCodedSmsButton"]
+                except Exception:
+                    self.PicRendering["PicCodedSmsButton"] = paramSaved
                     updateConfig = True
                 try:
                     paramSaved = self.SmsRender["TextWidth"]

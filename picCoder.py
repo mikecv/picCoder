@@ -27,12 +27,8 @@ from progressBar import *
 # *******************************************
 # TODO List
 #
-# Display image with embedded file in separate window so that you can see what it looks like before saving.
-# Add support for embedded text messaging.
 # Rework calculation of text messages. Total number and total length.
-# Resolve updating and swapping between conversation dialogs.
-# When adding to embedded conversation, messages are saved twice when embedded.
-# After embedding file/conversation display the QImage, i.e. before saving. 
+# Add option for password protected embedded data.
 # Add a help page.
 # *******************************************
 
@@ -104,6 +100,9 @@ class UI(QMainWindow):
         # Attach to the embed conversation menu item.
         self.actionEmbedConversation.triggered.connect(self.embedConversation)
 
+        # Attach to the preview image menu item.
+        self.actionPreviewImage.triggered.connect(self.previewImage)
+
         # Attach to the Quit menu item.
         self.actionQuit.triggered.connect(app.quit)
 
@@ -147,7 +146,8 @@ class UI(QMainWindow):
         self.actionEmbedFile.setEnabled(self.haveOpenPic)
         self.actionStartConversation.setEnabled(self.haveOpenPic)
         self.actionEmbedConversation.setEnabled(self.haveOpenPic and self.haveOpenConversation)
-        self.actionSaveCodedImage.setEnabled((self.haveOpenPic and (self.haveEmbededPic or self.haveOpenConversation)))
+        self.actionSaveCodedImage.setEnabled((self.haveOpenPic and self.haveEmbededPic))
+        self.actionPreviewImage.setEnabled((self.haveOpenPic and self.haveEmbededPic))
         self.picDetailsLbl.setHidden(not self.haveOpenPic)
 
     # *******************************************
@@ -203,7 +203,7 @@ class UI(QMainWindow):
                         fileDetails += (f'\nImage contains embedded file : {self.stegPic.embeddedFileName}')
                         # Show the button to extract the embedded file.
                         self.getEmbeddedDataBtn.setText("Extract Embedded File")
-                        self.getEmbeddedDataBtn.setStyleSheet(f'background-color: {config.PicRendering["PicCodedButton"]};')
+                        self.getEmbeddedDataBtn.setStyleSheet(f'background-color: {config.PicRendering["PicCodedFileButton"]};')
                         self.getEmbeddedDataBtn.show()
                         # Attach callback to get embedded file button.
                         # Need to disconnect first in case already connected to previous image.
@@ -212,11 +212,13 @@ class UI(QMainWindow):
                         except TypeError:
                             pass
                         self.getEmbeddedDataBtn.clicked.connect(self.getEmbeddedFile)
+                        # Put special border around the picCoded image filename.
+                        self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColFileCoded"]};')
                     elif self.stegPic.picCodeType == CodeType.CODETYPE_TEXT.value:
                         fileDetails += (f'\nImage contains embedded conversation.')
                         # Show the button to extract the embedded file.
                         self.getEmbeddedDataBtn.setText("Open Embedded Conversation")
-                        self.getEmbeddedDataBtn.setStyleSheet(f'background-color: {config.PicRendering["PicCodedButton"]};')
+                        self.getEmbeddedDataBtn.setStyleSheet(f'background-color: {config.PicRendering["PicCodedSmsButton"]};')
                         self.getEmbeddedDataBtn.show()
                         # Attach callback to open the embedded conversation button.
                         # Need to disconnect first in case already connected to previous image.
@@ -225,11 +227,17 @@ class UI(QMainWindow):
                         except TypeError:
                             pass
                         self.getEmbeddedDataBtn.clicked.connect(self.openEmbeddedConversation)
-                    # Put special border around the picCoded image filename.
-                    self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColCoded"]};')
+                        # Put special border around the picCoded image filename.
+                        self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColSmsCoded"]};')
 
                 # Set flag to indicate we have an open pic to play with.
                 self.haveOpenPic = True
+
+                # Set flag for no image to save control.
+                self.haveEmbededPic = False
+
+                # Update menu item visibility.
+                self.checkMenuItems()
 
                 # Update image file details label.
                 self.picDetailsLbl.setText(f'{fileDetails}')
@@ -289,6 +297,16 @@ class UI(QMainWindow):
         self.checkMenuItems()
 
     # *******************************************
+    # Preview image control selected.
+    # Displays the image with embedded image or conversation.
+    # This is so user can check if the embedding is noticeable.
+    # *******************************************
+    def previewImage(self):
+        logger.debug("User selected preview image menu control.")
+
+        preview = PreviewImageDialog(self.stegPic.image)
+
+    # *******************************************
     # Start conversation control selected.
     # *******************************************
     def startConversation(self):
@@ -338,6 +356,12 @@ class UI(QMainWindow):
             # Embed conversation.
             logger.debug(f'Embedding conversion.')
             self.stegPic.embedConversationIntoImage()
+
+            # Set flag for image save control.
+            self.haveEmbededPic = True
+
+            # Update menu item visibility.
+            self.checkMenuItems()
 
     # *******************************************
     # Save File control selected.
@@ -454,6 +478,40 @@ class UI(QMainWindow):
 
         # Create embedded image dialog.        
         EmbeddedImageDialog(imgFile)
+
+# *******************************************
+# Preview image dialog class.
+# Displays preview of embedded image.
+# *******************************************
+class PreviewImageDialog(QDialog):
+    def __init__(self, picImage, parent=None):
+        super(PreviewImageDialog, self).__init__()
+        uic.loadUi(res_path("picPreview.ui"), self)
+
+        # Show the embedded image.
+        self.showImagePreview(picImage)
+
+    # *******************************************
+    # Displays preview of image with embedded data in dialog box.
+    # This is so that user can preview before deciding to save.
+    # *******************************************
+    def showImagePreview(self, picImage):
+
+        # Set dialog window icon.
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
+        self.setWindowIcon(icon)
+
+        # Create bitmap for display.
+        bitmap = QtGui.QPixmap.fromImage(picImage)
+
+        # Display bitmap.
+        self.pictureLbl.setPixmap(bitmap.scaled(self.pictureLbl.width(), self.pictureLbl.height(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+        self.pictureLbl.adjustSize()
+        self.pictureLbl.show()
+
+        # Show dialog.
+        self.exec_()
 
 # *******************************************
 # Embedded image dialog class.
@@ -631,7 +689,6 @@ class ConversationDialog(QDialog):
         # Iterate through conversation layout and delete.
         # Deletes layouts and spacers that make up each message bubble.
         # Delete the message labels themselves.
-        print("[---\n")
         for i in reversed(range(self.verticalLayout.count())):
             item = self.verticalLayout.itemAt(i)
             if type(item) == QtWidgets.QHBoxLayout:
