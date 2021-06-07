@@ -142,9 +142,16 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionEmbedFile"/>
+    <widget class="QMenu" name="menuEmbed">
+     <property name="title">
+      <string>Embed...</string>
+     </property>
+     <addaction name="actionEmbedFile"/>
+     <addaction name="actionEmbedConversation"/>
+     <addaction name="actionIncludePassword"/>
+    </widget>
     <addaction name="actionStartConversation"/>
-    <addaction name="actionEmbedConversation"/>
+    <addaction name="menuEmbed"/>
     <addaction name="actionPreviewImage"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -195,7 +202,7 @@ color: rgb(255, 255, 255);</string>
     <string>Open Image</string>
    </property>
   </action>
-  <action name="actionEmbedFile">
+  <action name="actionEmbedFileg">
    <property name="text">
     <string>Embed File</string>
    </property>
@@ -210,7 +217,7 @@ color: rgb(255, 255, 255);</string>
     <string>Start Conversation</string>
    </property>
   </action>
-  <action name="actionEmbedConversation">
+  <action name="actionEmbedConversationg">
    <property name="text">
     <string>Embed Conversation</string>
    </property>
@@ -223,6 +230,24 @@ color: rgb(255, 255, 255);</string>
   <action name="actionPreviewImage">
    <property name="text">
     <string>Preview Image</string>
+   </property>
+  </action>
+  <action name="actionEmbedFile">
+   <property name="text">
+    <string>Embed File</string>
+   </property>
+  </action>
+  <action name="actionEmbedConversation">
+   <property name="text">
+    <string>Embed Conversation</string>
+   </property>
+  </action>
+  <action name="actionIncludePassword">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Include Password</string>
    </property>
   </action>
  </widget>

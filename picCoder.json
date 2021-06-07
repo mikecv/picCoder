@@ -12,7 +12,6 @@
         "PicCodedBorderColSmsCoded": "#ff8c1a",
         "PicCodedSmsButton": "#ffcc99"
     },
-    "MaxEmbedRatio": 0.5,
     "SmsRender": {
         "TextWidth": 450,
         "SameMsgTime": 30,
@@ -21,5 +20,7 @@
         "ThemSMSBorderCol": "#ff6600",
         "MeSMSBkGrndCol": "#e6f2ff",
         "ThemSMSBkGrndCol": "#ffe0cc"
-    }
+    },
+    "MaxEmbedRatio": 0.5,
+    "IncludePasswd": 1
 }

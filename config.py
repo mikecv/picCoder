@@ -47,6 +47,9 @@ class Config():
         # Maximum embedded file size ratio.
         self.MaxEmbedRatio = 0.5
 
+        # Include password when embedding.
+        self.IncludePasswd = 0
+
         # Read / update configuration from file.
         self.readConfig()
 
@@ -164,8 +167,16 @@ class Config():
                     self.SmsRender["ThemSMSBkGrndCol"] = paramSaved
                     updateConfig = True
                 try:
+                    paramSaved = self.MaxEmbedRatio
                     self.MaxEmbedRatio = config["MaxEmbedRatio"]
                 except Exception:
+                    self.MaxEmbedRatio = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.IncludePasswd
+                    self.IncludePasswd = config["IncludePasswd"]
+                except Exception:
+                    self.IncludePasswd = paramSaved
                     updateConfig = True
 
                 # If required, i.e. couldn't update all data from user configuration, then save default.
@@ -191,8 +202,9 @@ class Config():
             "LogBackups" : self.LogBackups,
             "MyHandle" : self.MyHandle,
             "PicRendering" : self.PicRendering,
-            "MaxEmbedRatio" : self.MaxEmbedRatio,
             "SmsRender" : self.SmsRender,
+            "MaxEmbedRatio" : self.MaxEmbedRatio,
+            "IncludePasswd" : self.IncludePasswd
         }
 
         # Open file for writing.

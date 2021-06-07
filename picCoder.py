@@ -103,6 +103,11 @@ class UI(QMainWindow):
         # Attach to the preview image menu item.
         self.actionPreviewImage.triggered.connect(self.previewImage)
 
+        # Attach to save with password menu item (Initialise according to congih).
+        self.actionIncludePassword.triggered.connect(self.includePasswordCtrl)
+        self.actionIncludePassword.setChecked(bool(config.IncludePasswd))
+        self.includePassword = self.actionIncludePassword.isChecked()
+
         # Attach to the Quit menu item.
         self.actionQuit.triggered.connect(app.quit)
 
@@ -151,6 +156,13 @@ class UI(QMainWindow):
         self.picDetailsLbl.setHidden(not self.haveOpenPic)
 
     # *******************************************
+    # Callback function for include password for embedding agtion checkbox.
+    # *******************************************
+    def includePasswordCtrl(self):
+        self.includePassword = self.actionIncludePassword.isChecked()
+        logger.debug(f'User set Include Password menu state: {self.includePassword}')
+
+    # *******************************************
     # Check if there is a user handle in configuration.
     # This is the handle printed in message bubbles for 'this' user.
     # *******************************************
@@ -159,7 +171,7 @@ class UI(QMainWindow):
             logger.warning("User configuration does not have a handle for messaging.")
             showPopup("Warning", "Embedded Messaging", "No message handle in configuration.\nUpdate parameter \"MyHandle\" in picCoder.json")
 
-# *******************************************
+    # *******************************************
     # Open File control selected.
     # Displays file browser to select a single pic.
     # *******************************************
@@ -254,6 +266,15 @@ class UI(QMainWindow):
     # *******************************************
     def embedFile(self):
         logger.debug("User selected Embed File menu control.")
+
+        # Check if password protection is ticked.
+        if self.includePassword == True:
+            # Show password dialog.
+            pw = PasswordDialog()
+            # Get user selection.
+            ok, password = pw.getPassword()
+            print(f'Status {ok}')
+            print(f'Password {password}')
 
         # Configure and launch file selection dialog.
         dialog = QFileDialog(self)
@@ -728,6 +749,45 @@ class ConversationDialog(QDialog):
 
         # Clear the contents of the text edit box.
         self.messageEdit.clear()
+
+# *******************************************
+# Password Entry dialog class.
+# *******************************************
+class PasswordDialog(QDialog):
+    def __init__(self):
+        super(PasswordDialog, self).__init__()
+        uic.loadUi(res_path("password.ui"), self)
+
+        # Set dialog window icon.
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
+        self.setWindowIcon(icon)
+
+        # Obfuscate password
+        self.passwordEntry.setEchoMode(QtWidgets.QLineEdit.Password)
+
+        # Connect to dialog buttons.
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+    # *******************************************
+    # Get users password entry.
+    # *******************************************
+    def getPassword(self):
+
+        # If user selecs accepts entry, then return.
+        if self.exec_() == QDialog.Accepted:
+            # Get password.
+            ok = True
+            password = self.passwordEntry.text()
+            return ok, password
+        # Every other entry is concerned not accepting entry.
+        else:
+            # Clear password.
+            self.passwordEntry.clear()
+            ok = False
+            password = ""
+            return ok, password
 
 # *******************************************
 # About dialog class.
