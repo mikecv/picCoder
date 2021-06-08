@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+# *******************************************
 # This file contains variables intended to be program constants.
 # They should be constants as they relate to the code applied to images.
+# *******************************************
 
 from enum import Enum
 

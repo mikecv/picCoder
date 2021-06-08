@@ -6,6 +6,7 @@ from PyQt5 import QtCore, QtGui
 import os
 import sys
 
+# *******************************************
 # Determine resource path being the relative path to the resource file.
 # The resource path changes when built for an executable.
 # *******************************************
