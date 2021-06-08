@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QDialog
 from PyQt5 import uic
 from PyQt5 import QtCore, QtGui
 import os
+import sys
 
 # Determine resource path being the relative path to the resource file.
 # The resource path changes when built for an executable.
@@ -25,7 +26,7 @@ class ProgressBar(QDialog):
         super(ProgressBar, self).__init__()
 
         # Set up the progress bar dialog.
-        uic.loadUi("progressBar.ui", self)
+        uic.loadUi(res_path("progressBar.ui"), self)
 
         # Initialise progress bar.
         self.progressBar.setRange(0, 100)
