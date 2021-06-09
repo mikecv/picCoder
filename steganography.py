@@ -13,11 +13,10 @@ from constants import *
 # Data encoded into the image:
 # "PICCODER"    - Indicates that the image is encodded.
 # <Passorded>   - PASSWDYNBYTES bytes, indicates if password protected, 0=No, 1=Yes.
-#
-# If password included:
 # <PassWdLen>   - PASSWDLENBYTES bytes, the length of the password.
 # <Password>    - <PassWdLen> bytes, the password.
-# 
+# <Compressed>  - ZIPPEDBYTES bytes, indicates if embedded data is compressed, 0=No, 1=Yes.
+#
 # Depending on the <CodeType> the format of the encoded data is different.
 #
 # <CodeType> = CODETYPE_FILE indicates a file is embedded, with the following format:
@@ -116,6 +115,7 @@ class Steganography():
         self.picPassword = False
         self.password = ""
         self.picCodeNameLen = 0
+        self.picZipped = False
 
         # Initialise parameters for embedded file.
         self.embeddedFilePath = ""
@@ -216,26 +216,33 @@ class Steganography():
                     else:
                         self.picPassword = bool(int(self.codeBytes.decode('utf-8')))
                         self.log.info(f'Image file has password protection : {self.picPassword}')
-                        # Password only included if encoded with password.
-                        if self.picPassword:
-                            # Get the length of the password.
-                            bytesToRead = PASSWDLENBYTES
+                        # Get the length of the password.
+                        bytesToRead = PASSWDLENBYTES
+                        self.readDataFromImage(bytesToRead)
+                        # Check if we read the expected number of bytes.
+                        if (self.bytesRead != bytesToRead):
+                            self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
+                        else:
+                            self.picPwdLen = int(self.codeBytes.decode('utf-8'))
+                            self.log.debug(f'Password length : {self.picPwdLen}')
+                            # Get the password.
+                            bytesToRead = self.picPwdLen
                             self.readDataFromImage(bytesToRead)
                             # Check if we read the expected number of bytes.
                             if (self.bytesRead != bytesToRead):
                                 self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
                             else:
-                                self.picPwdLen = int(self.codeBytes.decode('utf-8'))
-                                self.log.debug(f'Image file has password of length : {self.picPwdLen}')
-                                # Get the length of the password.
-                                bytesToRead = self.picPwdLen
+                                self.password = self.codeBytes.decode('utf-8')
+                                self.log.debug("Image password (or not) read.")
+                                # Get whether the embedded data is compressed.
+                                bytesToRead = ZIPPEDBYTES
                                 self.readDataFromImage(bytesToRead)
                                 # Check if we read the expected number of bytes.
                                 if (self.bytesRead != bytesToRead):
                                     self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
                                 else:
-                                    self.password = self.codeBytes.decode('utf-8')
-                                    self.log.debug(f'Image file has password : *****')
+                                    self.picZipped = bool(int(self.codeBytes.decode('utf-8')))
+                                    self.log.info(f'Image file embedded data is compressed : {self.picZipped}')
                 else:
                     self.log.debug("Image file did not contain a valid header code.")
 
@@ -431,12 +438,12 @@ class Steganography():
             # Increment characters read counter.
             bytesRead += 1
 
-            # Update loop counters for next time.
-            self.row = rowCnt
-            self.col = colCnt
-            self.plane = colPlane
-            self.bit = bitsRead
-            self.bytesRead = bytesRead
+        # Update loop counters for next time.
+        self.row = rowCnt
+        self.col = colCnt
+        self.plane = colPlane
+        self.bit = bitsRead
+        self.bytesRead = bytesRead
 
     # *******************************************
     # Image has embedded file.
@@ -602,14 +609,9 @@ class Steganography():
     # Read file and embed into the current image.
     # Embed password if required.
     # *******************************************
-    def embedFileToImage(self, pw=""):
+    def embedFileToImage(self, passworded=False, pw="", zipped=False):
 
         self.log.info(f'Embedding into image from file : {self.toEmbedFilePath}')
-
-        pwProtected = False
-        if pw != "":
-            pwProtected = True
-            self.log.info("Embedding with password.")
 
         # Create progress bar and initialise.
         self.data.progressBar.setNote('Embedding file into image...')
@@ -633,12 +635,8 @@ class Steganography():
             with open(self.toEmbedFilePath, mode='rb') as cf:
 
                 # Need to add picCoder encoding to image first.
-                if pwProtected == True:
-                    frmtString = ('%%s%%0%dd%%0%dd%%0%dd%%s%%0%dd%%s%%0%dd') % (CODETYPEBYTES, PASSWDYNBYTES, PASSWDLENBYTES, NAMELENBYTES, LENBYTES)
-                    picCodeHdr = frmtString % (PROGCODE, pwProtected, len(pw), pw, CodeType.CODETYPE_FILE.value, len(self.toEmbedFilePath), self.toEmbedFilePath, self.toEmbedFileSize)
-                else:
-                    frmtString = ('%%s%%0%dd%%0%dd%%0%dd%%s%%0%dd') % (CODETYPEBYTES, PASSWDYNBYTES, NAMELENBYTES, LENBYTES)
-                    picCodeHdr = frmtString % (PROGCODE, pwProtected, CodeType.CODETYPE_FILE.value, len(self.toEmbedFilePath), self.toEmbedFilePath, self.toEmbedFileSize)
+                frmtString = ('%%s%%0%dd%%0%dd%%s%%0%dd%%0%dd%%0%dd%%s%%0%dd') % (PASSWDYNBYTES, PASSWDLENBYTES, ZIPPEDBYTES, CODETYPEBYTES,  NAMELENBYTES, LENBYTES)
+                picCodeHdr = frmtString % (PROGCODE, int(passworded), len(pw), pw, int(zipped), CodeType.CODETYPE_FILE.value, len(self.toEmbedFilePath), self.toEmbedFilePath, self.toEmbedFileSize)
 
                 self.log.info(f'Composed piCoder code to insert into image : {picCodeHdr}')
                 self.log.info('Embedding picCoder encoding information into start of image.')
@@ -691,14 +689,9 @@ class Steganography():
     # Embed conversantion into the current image.
     # Embed password if required.
     # *******************************************
-    def embedConversationIntoImage(self, pw=""):
+    def embedConversationIntoImage(self, passworded=False, pw="", zipped=False):
 
         self.log.info(f'Embedding conversation into image.')
-
-        pwProtected = False
-        if pw != "":
-            pwProtected = True
-            self.log.info("Embedding with password.")
 
         # Create progress bar and initialise.
         msg = 0
@@ -717,12 +710,8 @@ class Steganography():
         self.bytesWritten = 0
 
         # Need to add picCoder encoding to image first.
-        if pwProtected == True:
-            frmtString = ('%%s%%0%dd%%0%dd%%s%%0%dd%%0%dd') % (CODETYPEBYTES, PASSWDYNBYTES, PASSWDLENBYTES, NUMSMSBYTES)
-            picCodeHdr = frmtString % (PROGCODE, pwProtected, len(pw), pw, CodeType.CODETYPE_TEXT.value, len(self.conversation.messages))
-        else:
-            frmtString = ('%%s%%0%dd%%0%dd%%0%dd') % (CODETYPEBYTES, PASSWDYNBYTES, NUMSMSBYTES)
-            picCodeHdr = frmtString % (PROGCODE, pwProtected, CodeType.CODETYPE_TEXT.value, len(self.conversation.messages))
+        frmtString = ('%%s%%0%dd%%0%dd%%s%%0%dd%%0%dd%%0%dd%%s%%0%dd') % (PASSWDYNBYTES, PASSWDLENBYTES, ZIPPEDBYTES, CODETYPEBYTES,  NUMSMSBYTES)
+        picCodeHdr = frmtString % (PROGCODE, int(passworded), len(pw), pw, int(zipped), CodeType.CODETYPE_FILE.value, len(self.conversation.messages))
 
         self.log.info(f'Composed piCoder code to insert into image : {picCodeHdr}')
         self.log.info('Embedding picCoder encoding information into start of image.')

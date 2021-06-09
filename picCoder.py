@@ -33,6 +33,7 @@ from about import *
 #
 # Rework calculation of text messages. Total number and total length.
 # Add option for password protected embedded data.
+# Add option to compress embedded data.
 # Make more use of status bar for application messages.
 # Add a help page.
 # *******************************************
@@ -278,8 +279,6 @@ class UI(QMainWindow):
             pw = PasswordDialog()
             # Get user selection.
             ok, password = pw.getPassword()
-            print(f'Status {ok}')
-            print(f'Password {password}')
 
         # Configure and launch file selection dialog.
         dialog = QFileDialog(self)
