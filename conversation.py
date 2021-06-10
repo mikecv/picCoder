@@ -69,6 +69,9 @@ class ConversationDialog(QDialog):
         numSMSes = self.conversation.numMessages()
         self.logger.debug(f'Populating conversation with messages : {numSMSes}')
 
+        # Add a stretch widget at the top to consume space and push messages to the bottom.
+        self.verticalLayout.addStretch()
+
         # Loop through messages.
         for idx, msg in enumerate(self.conversation.messages):
 
@@ -148,9 +151,6 @@ class ConversationDialog(QDialog):
             
             # Add horizontal layout containing the label to vertical layout.
             self.verticalLayout.addLayout(hBox)
-
-        # Add a stretch widget at the bottom to consume space.
-        self.verticalLayout.addStretch()
 
         # Scroll to the bottom of the scroll area.
         self.scrollArea.verticalScrollBar().rangeChanged.connect(lambda: self.scrollArea.verticalScrollBar().setValue(self.scrollArea.verticalScrollBar().maximum()))

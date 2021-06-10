@@ -710,8 +710,8 @@ class Steganography():
         self.bytesWritten = 0
 
         # Need to add picCoder encoding to image first.
-        frmtString = ('%%s%%0%dd%%0%dd%%s%%0%dd%%0%dd%%0%dd%%s%%0%dd') % (PASSWDYNBYTES, PASSWDLENBYTES, ZIPPEDBYTES, CODETYPEBYTES,  NUMSMSBYTES)
-        picCodeHdr = frmtString % (PROGCODE, int(passworded), len(pw), pw, int(zipped), CodeType.CODETYPE_FILE.value, len(self.conversation.messages))
+        frmtString = ('%%s%%0%dd%%0%dd%%s%%0%dd%%0%dd%%0%dd') % (PASSWDYNBYTES, PASSWDLENBYTES, ZIPPEDBYTES, CODETYPEBYTES,  NUMSMSBYTES)
+        picCodeHdr = frmtString % (PROGCODE, int(passworded), len(pw), pw, int(zipped), CodeType.CODETYPE_TEXT.value, len(self.conversation.messages))
 
         self.log.info(f'Composed piCoder code to insert into image : {picCodeHdr}')
         self.log.info('Embedding picCoder encoding information into start of image.')
