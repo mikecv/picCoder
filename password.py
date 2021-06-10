@@ -22,7 +22,7 @@ def res_path(relative_path):
 # Password Entry dialog class.
 # *******************************************
 class PasswordDialog(QDialog):
-    def __init__(self):
+    def __init__(self, prompt):
         super(PasswordDialog, self).__init__()
         uic.loadUi(res_path("password.ui"), self)
 
@@ -30,6 +30,9 @@ class PasswordDialog(QDialog):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(res_path("./resources/about.png")))
         self.setWindowIcon(icon)
+
+        # Set prompt text.
+        self.passwordPromptLbl.setText(prompt)
 
         # Obfuscate password
         self.passwordEntry.setEchoMode(QtWidgets.QLineEdit.Password)
@@ -46,13 +49,13 @@ class PasswordDialog(QDialog):
         # If user selecs accepts entry, then return.
         if self.exec_() == QDialog.Accepted:
             # Get password.
-            ok = True
+            protected = True
             password = self.passwordEntry.text()
-            return ok, password
+            return protected, password
         # Every other entry is concerned not accepting entry.
         else:
             # Clear password.
             self.passwordEntry.clear()
-            ok = False
+            protected = False
             password = ""
-            return ok, password
+            return protected, password

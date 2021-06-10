@@ -32,7 +32,6 @@ from about import *
 # TODO List
 #
 # Rework calculation of text messages. Total number and total length.
-# Add option for password protected embedded data.
 # Add option to compress embedded data.
 # Make more use of status bar for application messages.
 # Add a help page.
@@ -276,47 +275,53 @@ class UI(QMainWindow):
         # Check if password protection is ticked.
         if self.includePassword == True:
             # Show password dialog.
-            pw = PasswordDialog()
+            pw = PasswordDialog("Enter password to encode into image...")
             # Get user selection.
-            ok, password = pw.getPassword()
+            protected, password = pw.getPassword()
 
-        # Configure and launch file selection dialog.
-        dialog = QFileDialog(self)
-        dialog.setWindowTitle("Select file to embed into image...")
-        dialog.setAcceptMode(QFileDialog.AcceptOpen)
-        dialog.setFileMode(QFileDialog.ExistingFiles)
-        dialog.setViewMode(QFileDialog.Detail)
-        dialog.setNameFilters(["Any file (*.*)"])
+            if ((protected == False) or (len(password) == 0)):
+                # Requirement for password but no password entered by user.
+                logger.warning("Password required but no password entered.")
+                showPopup("Warning", "picCoder Embedding File", "Requirement for password but no password entered.")
+            else:
+                # Configure and launch file selection dialog.
+                dialog = QFileDialog(self)
+                dialog.setWindowTitle("Select file to embed into image...")
+                dialog.setAcceptMode(QFileDialog.AcceptOpen)
+                dialog.setFileMode(QFileDialog.ExistingFiles)
+                dialog.setViewMode(QFileDialog.Detail)
+                dialog.setNameFilters(["Any file (*.*)"])
 
-        # If have filename(s) then open.
-        if dialog.exec_():
-            filenames = dialog.selectedFiles()
+                # If have filename(s) then open.
+                if dialog.exec_():
+                    filenames = dialog.selectedFiles()
 
-            # If have a filename then open.
-            if filenames[0] != "":
-                logger.info(f'Selected file to embed : {filenames[0]}')
+                    # If have a filename then open.
+                    if filenames[0] != "":
+                        logger.info(f'Selected file to embed : {filenames[0]}')
 
-                # Need to do a quick check of file size, as might not fit or look right.
-                # Size of file to embed.
-                fileSize = os.path.getsize(filenames[0])
-                logger.info(f'Selected file to embed has filesize : {fileSize}')
-                # PicCoder embeded data size.
-                extraInfo = len(PROGCODE) + CODETYPEBYTES + NAMELENBYTES + len(filenames[0]) + LENBYTES
-                # Maximum space available from PIL import Image for embedding.
-                maxSpace = self.stegPic.picBytes
-                embedRatio = (fileSize + extraInfo) / maxSpace
-                # Warning if file to embed is more than a certain ratio.
-                if embedRatio > config.MaxEmbedRatio:
-                    logger.warning(f'Data to embed exceeds maximum ratio : {embedRatio:.3f}')
-                    showPopup("Warning", "picCoder Embedding File", "File to embed would exceed allowed embedding ratio.")
-                else:
-                    # Proceed to embedding file into image.
-                    self.stegPic.toEmbedFilePath = filenames[0]
-                    self.stegPic.toEmbedFileSize = fileSize
-                    self.stegPic.embedFileToImage()
+                        # Need to do a quick check of file size, as might not fit or look right.
+                        # Size of file to embed.
+                        fileSize = os.path.getsize(filenames[0])
+                        logger.info(f'Selected file to embed has filesize : {fileSize}')
+                        # PicCoder embeded data size.
+                        extraInfo = len(PROGCODE) + CODETYPEBYTES + NAMELENBYTES + len(filenames[0]) + LENBYTES
+                        # Maximum space available from PIL import Image for embedding.
+                        maxSpace = self.stegPic.picBytes
+                        embedRatio = (fileSize + extraInfo) / maxSpace
+                        # Warning if file to embed is more than a certain ratio.
+                        if embedRatio > config.MaxEmbedRatio:
+                            logger.warning(f'Data to embed exceeds maximum ratio : {embedRatio:.3f}')
+                            showPopup("Warning", "picCoder Embedding File", "File to embed would exceed allowed embedding ratio.")
+                        else:
+                            # Proceed to embedding file into image.
+                            # Embed with password as applicable; currently compressed not performed.
+                            self.stegPic.toEmbedFilePath = filenames[0]
+                            self.stegPic.toEmbedFileSize = fileSize
+                            self.stegPic.embedFileToImage(protected, password)
 
-                    # Set flag for image save control.
-                    self.haveEmbededPic = True
+                            # Set flag for image save control.
+                            self.haveEmbededPic = True
 
         # Update menu item visibility.
         self.checkMenuItems()
@@ -356,34 +361,47 @@ class UI(QMainWindow):
     def embedConversation(self):
         logger.debug("User selected Embed Conversation menu control.")
 
-        # Need to do a quick check of conversation size, as might not fit or look right.
-        # Size of conversation to embed.
-        convLength = 0
-        for msg in self.stegPic.conversation.messages:
-            convLength += NUMSMSBYTES
-            convLength += NAMELENBYTES
-            convLength += len(msg.writer)
-            convLength += TIMELENBYTES
-            convLength += len(msg.msgTime)
-            convLength += SMSLENBYTES
-            convLength += len(msg.msgText)
+        # Check if password protection is ticked.
+        if self.includePassword == True:
+            # Show password dialog.
+            pw = PasswordDialog("Enter password to encode into image...")
+            # Get user selection.
+            protected, password = pw.getPassword()
 
-        # PicCoder embeded data size.
-        embedData = len(PROGCODE) + CODETYPEBYTES + NUMSMSBYTES + convLength
-        # Maximum space available from PIL import Image for embedding.
-        maxSpace = self.stegPic.picBytes
-        embedRatio = embedData / maxSpace
-        # Warning if embedded data to embed is more than a certain ratio.
-        if embedRatio > config.MaxEmbedRatio:
-            logger.warning(f'Data to embed exceeds maximum ratio : {embedRatio:.3f}')
-            showPopup("Warning", "picCoder Embedding Conversation", "Conversation to embed would exceed allowed embedding ratio.")
-        else:
-            # Embed conversation.
-            logger.debug(f'Embedding conversion.')
-            self.stegPic.embedConversationIntoImage()
+            if ((protected == False) or (len(password) == 0)):
+                # Requirement for password but no password entered by user.
+                logger.warning("Password required but no password entered.")
+                showPopup("Warning", "picCoder Embedding Conversation", "Requirement for password but no password entered.")
+            else:
 
-            # Set flag for image save control.
-            self.haveEmbededPic = True
+                # Need to do a quick check of conversation size, as might not fit or look right.
+                # Size of conversation to embed.
+                convLength = 0
+                for msg in self.stegPic.conversation.messages:
+                    convLength += NUMSMSBYTES
+                    convLength += NAMELENBYTES
+                    convLength += len(msg.writer)
+                    convLength += TIMELENBYTES
+                    convLength += len(msg.msgTime)
+                    convLength += SMSLENBYTES
+                    convLength += len(msg.msgText)
+
+                # PicCoder embeded data size.
+                embedData = len(PROGCODE) + CODETYPEBYTES + NUMSMSBYTES + convLength
+                # Maximum space available from PIL import Image for embedding.
+                maxSpace = self.stegPic.picBytes
+                embedRatio = embedData / maxSpace
+                # Warning if embedded data to embed is more than a certain ratio.
+                if embedRatio > config.MaxEmbedRatio:
+                    logger.warning(f'Data to embed exceeds maximum ratio : {embedRatio:.3f}')
+                    showPopup("Warning", "picCoder Embedding Conversation", "Conversation to embed would exceed allowed embedding ratio.")
+                else:
+                    # Embed conversation.
+                    logger.debug(f'Embedding conversion.')
+                    self.stegPic.embedConversationIntoImage(protected, password)
+
+                    # Set flag for image save control.
+                    self.haveEmbededPic = True
 
             # Update menu item visibility.
             self.checkMenuItems()
@@ -423,40 +441,54 @@ class UI(QMainWindow):
     def getEmbeddedFile(self):
         logger.debug("User selected control to extract embedded file.")
 
-        # Get filename parts.
-        fnParts = os.path.splitext(self.stegPic.embeddedFileName)
+        # Show password dialog.
+        pw = PasswordDialog("Enter password to extract embedded file...")
+        # Get user selection.
+        protected, password = pw.getPassword()
 
-        # Configure and launch file selection dialog.
-        dialog = QFileDialog(self, directory = self.stegPic.embeddedFileName)
-        dialog.setWindowTitle("Select file to save embedded file to...")
-        dialog.setFileMode(QFileDialog.AnyFile)
-        dialog.setNameFilter(fnParts[1])
-        dialog.setDefaultSuffix(fnParts[1])
-        dialog.setViewMode(QFileDialog.List)
-        dialog.setNameFilters([f'{fnParts[1][1:]} files (*{fnParts[1]})'])
-        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        if protected == False:
+            # Embedded file is not password protected.
+            logger.debug("Embedded file has no password protection.")
+        elif password != self.stegPic.password:
+            # Wrong password entered.
+            logger.warning("Password incorrect.")
+            showPopup("Warning", "picCoder Extracting Embedded File", "Incorrect password entered.")
+        else:
 
-        # If returned filename then open/create.
-        if dialog.exec_():
-            filenames = dialog.selectedFiles()
+            # Get filename parts.
+            fnParts = os.path.splitext(self.stegPic.embeddedFileName)
 
-            # If have a filename then open.
-            if filenames[0] != "":
-                logger.info(f'Selected file to save to : {filenames[0]}')
+            # Configure and launch file selection dialog.
+            dialog = QFileDialog(self, directory = self.stegPic.embeddedFileName)
+            dialog.setWindowTitle("Select file to save embedded file to...")
+            dialog.setFileMode(QFileDialog.AnyFile)
+            dialog.setNameFilter(fnParts[1])
+            dialog.setDefaultSuffix(fnParts[1])
+            dialog.setViewMode(QFileDialog.List)
+            dialog.setNameFilters([f'{fnParts[1][1:]} files (*{fnParts[1]})'])
+            dialog.setAcceptMode(QFileDialog.AcceptSave)
 
-                # Call method to extract embedded file.
-                self.stegPic.saveEmbeddedFile(filenames[0])
+            # If returned filename then open/create.
+            if dialog.exec_():
+                filenames = dialog.selectedFiles()
 
-                # If the image is a picture we can display it as well.
-                try:
-                    eObj = Image.open(filenames[0])
-                    imgType = eObj.format
-                    logger.debug(f'Embedded file is image type : {imgType}')
-                    # Launch dialog box to show the embedded inage.
-                    self.showDisplayedImage(filenames[0])
-                except:
-                    logger.info("Embedded file is not an image file.")
-                    showPopup("Info", "picCoder File Extraction", "Embedded file saved.\nEmbedded file is not an image, open with associated application.")
+                # If have a filename then open.
+                if filenames[0] != "":
+                    logger.info(f'Selected file to save to : {filenames[0]}')
+
+                    # Call method to extract embedded file.
+                    self.stegPic.saveEmbeddedFile(filenames[0])
+
+                    # If the image is a picture we can display it as well.
+                    try:
+                        eObj = Image.open(filenames[0])
+                        imgType = eObj.format
+                        logger.debug(f'Embedded file is image type : {imgType}')
+                        # Launch dialog box to show the embedded inage.
+                        self.showDisplayedImage(filenames[0])
+                    except:
+                        logger.info("Embedded file is not an image file.")
+                        showPopup("Info", "picCoder File Extraction", "Embedded file saved.\nEmbedded file is not an image, open with associated application.")
 
     # *******************************************
     # Displaying embedded image dialog.
@@ -473,13 +505,27 @@ class UI(QMainWindow):
     def openEmbeddedConversation(self):
         logger.debug("User selected control to opem embedded conversation.")
 
-        # Set the embedded conversation for the conversation dialog.
-        # Populate the dialog and display.
-        self.conversationDlg.populateMessages()
-        self.conversationDlg.show()
+        # Show password dialog.
+        pw = PasswordDialog("Enter password to extract embedded conversation...")
+        # Get user selection.
+        protected, password = pw.getPassword()
 
-        # Set flag for image save control.
-        self.haveOpenConversation = True
+        if protected == False:
+            # Embedded file is not password protected.
+            logger.debug("Embedded file has no password protection.")
+        elif password != self.stegPic.password:
+            # Wrong password entered.
+            logger.warning("Password incorrect.")
+            showPopup("Warning", "picCoder Extracting Embedded Conversation", "Incorrect password entered.")
+        else:
+
+            # Set the embedded conversation for the conversation dialog.
+            # Populate the dialog and display.
+            self.conversationDlg.populateMessages()
+            self.conversationDlg.show()
+
+            # Set flag for image save control.
+            self.haveOpenConversation = True
 
         # Update menu item visibility.
         self.checkMenuItems()
