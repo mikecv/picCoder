@@ -91,24 +91,24 @@ class ConversationDialog(QDialog):
             if idx == 0:
                 topRadius = self.config.SmsRender["BubbleRadius"]
             else:
-                # If message is by same writer AND within certain time of previous message the top is not rounded.
+                # If this message is by same writer AND within certain time of previous message the top of this message is not rounded.
                 if (thisWriter == prevWriter) and ((thisTime - prevTime).total_seconds() < self.config.SmsRender["SameMsgTime"]):
                     topRadius = 0
                     incWriter = False
-                # Else top is rounded.
+                # Else top of this message is rounded.
                 else:
                     topRadius = self.config.SmsRender["BubbleRadius"]
             # Bottom of bottom message is rounded.
             if idx == (numSMSes - 1):
                 botRadius = self.config.SmsRender["BubbleRadius"]
             else:
-                # If message is by same writer AND within certain time of next message the not rounded.
+                # If this message is by same writer AND within certain time of next message the bottom of this message is not rounded.
                 if (msg.writer == nextWriter) and ((nextTime - thisTime).total_seconds() < self.config.SmsRender["SameMsgTime"]):
                     botRadius = 0
                 else:
                     botRadius = self.config.SmsRender["BubbleRadius"]
 
-            # Update time and writer of previous message.
+            # Update time and writer of this message as the new previous message.
             prevTime = thisTime
             prevWriter = thisWriter
 

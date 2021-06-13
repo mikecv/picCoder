@@ -36,7 +36,7 @@ class Config():
         # Conversation rendering.
         self.SmsRender = {
             "TextWidth" : 450,
-            "SameMsgTime" : 30,
+            "SameMsgTime" : 15,
             "BubbleRadius" : 20,
             "MeSMSBorderCol" : "#0080ff",
             "ThemSMSBorderCol" : "#ff6600",
@@ -49,6 +49,10 @@ class Config():
 
         # Include password when embedding.
         self.IncludePasswd = 0
+        self.KeepPassword = 1
+
+        # Compress before embedding.
+        self.ZipEmbedding = 0
 
         # Read / update configuration from file.
         self.readConfig()
@@ -178,6 +182,18 @@ class Config():
                 except Exception:
                     self.IncludePasswd = paramSaved
                     updateConfig = True
+                try:
+                    paramSaved = self.KeepPassword
+                    self.KeepPassword = config["KeepPassword"]
+                except Exception:
+                    self.KeepPassword = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.ZipEmbedding
+                    self.ZipEmbedding = config["ZipEmbedding"]
+                except Exception:
+                    self.ZipEmbedding = paramSaved
+                    updateConfig = True
 
                 # If required, i.e. couldn't update all data from user configuration, then save default.
                 if updateConfig:
@@ -204,7 +220,9 @@ class Config():
             "PicRendering" : self.PicRendering,
             "SmsRender" : self.SmsRender,
             "MaxEmbedRatio" : self.MaxEmbedRatio,
-            "IncludePasswd" : self.IncludePasswd
+            "IncludePasswd" : self.IncludePasswd,
+            "KeepPassword" : self.KeepPassword,
+            "ZipEmbedding" : self.ZipEmbedding
         }
 
         # Open file for writing.

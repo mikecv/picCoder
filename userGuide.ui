@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ChangeLogDlg</class>
- <widget class="QDialog" name="ChangeLogDlg">
+ <class>userGuideDlg</class>
+ <widget class="QDialog" name="userGuideDlg">
   <property name="windowModality">
    <enum>Qt::NonModal</enum>
   </property>
@@ -40,15 +40,12 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QTextEdit" name="changeLogText">
+    <widget class="QTextBrowser" name="helpBrowser">
      <property name="minimumSize">
       <size>
-       <width>600</width>
-       <height>600</height>
+       <width>800</width>
+       <height>800</height>
       </size>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -59,7 +56,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>ChangeLogDlg</receiver>
+   <receiver>userGuideDlg</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">

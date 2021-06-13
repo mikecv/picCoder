@@ -135,6 +135,7 @@
     </property>
     <addaction name="actionOpenFile"/>
     <addaction name="actionSaveCodedImage"/>
+    <addaction name="actionExportConversation"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -148,7 +149,9 @@
      </property>
      <addaction name="actionEmbedFile"/>
      <addaction name="actionEmbedConversation"/>
+     <addaction name="separator"/>
      <addaction name="actionIncludePassword"/>
+     <addaction name="actionZipEmbedding"/>
     </widget>
     <addaction name="actionStartConversation"/>
     <addaction name="menuEmbed"/>
@@ -159,6 +162,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionUserGuide"/>
     <addaction name="actionChangeLog"/>
    </widget>
    <addaction name="menuFile"/>
@@ -209,7 +213,7 @@ color: rgb(255, 255, 255);</string>
   </action>
   <action name="actionSaveCodedImage">
    <property name="text">
-    <string>Save Coded Image</string>
+    <string>Save picCoded Image</string>
    </property>
   </action>
   <action name="actionStartConversation">
@@ -247,7 +251,25 @@ color: rgb(255, 255, 255);</string>
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Include Password</string>
+    <string>Embed with Password</string>
+   </property>
+  </action>
+  <action name="actionZipEmbedding">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Zip before Embedding</string>
+   </property>
+  </action>
+  <action name="actionExportConversation">
+   <property name="text">
+    <string>Export Conversation</string>
+   </property>
+  </action>
+  <action name="actionUserGuide">
+   <property name="text">
+    <string>User Guide</string>
    </property>
   </action>
  </widget>

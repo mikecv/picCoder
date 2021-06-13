@@ -25,3 +25,11 @@ class CodeType(Enum):
     CODETYPE_NONE = 0
     CODETYPE_FILE = 1
     CODETYPE_TEXT = 2
+
+# Password limits.
+PASSWDMINIMUM = 6
+PASSWDMAXIMUM = 20
+
+# Supported image types.
+# Lower case.
+ONLYIMAGES = [".png"]
