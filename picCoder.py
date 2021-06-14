@@ -394,7 +394,6 @@ class UI(QMainWindow):
  
         # Either using existing password or adding a new one.
         # Either way, can proceed with embedding.
-
         if canImbed == True:
 
             # Configure and launch file selection dialog.
@@ -418,7 +417,8 @@ class UI(QMainWindow):
                     fileSize = os.path.getsize(filenames[0])
                     logger.info(f'Selected file to embed has filesize : {fileSize}')
                     # PicCoder embeded data size.
-                    extraInfo = len(PROGCODE) + CODETYPEBYTES + NAMELENBYTES + len(filenames[0]) + LENBYTES
+                    # In the case of the password allow for maximum length password at this stage.
+                    extraInfo = len(PROGCODE) + PASSWDYNBYTES + PASSWDLENBYTES + PASSWDMAXIMUM + ZIPPEDBYTES + CODETYPEBYTES + NAMELENBYTES + len(filenames[0]) + LENBYTES
                     # Maximum space available from PIL import Image for embedding.
                     maxSpace = self.stegPic.picBytes
                     embedRatio = (fileSize + extraInfo) / maxSpace
@@ -531,7 +531,8 @@ class UI(QMainWindow):
                 convLength += len(msg.msgText)
 
             # PicCoder embeded data size.
-            embedData = len(PROGCODE) + CODETYPEBYTES + NUMSMSBYTES + convLength
+            # In the case of the password allow for maximum length password at this stage.
+            embedData = len(PROGCODE) + PASSWDYNBYTES + PASSWDLENBYTES + PASSWDMAXIMUM + ZIPPEDBYTES + CODETYPEBYTES + NUMSMSBYTES + convLength
             # Maximum space available from PIL import Image for embedding.
             maxSpace = self.stegPic.picBytes
             embedRatio = embedData / maxSpace

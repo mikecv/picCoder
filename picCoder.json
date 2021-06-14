@@ -3,7 +3,7 @@
     "DebugLevel": 10,
     "LogFileSize": 100000,
     "LogBackups": 3,
-    "MyHandle": "MDC",
+    "MyHandle": "",
     "PicRendering": {
         "PicCodedBgCol": "#dddddd",
         "PicCodedBorderColDef": "#000000",
