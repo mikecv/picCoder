@@ -9,16 +9,24 @@
 <a href="#Top">Home</a>
 <a href="#ImageTypes">Image Types</a>
 <a href="#OpeningImage">Opening Image</a>
-<a href="#OpeningPicCoderImage">Opening Encoded Image</a>
+<a href="#OpeningPicCoderImage">Opening a picCoder Encoded Image</a>
 
 <a id="Top"></a>
 <h1>picCode User Guide</h1>
+
+<a id="Introduction"></a>
+<h2>Introduction</h2>
 
 <p><i><b>picCoder</b></i> enables data to be embedded inside
   particular image files using a technique called <i><span style="font-weight: normal">Steganography</span></i><span style="font-style: normal">,
   which comes from Greek steganographia, which combines the words steganós meaning &quot;covered or concealed&quot;, and -graphia
   meaning &quot;writing&quot;. In the case of </span><i><b>picCoder</b></i><span style="font-style: normal">, data is concealed in variations of the colour of image pixels.</span></p>
-  
+ 
+<a id="Features"></a>
+<h2>Features</h2>
+
+<!-- Add features here. -->
+
 <a id="ImageTypes"></a>
 <h2>Image Types Supported</h2>
   
@@ -47,8 +55,27 @@
   and section xxxx for options to encode this image.</p>
 
 <a id="OpeningPicCoderImage"></a>
-<h2>Opening a pcCoder Encoded Image</h2>
+<h2>Opening a picCoder Encoded Image</h2>
 
+<p>When an image is opened, the application checks the image to see if it is </span><i><b>picCoder</b></i><span style="font-style: normal"> encoded.
+  This is done be scanning the image data for preamble data that all </span><i><b>picCoder</span></b></i><span style="font-style: normal"> encoded images have.
+  If the image contains </span><i><b>picCoder</span></b></i><span style="font-style: normal"> embedded data this will be indicated in the detail below the image as illustrated below.</span></p>
+  <br>
+  <br>  
+  <img src="embeddedFile.png" alt="Opened image with embedded file">
+  <br>  
 
+<p>In the example above the image contains an embedded file, called <font color="#2a6099"><i>kylie2.png</i></font>.
+  Below the details of the embedded file is a button marked <font color="#2a6099"><i>Extract Embedded File</i></font> used to extract and save the embedded file.</p>
+
+<p>In a similar way, if the image contained an image included an embedded conversation there would be a button marked <font color="#2a6099"><i>Extract Conversation</i></font>
+  used to extract and display the conversation as illustrated below.</p>
+  <br>
+  <br>  
+  <img src="embeddedConversation.png" alt="Opened image with embedded conversation">
+  <br>  
+
+<p>Note that there are different borders around the image file details for images with embedded files and embedded conversations.</p>
+  
 </body>
 </html>

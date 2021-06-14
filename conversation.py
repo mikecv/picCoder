@@ -7,6 +7,8 @@ import datetime
 import os
 import sys
 
+from popup import *
+
 # *******************************************
 # Determine resource path being the relative path to the resource file.
 # The resource path changes when built for an executable.
@@ -184,15 +186,26 @@ class ConversationDialog(QDialog):
 
         self.logger.debug("User selected send message control.")
 
-        # Read contents of text edit box and add as new message to conversation.
-        if self.messageEdit.toPlainText() != "":
-            self.conversation.addMsg(self.config.MyHandle, self.messageEdit.toPlainText())
+        # Size of conversation is restricted by emedded data ratio as applicable to embedding files.
+        # Have further restriction on number of messages in a conversation,
+        # This restriction is so that application in its current design is responsive.
+        if self.conversation.numMessages() == self.config.MaxMessages:
+            self.logger.warning(f'Message not sent as would exceed message limit: {self.config.MaxMessages}')
+            showPopup("Warning", "Sending Message", f'Message not sent as would exceed message limit of {self.config.MaxMessages} messages.')
 
-        # Repopulate conversation, now with additional message.
-        self.populateMessages()
+            # Clear the contents of the text edit box.
+            self.messageEdit.clear()
+        else:
 
-        # Clear the contents of the text edit box.
-        self.messageEdit.clear()
+            # Read contents of text edit box and add as new message to conversation.
+            if self.messageEdit.toPlainText() != "":
+                self.conversation.addMsg(self.config.MyHandle, self.messageEdit.toPlainText())
+
+            # Repopulate conversation, now with additional message.
+            self.populateMessages()
+
+            # Clear the contents of the text edit box.
+            self.messageEdit.clear()
 
     # *******************************************
     # User clicked to clear message.

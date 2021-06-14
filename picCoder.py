@@ -32,9 +32,7 @@ from about import *
 # *******************************************
 # TODO List
 #
-# Rework calculation of text messages. Total number and total length.
 # Add option to compress embedded data.
-# Embedded file length calculation checked to allow for extra parameters, password, zip.
 # Export conversation to file.
 # Update user guide page.
 # *******************************************
@@ -480,7 +478,7 @@ class UI(QMainWindow):
     def embedConversation(self):
         logger.debug("User selected Embed Conversation menu control.")
 
-        # Initialise flage that all clear to embed.
+        # Initialise flag that all clear to embed.
         canImbed = False
 
         # Check if there is an existing password and we should use it.

@@ -20,8 +20,9 @@ class Config():
         self.LogFileSize = 100000
         self.LogBackups = 3
 
-        # My handle for text messaging.
+        # Conversation configuration values.
         self.MyHandle = ""
+        self.MaxMessages = 100
 
         # Image name status indication.
         self.PicRendering = {
@@ -89,8 +90,16 @@ class Config():
                 except Exception:
                     updateConfig = True
                 try:
+                    paramSaved = self.MyHandle
                     self.MyHandle = config["MyHandle"]
                 except Exception:
+                    self.MyHandle = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.MaxMessages
+                    self.MaxMessages = config["MaxMessages"]
+                except Exception:
+                    self.MaxMessages = paramSaved
                     updateConfig = True
                 try:
                     paramSaved = self.PicRendering["PicCodedBgCol"]
@@ -217,6 +226,7 @@ class Config():
             "LogFileSize" : self.LogFileSize,
             "LogBackups" : self.LogBackups,
             "MyHandle" : self.MyHandle,
+            "MaxMessages" : self.MaxMessages,
             "PicRendering" : self.PicRendering,
             "SmsRender" : self.SmsRender,
             "MaxEmbedRatio" : self.MaxEmbedRatio,
