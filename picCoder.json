@@ -15,7 +15,7 @@
     },
     "SmsRender": {
         "TextWidth": 450,
-        "SameMsgTime": 15,
+        "SameMsgTime": 30,
         "BubbleRadius": 20,
         "MeSMSBorderCol": "#0080ff",
         "ThemSMSBorderCol": "#ff6600",

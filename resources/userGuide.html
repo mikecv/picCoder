@@ -25,7 +25,10 @@
 <a id="Features"></a>
 <h2>Features</h2>
 
-<!-- Add features here. -->
+<p>Using </span><i><b>picCoder</b></i> you can embed data inside an image, share the image with someone else, and they can extract the embedded data.
+  Embedded data can be any file with the size of the file only limited by the size of the image in which it is embedded.
+  The application also supports a conversation function, where users can share the image containing the embedded conversation and pass messages to each other.
+</p>
 
 <a id="ImageTypes"></a>
 <h2>Image Types Supported</h2>
@@ -68,14 +71,90 @@
 <p>In the example above the image contains an embedded file, called <font color="#2a6099"><i>kylie2.png</i></font>.
   Below the details of the embedded file is a button marked <font color="#2a6099"><i>Extract Embedded File</i></font> used to extract and save the embedded file.</p>
 
-<p>In a similar way, if the image contained an image included an embedded conversation there would be a button marked <font color="#2a6099"><i>Extract Conversation</i></font>
+<p>In a similar way, if the image contained an image included an embedded conversation there would be a button marked <font color="#2a6099"><i>Extract Embedded Conversation</i></font>
   used to extract and display the conversation as illustrated below.</p>
   <br>
   <br>  
   <img src="embeddedConversation.png" alt="Opened image with embedded conversation">
   <br>  
 
-<p>Note that there are different borders around the image file details for images with embedded files and embedded conversations.</p>
-  
+<p>Note that there are different coloured borders around the image file details for images with embedded files and embedded conversations.</p>
+ 
+<a id="StartingConversation"></a>
+<h2>Starting a New Conversation</h2>
+
+<p>To start a new conversation open a supported image that you'll embed the conversation into,
+  and then select <font color="#2a6099"><i>Start Conversation</i></font> from the <font color="#2a6099"><i>Edit</i></font> menu
+  as illustrated below. Note that the menu item will not be available until an image file is opened.</p>
+  <br>
+  <br>  
+  <img src="startConversation.png" alt="Start new conversation">
+  <br>  
+
+<p>This will display a empty <b>Conversation Editor</b> dialog as illustration below.</p>
+  <br>
+  <br>  
+  <img src="newConversationDlg.png" alt="New conversation dialog">
+  <br>  
+
+<a id="AddingNewMessages"></a>
+<h2>Adding Messages to a New Conversation</h2>
+
+<p>The <b>Conversation Editor</b> dialog has an edit window at the bottom where a message can be edited,
+  and a window above where committed messages are displayed.</p>
+
+<p>The messaging editing window accepts rich text, so html tags can be used,
+  although at this release this type of formatting must be done manually as illustration below.</p>
+  <br>
+  <br>  
+  <img src="messageEntry.png" alt="Message entry">
+  <br>  
+
+<p>To commit a message select the <font color="#2a6099"><i>Tick</i></font> icon, as illustration below.
+  To clear the edit window select the If the time between messages is less than a configured period the messages are grouped icon.</p>
+  <br>
+  <br>  
+  <img src="populatedMessage.png" alt="First populated message">
+  <br>  
+
+<p>As illustrated above the message is displayed in a bubble, and show the author's name (or handle),
+  the date and time of the message, and the message text it self.
+  notice the rendering of the <b>bold</b> rich text that was entered in the edit window.</p>
+
+<p>Additional messages can be added in the same way.
+  As each message is entered and committed they are rendered in the upper window as illustrated below.</p>
+  <br>
+  <br>  
+  <img src="populatedMessage-2.png" alt="Additional populated message">
+  <br>  
+
+<p>As illustrated above if the time between messages is less than a configured period the messages are grouped.
+  and in this case only the first message in the group shows the author's handle and message timestamp.
+  The time between messages for message grouping is specified in the configuration parameter <font color="#2a6099"><i>SameMsgTime</i></font>.</p>
+
+<a id="EmbeddingConversation"></a>
+<h2>Embedding the Conversation</h2>
+
+<p>An option exists to add a password to the data embedded into the image.
+  By default the configuration parameter <font color="#2a6099"><i>IncludePasswd</i></font> is used to specify this.
+  This can be overriden from the <font color="#2a6099"><i>Edit</i></font> checkbox in the <font color="#2a6099"><i>Edit / Embed...</i></font> menu as illustrated below.</p>
+  <br>
+  <br>  
+  <img src="embedWithPasswordMenu.png" alt="Embed with password checkbox">
+  <br>  
+
+<p>To embed the conversation into the image select <font color="#2a6099"><i>Embed Conversation</i></font> from the <font color="#2a6099"><i>Edit / Embed...</i></font> menu
+  as illustrated below.</p>
+  <br>
+  <br>  
+  <img src="embedConversation.png" alt="Embed conversation menu">
+  <br>  
+
+<a id="SavingImage"></a>
+<h2>Saving Image after Embedding</h2>
+
+<a id="ConfigurationSettings"></a>
+<h2>Configuration Settings</h2>
+
 </body>
 </html>

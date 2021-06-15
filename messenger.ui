@@ -26,7 +26,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>picCoder Conversion Editor</string>
+   <string>picCoder Conversation Editor</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
