@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog
 from PyQt5 import uic
 from PyQt5 import QtCore, QtGui
 from PIL import Image
+import datetime
 
 from config import *
 from constants import *
@@ -33,7 +34,6 @@ from about import *
 # TODO List
 #
 # Add option to compress embedded data.
-# Export conversation to file.
 # Update user guide page.
 # *******************************************
 
@@ -314,17 +314,17 @@ class UI(QMainWindow):
 
             elif self.stegPic.picCodeType == CodeType.CODETYPE_TEXT.value:
                 fileDetails += (f'\nImage contains embedded conversation.')
-                # Show the button to extract the embedded file.
-                self.getEmbeddedDataBtn.setText("Open Embedded Conversation")
+                # Show the button to extract the embedded conversation.
+                self.getEmbeddedDataBtn.setText("Extract Embedded Conversation")
                 self.getEmbeddedDataBtn.setStyleSheet(f'background-color: {config.PicRendering["PicCodedSmsButton"]};')
                 self.getEmbeddedDataBtn.show()
-                # Attach callback to open the embedded conversation button.
+                # Attach callback to extract the embedded conversation button.
                 # Need to disconnect first in case already connected to previous image.
                 try:
                     self.getEmbeddedDataBtn.clicked.disconnect()
                 except TypeError:
                     pass
-                self.getEmbeddedDataBtn.clicked.connect(self.openEmbeddedConversation)
+                self.getEmbeddedDataBtn.clicked.connect(self.extractEmbeddedConversation)
                 # Put special border around the picCoded image filename.
                 self.picDetailsLbl.setStyleSheet(f'background-color: {config.PicRendering["PicCodedBgCol"]}; border: 3px solid {config.PicRendering["PicCodedBorderColSmsCoded"]};')
 
@@ -590,6 +590,45 @@ class UI(QMainWindow):
     def exportConversation(self):
         logger.debug("User selected Export Conversation menu control.")
 
+        # Configure and launch file selection dialog.
+        dialog = QFileDialog(self)
+        dialog.setWindowTitle("Select file to export conversation to...")
+        dialog.setFileMode(QFileDialog.AnyFile)
+        dialog.setNameFilter("*.txt")
+        dialog.setDefaultSuffix('.txt')
+        dialog.setViewMode(QFileDialog.List)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+
+        # If returned filename then open/create.
+        if dialog.exec_():
+            filenames = dialog.selectedFiles()
+
+            # If have a filename then open.
+            if filenames[0] != "":
+                # Open file for writing
+                xf = open(filenames[0], "w")
+
+                # Export conversation to the file.
+                xf.write("***************************************************************\n")
+                xf.write("         ____  ____  ___  ___  _____  ____  ____  ____ \n")
+                xf.write("        (  _ \(_  _)/ __)/ __)(  _  )(  _ \( ___)(  _ \\\n")
+                xf.write("         )___/ _)(_( (__( (__  )(_)(  )(_) ))__)  )   /\n")
+                xf.write("        (__)  (____)\___)\___)(_____)(____/(____)(_)\_)\n")
+                xf.write("                      CONVERSATION EXPORT\n")
+                xf.write("***************************************************************\n\n")
+                xf.write("***************************************************************\n")
+                xf.write(f'piCoder encoded image : {os.path.basename(self.stegPic.picFile)}\n')
+                xf.write(f'Date / time of export : {datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")}\n')
+                xf.write("***************************************************************\n\n")
+
+                for idx, msg in enumerate(self.stegPic.conversation.messages):
+                    xf.write(f'Message : {(idx+1):03d}\n')
+                    xf.write(f'Author  : {msg.writer}\n')
+                    xf.write(f'Text    : {msg.msgText}\n\n')
+    
+                # Close file after writing.
+                xf.close()
+
     # *******************************************
     # Calback for extract embedded file button.
     # *******************************************
@@ -658,10 +697,10 @@ class UI(QMainWindow):
         EmbeddedImageDialog(imgFile)
 
     # *******************************************
-    # Calback for open embedded conversation button.
+    # Calback for extract embedded conversation button.
     # *******************************************
-    def openEmbeddedConversation(self):
-        logger.debug("User selected control to opem embedded conversation.")
+    def extractEmbeddedConversation(self):
+        logger.debug("User selected control to extract embedded conversation.")
 
         # Show password dialog.
         pw = PasswordDialog("Enter password to extract embedded conversation...")
