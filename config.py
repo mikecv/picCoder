@@ -39,10 +39,8 @@ class Config():
             "TextWidth" : 450,
             "SameMsgTime" : 15,
             "BubbleRadius" : 20,
-            "MeSMSBorderCol" : "#0080ff",
-            "ThemSMSBorderCol" : "#ff6600",
-            "MeSMSBkGrndCol" : "#e6f2ff",
-            "ThemSMSBkGrndCol" : "#ffe0cc"
+            "BorderColMax" : 70,
+            "FillColMin" : 225
         }
 
         # Maximum embedded file size ratio.
@@ -156,28 +154,16 @@ class Config():
                     self.SmsRender["BubbleRadius"] = paramSaved
                     updateConfig = True
                 try:
-                    paramSaved = self.SmsRender["MeSMSBorderCol"]
-                    self.SmsRender["MeSMSBorderCol"] = config["SmsRender"]["MeSMSBorderCol"]
+                    paramSaved = self.SmsRender["BorderColMax"]
+                    self.SmsRender["BorderColMax"] = config["SmsRender"]["BorderColMax"]
                 except Exception:
-                    self.SmsRender["MeSMSBorderCol"] = paramSaved
+                    self.SmsRender["BorderColMax"] = paramSaved
                     updateConfig = True
                 try:
-                    paramSaved = self.SmsRender["ThemSMSBorderCol"]
-                    self.SmsRender["ThemSMSBorderCol"] = config["SmsRender"]["ThemSMSBorderCol"]
+                    paramSaved = self.SmsRender["FillColMin"]
+                    self.SmsRender["FillColMin"] = config["SmsRender"]["FillColMin"]
                 except Exception:
-                    self.SmsRender["ThemSMSBorderCol"] = paramSaved
-                    updateConfig = True
-                try:
-                    paramSaved = self.SmsRender["MeSMSBkGrndCol"]
-                    self.SmsRender["MeSMSBkGrndCol"] = config["SmsRender"]["MeSMSBkGrndCol"]
-                except Exception:
-                    self.SmsRender["MeSMSBkGrndCol"] = paramSaved
-                    updateConfig = True
-                try:
-                    paramSaved = self.SmsRender["ThemSMSBkGrndCol"]
-                    self.SmsRender["ThemSMSBkGrndCol"] = config["SmsRender"]["ThemSMSBkGrndCol"]
-                except Exception:
-                    self.SmsRender["ThemSMSBkGrndCol"] = paramSaved
+                    self.SmsRender["FillColMin"] = paramSaved
                     updateConfig = True
                 try:
                     paramSaved = self.MaxEmbedRatio

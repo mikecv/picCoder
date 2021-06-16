@@ -34,7 +34,6 @@ from about import *
 # TODO List
 #
 # Add option to compress embedded data.
-# Look at letting a user assign their own message colour.
 # Update user guide page.
 # *******************************************
 

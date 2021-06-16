@@ -6,6 +6,7 @@ from PyQt5 import QtGui, QtWidgets
 import datetime
 import os
 import sys
+import random
 
 from popup import *
 
@@ -35,6 +36,9 @@ class ConversationDialog(QDialog):
 
         # Initialise class conversation object.
         self.conversation = conversation
+
+        # Writer (handle) colours for rendering.
+        self.handleColour = []
 
         # Set dialog window icon.
         icon = QtGui.QIcon()
@@ -71,11 +75,17 @@ class ConversationDialog(QDialog):
         numSMSes = self.conversation.numMessages()
         self.logger.debug(f'Populating conversation with messages : {numSMSes}')
 
+        # Get random colour for each different writer.
+        self.updateWriterColours()
+
         # Add a stretch widget at the top to consume space and push messages to the bottom.
         self.verticalLayout.addStretch()
 
         # Loop through messages.
         for idx, msg in enumerate(self.conversation.messages):
+
+            # Get the message bubble colours for this writer.
+            borderCol, fillCol = self.getWriterColours(msg.writer)
 
             # Flag to include write and timestamp.
             incWriter = True
@@ -134,7 +144,7 @@ class ConversationDialog(QDialog):
             # Pad out so my messages on the right, others on the left.
             if msg.writer == self.config.MyHandle:
                 hBox.addStretch()
-                lbl.setStyleSheet(f'border : 3px solid {self.config.SmsRender["MeSMSBorderCol"]}; background : {self.config.SmsRender["MeSMSBkGrndCol"]}; padding :10px;'
+                lbl.setStyleSheet(f'border : 3px solid {borderCol}; background : {fillCol}; padding :10px;'
                             f'border-top-left-radius : {topRadius}px;'
                             f'border-top-right-radius : {topRadius}px;'
                             f'border-bottom-left-radius : {botRadius}px;'
@@ -142,7 +152,7 @@ class ConversationDialog(QDialog):
                         )
                 hBox.addWidget(lbl)
             else:
-                lbl.setStyleSheet(f'border : 3px solid {self.config.SmsRender["ThemSMSBorderCol"]}; background : {self.config.SmsRender["ThemSMSBkGrndCol"]}; padding :10px;'
+                lbl.setStyleSheet(f'border : 3px solid {borderCol}; background : {fillCol}; padding :10px;'
                             f'border-top-left-radius : {topRadius}px;'
                             f'border-top-right-radius : {topRadius}px;'
                             f'border-bottom-left-radius : {botRadius}px;'
@@ -156,6 +166,36 @@ class ConversationDialog(QDialog):
 
         # Scroll to the bottom of the scroll area.
         self.scrollArea.verticalScrollBar().rangeChanged.connect(lambda: self.scrollArea.verticalScrollBar().setValue(self.scrollArea.verticalScrollBar().maximum()))
+
+    # *******************************************
+    # Go through conversation and update list of
+    # writer handles and assign them a random colour.
+    # Colours not guaranteed to be unique but doesn't mattter too much.
+    # *******************************************
+    def updateWriterColours(self):
+
+        # Use randomly generated colours for border and fill.
+        # Restrict ranges so that borders are darker than fill.
+        bcol = lambda: random.randint(0, self.config.SmsRender["BorderColMax"])
+        fcol = lambda: random.randint(self.config.SmsRender["FillColMin"], 255)
+
+        # Go through messages looking for different writers.
+        for idx, msg in enumerate(self.conversation.messages):
+            # Check if handle already allocated a colour.
+            if next((i for i, v in enumerate(self.handleColour) if v[0] == msg.writer), None) == None:
+                # Find a colour for the handle, border and fill.
+                borderCol = f'#{bcol():02x}{bcol():02x}{bcol():02x}'
+                fillCol = f'#{fcol():02x}{fcol():02x}{fcol():02x}'
+                # Add new handle and colours to list.
+                self.handleColour.append([msg.writer, borderCol, fillCol])
+
+    # *******************************************
+    # Get colours for particular writr handle.
+    # *******************************************
+    def getWriterColours(self, handle):
+        for idx, wdet in enumerate(self.handleColour):
+            if wdet[0] == handle:
+                return wdet[1], wdet[2]
 
     # *******************************************
     # Clear coversation dialog of messages.

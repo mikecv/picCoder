@@ -15,12 +15,10 @@
     },
     "SmsRender": {
         "TextWidth": 450,
-        "SameMsgTime": 30,
+        "SameMsgTime": 15,
         "BubbleRadius": 20,
-        "MeSMSBorderCol": "#0080ff",
-        "ThemSMSBorderCol": "#ff6600",
-        "MeSMSBkGrndCol": "#e6f2ff",
-        "ThemSMSBkGrndCol": "#ffe0cc"
+        "BorderColMax": 70,
+        "FillColMin": 225
     },
     "MaxEmbedRatio": 0.5,
     "IncludePasswd": 0,
