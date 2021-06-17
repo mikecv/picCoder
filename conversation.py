@@ -240,12 +240,11 @@ class ConversationDialog(QDialog):
         else:
 
             # Read contents of text edit box and add as new message to conversation.
-            if self.messageEdit.toHtml() != "":
-            # if self.messageEdit.toPlainText() != "":
+            if self.messageEdit.toPlainText != "":
                 self.conversation.addMsg(self.config.MyHandle, self.messageEdit.toPlainText())
 
-            # Repopulate conversation, now with additional message.
-            self.populateMessages()
+                # Repopulate conversation, now with additional message.
+                self.populateMessages()
 
             # Clear the contents of the text edit box.
             self.messageEdit.clear()

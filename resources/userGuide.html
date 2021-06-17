@@ -54,8 +54,7 @@
 
 <p>In the previous illustration the image file opened has not been <i><b>picCoder</b></i>
   encoded, which is indicated by the black border around the image file path/name.
-  See section <span style="background: #c0c0c0"><a href="#OpeningPicCoderImage">Opening Encoded Image</a></span> for opening a previously picCoder encoded image,
-  and section xxxx for options to encode this image.</p>
+  See section <span style="background: #c0c0c0"><a href="#OpeningPicCoderImage">Opening Encoded Image</a></span> for opening a previously picCoder encoded image.</p>
 
 <a id="OpeningPicCoderImage"></a>
 <h2>Opening a picCoder Encoded Image</h2>
@@ -110,16 +109,17 @@
   <img src="messageEntry.png" alt="Message entry">
   <br>  
 
-<p>To commit a message select the <font color="#2a6099"><i>Tick</i></font> icon, as illustration below.
-  To clear the edit window select the If the time between messages is less than a configured period the messages are grouped icon.</p>
+<p>To commit a message select the <font color="#2a6099"><i>Tick</i></font> icon.
+  To clear the edit window select the red <font color="#2a6099"><i>Cross</i></font> icon.
+  If the time between messages is less than a configured period the messages are grouped icon.</p>
   <br>
   <br>  
   <img src="populatedMessage.png" alt="First populated message">
   <br>  
 
-<p>As illustrated above the message is displayed in a bubble, and show the author's name (or handle),
+<p>As illustrated above the message is displayed in a bubble, and shows the author's name (or handle),
   the date and time of the message, and the message text it self.
-  notice the rendering of the <b>bold</b> rich text that was entered in the edit window.</p>
+  Notice the rendering of the <b>bold</b> rich text that was entered in the edit window.</p>
 
 <p>Additional messages can be added in the same way.
   As each message is entered and committed they are rendered in the upper window as illustrated below.</p>
@@ -128,7 +128,7 @@
   <img src="populatedMessage-2.png" alt="Additional populated message">
   <br>  
 
-<p>As illustrated above if the time between messages is less than a configured period the messages are grouped.
+<p>As illustrated above, if the time between messages is less than a configured period the messages are grouped,
   and in this case only the first message in the group shows the author's handle and message timestamp.
   The time between messages for message grouping is specified in the configuration parameter <font color="#2a6099"><i>SameMsgTime</i></font>.</p>
 
@@ -137,7 +137,8 @@
 
 <p>An option exists to add a password to the data embedded into the image.
   By default the configuration parameter <font color="#2a6099"><i>IncludePasswd</i></font> is used to specify this.
-  This can be overriden from the <font color="#2a6099"><i>Edit</i></font> checkbox in the <font color="#2a6099"><i>Edit / Embed...</i></font> menu as illustrated below.</p>
+  This setting can be overriden from the <font color="#2a6099"><i>Edit</i></font> checkbox in the <font color="#2a6099"><i>Edit / Embed...</i></font> menu as illustrated below.
+  Note that this setting will revert to the configuration setting next time the application is started.</p>
   <br>
   <br>  
   <img src="embedWithPasswordMenu.png" alt="Embed with password checkbox">
@@ -149,6 +150,53 @@
   <br>  
   <img src="embedConversation.png" alt="Embed conversation menu">
   <br>  
+
+<p>If embedding with password is active a dialog will be presented for the user to specify the password to include in the encoded image as illustrated below.
+  Note that a second dialog will be presented to confirm the password entry.</p>
+  <br>
+  <br>  
+  <img src="passwordSet.png" alt="Embedding password">
+  <br>  
+
+<p>The only restrictions on passwords is length, i.e. passwords must be between 6 to 20 characters (inclusive).</p>
+
+<p>If embedding with password is not active or a password has been set correctly, the conversation will be embedded into the current image.
+  A progress bar dialog will show the progress of embedding the conversation, but as embedding of conversations is relatively quick, the the dialog may be short-lived.</p>
+
+<p>At this point the image with embedded conversation can be saved and sent to the intended participant in the conversation.
+  See section <span style="background: #c0c0c0"><a href="#SavingImage">Saving Encoded Image</a></span> for a description of saving an encoded image.
+  Note that saving an encoded image is the same regardless of what type of data was stored in it.</p>
+
+<p>If all goes to plan the recipiant of the image will extract the embedded conversation and see your messages</p>
+<p><i></i>Note that if the original conversation was encodded with a password, all additions to the conversation <b>will</b> be encodded with a password as well,
+  regadless of what the current embed with password setting.</i></p>
+<p>If a password is encodded in the image a dialog will be presented for the user to enter the password as illustrated below.</p>
+    <br>
+    <br>  
+    <img src="passwordEntry.png" alt="Conversation password entry">
+    <br>  
+
+<p>As applicable, assuming a password was entered correctly, the recipiant will see all the messages in the conversation.
+  Note that on their view of the conversation your messages (basically any messages not by them) will be shown on the left side of the conversation window.</p>
+  <br>
+  <br>  
+  <img src="populatedMessageReturn.png" alt="Recipiant's view of conversation">
+  <br>  
+
+<p>The recipiant can add their own messages by following the same process as above as illustrated below.</p>
+  <br>
+  <br>  
+  <img src="populatedMessageResponse.png" alt="Recipiant's response messages">
+  <br>  
+
+<p>The conversation can to and from between users following the same process before. An example conversation is illustrated below.</p>
+<br>
+<br>  
+<img src="populatedMessageAgain.png" alt="Conversation messages to and fro">
+<br>  
+
+<p>Note that the colours used for the message bubbles in the conversation will be different for each author in the conversation.
+  Note also, that colours are chosen at random so will be different each time the application runs.</p>
 
 <a id="SavingImage"></a>
 <h2>Saving Image after Embedding</h2>
