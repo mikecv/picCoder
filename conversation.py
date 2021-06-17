@@ -2,7 +2,7 @@
 
 from PyQt5.QtWidgets import QDialog, QHBoxLayout, QLabel
 from PyQt5 import uic
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 import datetime
 import os
 import sys
@@ -130,10 +130,12 @@ class ConversationDialog(QDialog):
             # which use html format. Need to replace newlines with break tokens.
             messageText = "<br>".join(msg.msgText.split("\n"))
 
+            lbl = QLabel("", self)
+            lbl.setTextFormat(QtCore.Qt.RichText)
             if incWriter == True:
-                lbl = QLabel(f'<b>{msg.writer} : {msg.msgTime}</b><br><br>{messageText}', self)
+                lbl.setText(f'<b>{msg.writer} : {msg.msgTime}</b><br><br>{messageText}')
             else:
-                lbl = QLabel(f'{messageText}', self)
+               lbl.setText(f'{messageText}')
 
             # Set label with and wordwrapping, and restrict expanding to vertical only.
             lbl.setFixedWidth(self.config.SmsRender["TextWidth"])
@@ -238,7 +240,8 @@ class ConversationDialog(QDialog):
         else:
 
             # Read contents of text edit box and add as new message to conversation.
-            if self.messageEdit.toPlainText() != "":
+            if self.messageEdit.toHtml() != "":
+            # if self.messageEdit.toPlainText() != "":
                 self.conversation.addMsg(self.config.MyHandle, self.messageEdit.toPlainText())
 
             # Repopulate conversation, now with additional message.
