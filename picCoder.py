@@ -33,7 +33,7 @@ from about import *
 # *******************************************
 # TODO List
 #
-# Add option to compress embedded data.
+# Add Setting of conversation handle from dialog.
 # Update user guide page.
 # *******************************************
 
@@ -119,11 +119,6 @@ class UI(QMainWindow):
         self.includePassword = self.actionIncludePassword.isChecked()
         self.haveOldPassword = False
 
-        # Attach to zip before embedding menu item (Initialise according to config).
-        self.actionZipEmbedding.triggered.connect(self.zipEmbeddingCtrl)
-        self.actionZipEmbedding.setChecked(bool(config.ZipEmbedding))
-        self.zipEmbedding = self.actionZipEmbedding.isChecked()
-
         # Attach to the Quit menu item.
         self.actionQuit.triggered.connect(app.quit)
 
@@ -186,13 +181,6 @@ class UI(QMainWindow):
     def includePasswordCtrl(self):
         self.includePassword = self.actionIncludePassword.isChecked()
         logger.debug(f'User set Include Password menu state: {self.includePassword}')
-
-    # *******************************************
-    # Callback function to compress before embedding action checkbox.
-    # *******************************************
-    def zipEmbeddingCtrl(self):
-        self.zipEmbedding = self.actionZipEmbedding.isChecked()
-        logger.debug(f'User set Zip before Embedding menu state: {self.zipEmbedding}')
 
     # *******************************************
     # Check if there is a user handle in configuration.
@@ -416,7 +404,7 @@ class UI(QMainWindow):
                     logger.info(f'Selected file to embed has filesize : {fileSize}')
                     # PicCoder embeded data size.
                     # In the case of the password allow for maximum length password at this stage.
-                    extraInfo = len(PROGCODE) + PASSWDYNBYTES + PASSWDLENBYTES + PASSWDMAXIMUM + ZIPPEDBYTES + CODETYPEBYTES + NAMELENBYTES + len(filenames[0]) + LENBYTES
+                    extraInfo = len(PROGCODE) + PASSWDYNBYTES + PASSWDLENBYTES + PASSWDMAXIMUM + CODETYPEBYTES + NAMELENBYTES + len(filenames[0]) + LENBYTES
                     # Maximum space available from PIL import Image for embedding.
                     maxSpace = self.stegPic.picBytes
                     embedRatio = (fileSize + extraInfo) / maxSpace
@@ -426,7 +414,7 @@ class UI(QMainWindow):
                         showPopup("Warning", "picCoder Embedding File", "File to embed would exceed allowed embedding ratio.")
                     else:
                         # Proceed to embedding file into image.
-                        # Embed with password as applicable; currently compressed not performed.
+                        # Embed with password as applicable.
                         self.stegPic.toEmbedFilePath = filenames[0]
                         self.stegPic.toEmbedFileSize = fileSize
                         self.stegPic.embedFileToImage(protected, password)
@@ -530,7 +518,7 @@ class UI(QMainWindow):
 
             # PicCoder embeded data size.
             # In the case of the password allow for maximum length password at this stage.
-            embedData = len(PROGCODE) + PASSWDYNBYTES + PASSWDLENBYTES + PASSWDMAXIMUM + ZIPPEDBYTES + CODETYPEBYTES + NUMSMSBYTES + convLength
+            embedData = len(PROGCODE) + PASSWDYNBYTES + PASSWDLENBYTES + PASSWDMAXIMUM + CODETYPEBYTES + NUMSMSBYTES + convLength
             # Maximum space available from PIL import Image for embedding.
             maxSpace = self.stegPic.picBytes
             embedRatio = embedData / maxSpace
