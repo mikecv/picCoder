@@ -33,7 +33,7 @@ from about import *
 # *******************************************
 # TODO List
 #
-# Add Setting of conversation handle from dialog.
+# Check performance with monochrome images.
 # Update user guide page.
 # *******************************************
 
@@ -297,8 +297,6 @@ class UI(QMainWindow):
 
                 # Set flag for embedded file.
                 self.haveEmbededFile = True
-                # Set flag if we have a password to reuse.
-                self.haveOldPassword = self.stegPic.picPassword
 
             elif self.stegPic.picCodeType == CodeType.CODETYPE_TEXT.value:
                 fileDetails += (f'\nImage contains embedded conversation.')
@@ -343,17 +341,14 @@ class UI(QMainWindow):
     def embedFile(self):
         logger.debug("User selected Embed File menu control.")
 
-        # Initialise flage that all clear to embed.
+        # Initialise embedding flags.
         canImbed = False
-
-        # Check if there is an existing password and we should use it.
-        if ((config.KeepPassword == True) and (self.stegPic.picPassword == True)):
-            protected = True
-            password = self.stegPic.password
-            canImbed = True
+        protected = False
+        password = ""
 
         # Check if password protection is ticked.
-        elif self.includePassword == True:
+        # For files don't care if image already encoded with or without password, always go by menu setting.
+        if self.includePassword == True:
             # Show password dialog.
             pw = PasswordDialog(f'Enter password to encode into image... ({PASSWDMINIMUM}-{PASSWDMAXIMUM} chars)')
             # Get user selection.
@@ -377,9 +372,11 @@ class UI(QMainWindow):
                     showPopup("Warning", "picCoder Embedding File", "Password not confirmed. Please try again.")
                 else:
                     canImbed = True
+        # No password required, so can imbed.
+        else:
+            canImbed = True
  
-        # Either using existing password or adding a new one.
-        # Either way, can proceed with embedding.
+        # If all clear can proceed with embedding.
         if canImbed == True:
 
             # Configure and launch file selection dialog.
@@ -408,10 +405,11 @@ class UI(QMainWindow):
                     # Maximum space available from PIL import Image for embedding.
                     maxSpace = self.stegPic.picBytes
                     embedRatio = (fileSize + extraInfo) / maxSpace
+                    logger.debug(f'Embed ratio for embedded file : {(embedRatio * 100):.3f} %')
                     # Warning if file to embed is more than a certain ratio.
                     if embedRatio > config.MaxEmbedRatio:
-                        logger.warning(f'Data to embed exceeds maximum ratio : {embedRatio:.3f}')
-                        showPopup("Warning", "picCoder Embedding File", "File to embed would exceed allowed embedding ratio.")
+                        logger.warning(f'Data to embed exceeds maximum ratio : {(config.MaxEmbedRatio * 100):.3f} %')
+                        showPopup("Warning", "picCoder Embedding File", f'File to embed would exceed allowed embedding ratio of {(config.MaxEmbedRatio * 100):.3f} %.')
                     else:
                         # Proceed to embedding file into image.
                         # Embed with password as applicable.
@@ -466,8 +464,10 @@ class UI(QMainWindow):
     def embedConversation(self):
         logger.debug("User selected Embed Conversation menu control.")
 
-        # Initialise flag that all clear to embed.
+        # Initialise embedding flags.
         canImbed = False
+        protected = False
+        password = ""
 
         # Check if there is an existing password and we should use it.
         if ((config.KeepPassword == True) and (self.stegPic.picPassword == True)):
@@ -500,8 +500,11 @@ class UI(QMainWindow):
                     showPopup("Warning", "picCoder Embedding Conversation", "Password not confirmed. Please try again.")
                 else:
                     canImbed = True
+        # No password required, so can imbed.
+        else:
+            canImbed = True
  
-        # Either using existing password or adding a new one.
+        # Either using existing password or adding a new one, or no password required.
         # Either way, can proceed with embedding.
         if canImbed == True:
             # Need to do a quick check of conversation size, as might not fit or look right.
@@ -623,20 +626,28 @@ class UI(QMainWindow):
     def getEmbeddedFile(self):
         logger.debug("User selected control to extract embedded file.")
 
-        # Show password dialog.
-        pw = PasswordDialog("Enter password to extract embedded file...")
-        # Get user selection.
-        protected, password = pw.getPassword()
+        # Initialise extraction flag.
+        canExtract = True
 
-        if protected == False:
-            # Embedded file is not password protected.
-            logger.debug("Embedded file has no password protection.")
-        elif password != self.stegPic.password:
-            # Wrong password entered.
-            logger.warning("Password incorrect.")
-            showPopup("Warning", "picCoder Extracting Embedded File", "Incorrect password entered.")
-        else:
+        # If password protected present dialog to get password.
+        if self.stegPic.picPassword == True:
 
+            # Show password dialog.
+            pw = PasswordDialog("Enter password to extract embedded file...")
+            # Get user selection.
+            protected, password = pw.getPassword()
+
+            if protected == False:
+                # Embedded file is not password protected.
+                logger.debug("Embedded file has no password protection.")
+            elif password != self.stegPic.password:
+                # Wrong password entered.
+                logger.warning("Password incorrect.")
+                showPopup("Warning", "picCoder Extracting Embedded File", "Incorrect password entered.")
+                canExtract = False
+
+        # If no password, or password entered correctly then can extract.
+        if canExtract == True:
             # Get filename parts.
             fnParts = os.path.splitext(self.stegPic.embeddedFileName)
 

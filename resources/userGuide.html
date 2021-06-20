@@ -35,7 +35,8 @@
   
 <p>The nature of the data embedding employed means that if images are graphically manipulated after they have been encoded picCoder encoding may be corrupted.
   For this reason presently only .png images are supported as they support lossless compression.</p>
-
+<p>This initial release only supports 24bit colour PNG files; alpha channel is ignored.</p>
+  
 <a id="OpeningImage"></a>
 <h2>Opening an Image</h2>
 
@@ -124,10 +125,8 @@
 <p>Additional messages can be added in the same way.
   As each message is entered and committed they are rendered in the upper window as illustrated below.</p>
   <br>
-  <br>  
-  <img src="populatedMessage-2.png" alt="Additional populated message">
-  <br>  
-
+  <br>  This bearly noticeable difference was expected as the application checks what percentage of the image colour information has been manipulated.
+  In this case the embedded file was relatively small so the ratio of colour data manipulated was only 4.21 as can be seen in the logs as illustrated below
 <p>As illustrated above, if the time between messages is less than a configured period the messages are grouped,
   and in this case only the first message in the group shows the author's handle and message timestamp.
   The time between messages for message grouping is specified in the configuration parameter <font color="#2a6099"><i>SameMsgTime</i></font>.</p>
@@ -135,10 +134,11 @@
 <a id="EmbeddingConversation"></a>
 <h2>Embedding the Conversation</h2>
 
-<p>An option exists to add a password to the data embedded into the image.
+<p>An option exists to add a password to the embeddeding of the conversation into an image.
   By default the configuration parameter <font color="#2a6099"><i>IncludePasswd</i></font> is used to specify this.
   This setting can be overriden from the <font color="#2a6099"><i>Edit</i></font> checkbox in the <font color="#2a6099"><i>Edit / Embed...</i></font> menu as illustrated below.
   Note that this setting will revert to the configuration setting next time the application is started.</p>
+<p>Note also that there is only ever one (1) conversation available to be embedded into an image.</p>
   <br>
   <br>  
   <img src="embedWithPasswordMenu.png" alt="Embed with password checkbox">
@@ -197,6 +197,88 @@
 
 <p>Note that the colours used for the message bubbles in the conversation will be different for each author in the conversation.
   Note also, that colours are chosen at random so will be different each time the application runs.</p>
+
+<a id="EmbeddingFile"></a>
+<h2>Embedding a File</h2>
+
+<p>As for embedding a conversation, an option exists to add a password to the embedding of a file into an image.
+  Refer to section <span style="background: #c0c0c0"><a href="#EmbeddingConversation">Embedding the Conversation</a></span> for a description.</p>
+<p>The difference with embedding files is that <b>only</b> the <font color="#2a6099"><i>Embed with Password</i></font> configuration setting is taken into account.</p>
+
+<p>After opening an image to embed into, select <font color="#2a6099"><i>Embed File</i></font> from the <font color="#2a6099"><i>Edit / Embed...</i></font> menu
+  as illustrated below. Note that this file can be of any type, including compressed folders, executables etc.</p>
+  <br>
+  <br>  
+  <img src="embedFileMenu.png" alt="Embed file menu">
+  <br>  
+
+<p>This will launch a file browser were the file to embed can be selected.
+  After the file to embed has been selected embedding will commence; a progress bar will show the progress as illustrated below,
+  and disappear when embedding is complete.</p>
+  <br>
+  <br>  
+  <img src="embeddingProgress.png" alt="Embedding progress bar">
+  <br>  
+
+<p>The image with embedded file can now be saved, but first it is worthwhile checking what the saved image will look like.
+  This is because if too much data is embedded into the image the changes to the image colours inherent in the embedding process may be too noticeable.
+  Refer to section <span style="background: #c0c0c0"><a href="#PreviewingImage">Previewing Image after Embedding</a></span> for a description.</p>
+
+<p>Saving an image with embedded data is straight forward.
+  Refer to section <span style="background: #c0c0c0"><a href="#SavingImage">Saving Image after Embedding</a></span> for a description.</p>
+
+<a id="PreviewingImage"></a>
+<h2>Previewing Image after Embedding</h2>
+
+<p>To preview the image after embedding select <font color="#2a6099"><i>Preview Image</i></font> from the <font color="#2a6099"><i>Edit</i></font> menu
+  as illustrated below.</p>
+  <br>
+  <br>  
+  <img src="previewImageMenu.png" alt="Preview image menu">
+  <br>  
+
+<p>This will present a dialog showing the starting raw image with the file embedded into it.
+  If all is okay the difference should not be noticeable (unless you know what you are looking for.
+  The starting raw image (left) and image with embedded file (right) are illustrated side by side below.</p>
+  <br>
+  <br>  
+  <img src="imageCompareSame.png" alt="Preview image with no difference">
+  <br>  
+
+<p>This bearly noticeable difference was expected as the application checks what percentage of the image colour information has been manipulated.
+  In this case the embedded file was relatively small so the ratio of colour data manipulated was only 4.21 as can be seen in the logs as illustrated below.</p>
+  <br>
+  <br>  
+  <img src="embedRatioLow.png" alt="Embed ratio low">
+  <br>  
+
+<p>There is a configuration parameter <font color="#2a6099"><i>MaxEmbedRatio</i></font> that specifies the maximum ratio ( 0 to 1.0)
+  to allow when embedding a file (or conversation). A typical maximum ratio is 0.5, but what is acceptable will depend a little on
+  the data being embedded and the image the data is being embedded into.</p>
+<p>If embedding the file will violate the embedding ratio a popup will be displayed as illustrated below,
+  and embedding will not continue.</p>
+  <br>
+  <br>  
+  <img src="exceedEmbedRatio.png" alt="Exceeding embedding ratio popup">
+  <br>  
+  
+  <p>To illustrate the impact of embedding too large a file into an image the configuration parameter <font color="#2a6099"><i>MaxEmbedRatio</i></font>
+  was set higher and a much larger file was embedded as can be seen in the log file where the embedding ratio was 56.961.</p>
+  <br>
+  <br>  
+  <img src="embedRatioHigh.png" alt="Embed ratio high">
+  <br>  
+
+<p>The starting raw image (left) and image with the much larger embedded file (right) are illustrated side by side below.</p>
+<p>The differences in the images is now noticeable, although the image with the embedded data just looks the same only poorer quality.</p>
+  <br>
+  <br>  
+  <img src="imageCompareDiff.png" alt="Preview image with noticeable difference">
+  <br>  
+
+<p>The moral to the story is don't embed too much data into an image.
+  If you need to embed more data you need a starting raw image with more pixels.
+  Note that it the number of pixels and colour planes that matters and not the physical file size of the starting raw image.</p>
 
 <a id="SavingImage"></a>
 <h2>Saving Image after Embedding</h2>
