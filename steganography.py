@@ -151,10 +151,13 @@ class Steganography():
         # Get image information.
         self.picWidth = self.bitmap.width()
         self.picHeight = self.bitmap.height()
-        self.picDepth = self.bitmap.defaultDepth()
-        self.log.debug(f'Image width : {self.picWidth}; height : {self.picHeight}; default depth : {self.picDepth}')
-        self.picColBits = self.picDepth // 3
-        self.log.debug(f'Image colour bits : {self.picColBits}')
+        self.colCount = self.bitmap.colorCount()
+        # Qt returns 0 for colour count of 32.
+        if self.colCount == 0:
+            self.colCount == 32
+        # Only support 3 colour planes.
+        self.colPlanes = 3
+        self.log.debug(f'Image width : {self.picWidth}; height : {self.picHeight}; colour count : {self.colCount}; colour planes : {self.colPlanes}')
 
         # Calclulate maximum space for embedding, i.e. every pixel, every colour, every bit.
         self.picBytes = self.picWidth * self.picHeight * 3
@@ -415,7 +418,7 @@ class Steganography():
                     if rowCnt == self.picHeight:
                         rowCnt = 0
                         colPlane += 1
-                        if colPlane == 3:
+                        if colPlane == self.colPlanes:
                             colPlane = 0
                             # Used all colour planes so move to next bit.
                             bitsRead += 1
@@ -575,7 +578,7 @@ class Steganography():
                         # Point to next colour plane.
                         # Take into account number of planes.
                         colPlane += 1
-                        if colPlane == 3:
+                        if colPlane == self.colPlanes:
                             colPlane = 0
                             # Used all colour planes so move to next bit.
                             bitWrite += 1

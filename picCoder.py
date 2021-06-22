@@ -33,7 +33,6 @@ from about import *
 # *******************************************
 # TODO List
 #
-# Check performance with monochrome images.
 # Update user guide page.
 # *******************************************
 
