@@ -7,9 +7,20 @@
 <body>
 
 <a href="#Top">Home</a>
+<a href="#Introduction">Introduction</a>
 <a href="#ImageTypes">Image Types</a>
-<a href="#OpeningImage">Opening Image</a>
-<a href="#OpeningPicCoderImage">Opening a picCoder Encoded Image</a>
+<a href="#OpeningImage">Opening an Image</a>
+<a href="#PicCoderEncodedImages">picCoder Encoded Images</a>
+<a href="#ExtractingFiles">Extracting Embedded Files</a>
+<a href="#EmbeddedConversations">Embedded Conversations</a>
+<a href="#StartingConversation">Starting a Conversation</a>
+<a href="#AddingMessages">Adding Messages</a>
+<a href="#EmbeddingConversation">Embedding a Conversation</a>
+<a href="#EmbeddingFile">Embedding a File</a>
+<a href="#PreviewingImage">Previewing Encoded Image</a>
+<a href="#SavingImage">Saving Encoded Image</a>
+<a href="#ConfigurationSettings">Configuration Settings</a>
+<a href="#Logging">Logging</a>
 
 <a id="Top"></a>
 <h1>picCode User Guide</h1>
@@ -29,20 +40,19 @@
   Maybe the people that can hear music by looking at the groves on an LP record could see your secrets, but they would be the only ones.
 </p>
   
-<a id="Features"></a>
-<h2>Features</h2>
+<h3>Features</h3>
 
-<p>Using </span><i><b>picCoder</b></i> you can embed data inside an image, share the image with someone else, and they can extract the embedded data.
-  Embedded data can be any file with the size of the file only limited by the size of the image in which it is embedded.
-  The application also supports a conversation function, where users can share the image containing the embedded conversation and pass messages to each other.
-</p>
+<p>Using </span><i><b>picCoder</b></i> you can embed data inside an image, share the image with someone else, and they can extract the embedded data,
+  or you could use it to store passwords, PINs etc, instead of using other more conventional methods.</p>
+<p>Embedded data can be any file with the size of the file only limited by the size of the image in which it is embedded.
+  The application also supports a conversation function, where users can share the image containing the embedded conversation and pass messages to each other.</p>
 
 <a id="ImageTypes"></a>
-<h2>Image Types Supported</h2>
+<h3>Image Types Supported</h3>
   
 <p>The nature of the data embedding employed means that if images are graphically manipulated after they have been encoded picCoder encoding may be corrupted.
   For this reason presently only .png images are supported as they support lossless compression.</p>
-<p>This initial release only supports 24bit colour PNG files; alpha channel is ignored.</p>
+<p>This initial release only supports 24bit PNG files; any alpha channel is ignored.</p>
   
 <a id="OpeningImage"></a>
 <h2>Opening an Image</h2>
@@ -64,8 +74,8 @@
   encoded, which is indicated by the black border around the image file path/name.
   See section <span style="background: #c0c0c0"><a href="#OpeningPicCoderImage">Opening Encoded Image</a></span> for opening a previously picCoder encoded image.</p>
 
-<a id="OpeningPicCoderImage"></a>
-<h2>Opening a picCoder Encoded Image</h2>
+<a id="PicCoderEncodedImages"></a>
+<h3>picCoder Encoded Images</h3>
 
 <p>When an image is opened, the application checks the image to see if it is </span><i><b>picCoder</b></i><span style="font-style: normal"> encoded.
   This is done be scanning the image data for preamble data that all </span><i><b>picCoder</span></b></i><span style="font-style: normal"> encoded images have.
@@ -75,10 +85,12 @@
   <img src="embeddedFile.png" alt="Opened image with embedded file">
   <br>  
 
-<p>In the example above the image contains an embedded file, called <font color="#2a6099"><i>kylie2.png</i></font>.
+<p>In the example above the image contains an embedded file, in this case called <font color="#2a6099"><i>kylie2.png</i></font>.
   Below the details of the embedded file is a button marked <font color="#2a6099"><i>Extract Embedded File</i></font> used to extract and save the embedded file.</p>
+<p>See section <span style="background: #c0c0c0"><a href="#ExtractingFiles">Extracting Embedded Files</a></span> for how to extract embedded files,
+  and section <span style="background: #c0c0c0"><a href="#EmbeddingFile">Embedded Files</a></span> for how to embed a file into an image.</p>
 
-<p>In a similar way, if the image contained an image included an embedded conversation there would be a button marked <font color="#2a6099"><i>Extract Embedded Conversation</i></font>
+<p>In a similar way, if the image contained an embedded conversation there would be a button marked <font color="#2a6099"><i>Extract Embedded Conversation</i></font>
   used to extract and display the conversation as illustrated below.</p>
   <br>
   <br>  
@@ -86,9 +98,44 @@
   <br>  
 
 <p>Note that there are different coloured borders around the image file details for images with embedded files and embedded conversations.</p>
- 
+<p>See section <span style="background: #c0c0c0"><a href="#EmbeddedConversations">Embedded Conversations</a></span> which covers deailing with embedded conversations.</p>
+
+<a id="ExtractingFiles"></a>
+<h2>Extracting Embedded Files</h2>
+
+<p>As per section <span style="background: #c0c0c0"><a href="#PicCoderEncodedImages">picCoder Encoded Images</a></span>
+  if an image is embedded with a file there is a button marked <font color="#2a6099"><i>Extract Embedded File</i></font> below the image
+  that is used to extract and save the embedded file.</p>
+
+<p>Selecting the <font color="#2a6099"><i>Extract Embedded File</i></font> button will present a file selection dialog to select or enter
+  a filename to save the extract file to (the default filename will be the name of the file that was embedded).</p>
+<p>Note that if the file was embedded with a password a dialog will be presented for the user to enter the password;
+  if the password entered is not correct the file selection dialog will not be presented and the embedded file will not be extracted or saved.
+  Refer also to section section <span style="background: #c0c0c0"><a href="#EmbeddingFile">Embedding Files</a></span> which deals with
+  embedding files with and without passwords.</p>
+
+<p>Assuming that a filename to save the extract file to has been entered, extracting the file will commence; a progress bar will show the progress,
+  and disappear when extraction is complete is complete.</p>
+
+<p>If the extracted and saved file is an accepted image file (various formats) the application will display the image in a separate dialog
+  as illustrated below.</p>
+  <br>
+  <br>  
+  <img src="extractedImage.png" alt="Extracted Image">
+  <br>  
+
+  <p>If the extracted and saved file is not an accepted image file, i.e. any other file type, a pop-up as illustrate below will be displayed prompting
+    the user to use an appropriate application to open the file.</p>
+    <br>
+    <br>  
+    <img src="filePopup.png" alt="Unsupported file type pop-up">
+    <br>  
+
+<a id="EmbeddedConversations"></a>
+<h2>Embedded Conversations</h2>
+
 <a id="StartingConversation"></a>
-<h2>Starting a New Conversation</h2>
+<h3>Starting a New Conversation</h3>
 
 <p>To start a new conversation open a supported image that you'll embed the conversation into,
   and then select <font color="#2a6099"><i>Start Conversation</i></font> from the <font color="#2a6099"><i>Edit</i></font> menu
@@ -104,8 +151,8 @@
   <img src="newConversationDlg.png" alt="New conversation dialog">
   <br>  
 
-<a id="AddingNewMessages"></a>
-<h2>Adding Messages to a New Conversation</h2>
+<a id="AddingMessages"></a>
+<h3>Adding Messages to a New Conversation</h3>
 
 <p>The <b>Conversation Editor</b> dialog has an edit window at the bottom where a message can be edited,
   and a window above where committed messages are displayed.</p>
@@ -139,7 +186,7 @@
   The time between messages for message grouping is specified in the configuration parameter <font color="#2a6099"><i>SameMsgTime</i></font>.</p>
 
 <a id="EmbeddingConversation"></a>
-<h2>Embedding the Conversation</h2>
+<h3>Embedding the Conversation</h3>
 
 <p>An option exists to add a password to the embeddeding of the conversation into an image.
   By default the configuration parameter <font color="#2a6099"><i>IncludePasswd</i></font> is used to specify this.
@@ -235,9 +282,9 @@
   Refer to section <span style="background: #c0c0c0"><a href="#SavingImage">Saving Image after Embedding</a></span> for a description.</p>
 
 <a id="PreviewingImage"></a>
-<h2>Previewing Image after Embedding</h2>
+<h2>Previewing Encoded Image</h2>
 
-<p>To preview the image after embedding select <font color="#2a6099"><i>Preview Image</i></font> from the <font color="#2a6099"><i>Edit</i></font> menu
+<p>To preview the image after embedding data into it, select <font color="#2a6099"><i>Preview Image</i></font> from the <font color="#2a6099"><i>Edit</i></font> menu
   as illustrated below.</p>
   <br>
   <br>  
@@ -288,10 +335,13 @@
   Note that it the number of pixels and colour planes that matters and not the physical file size of the starting raw image.</p>
 
 <a id="SavingImage"></a>
-<h2>Saving Image after Embedding</h2>
+<h2>Saving Encoded Image</h2>
 
 <a id="ConfigurationSettings"></a>
 <h2>Configuration Settings</h2>
+
+<a id="Logging"></a>
+<h2>Logging</h2>
 
 </body>
 </html>
