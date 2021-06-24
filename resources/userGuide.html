@@ -355,14 +355,30 @@
 <a id="ConfigurationSettings"></a>
 <h2>Configuration Settings</h2>
 
+<p>Application configuration exists in a file called <font color="#2a6099"><i>picCoder.json</i></font>.
+  For the current release the configuration file can be edited by the user as required, or will be generated will default configuration if it does not exist.</p>
+<p>Configuration data includes a configuration version specified by parameter <font color="#2a6099"><i>ConfigVersion</i></font>.
+  Configuration will be updated if the application configuration version is different to that in the local configuration file.</p>
+<p>An example configuration file is illustrated below.</p>   
 <br>
 <br>  
 <img src="configJson.png" alt="Configuration data">
 <br>
 
+<p>In the configuration file as illustrated above, the only parameter that should be updated by the user as not part of the default configuration is parameter <font color="#2a6099"><i>MyHandle</i></font>.
+  This is the name shown in conversations for messages by the used.
+  If this parameter is left blank (the default) the user will be prompted to update it.</p>   
+<p>All other parameters include default values and are provided to customise some functionality, for example:
+  The rendering of messages in conversations, or default behaviour related to the inclusion of passwords when embedding data into images.</p>   
+  
 <a id="Logging"></a>
 <h2>Logging</h2>
 
+<p>The application uses standard Python logging that is started automatically on application start.
+  Standard functionality of rotating log files is performed with the number and size of log files specified in configuration data.
+  Additionally, the logging level can be specified in configuration data.</p>
+<p>Log files are called <font color="#2a6099"><i>picCoder.log</i></font>, with rotated log files called <font color="#2a6099"><i>picCoder.log.1</i></font> etc.</p>
+<p>Log entries include the time, log level, and log detail as illustrated in the snippet below.</p>
   <br>
   <br>  
   <img src="logData.png" alt="Log file data">

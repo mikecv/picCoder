@@ -50,9 +50,6 @@ class Config():
         self.IncludePasswd = 0
         self.KeepPassword = 1
 
-        # Compress before embedding.
-        self.ZipEmbedding = 0
-
         # Read / update configuration from file.
         self.readConfig()
 
@@ -183,12 +180,6 @@ class Config():
                 except Exception:
                     self.KeepPassword = paramSaved
                     updateConfig = True
-                try:
-                    paramSaved = self.ZipEmbedding
-                    self.ZipEmbedding = config["ZipEmbedding"]
-                except Exception:
-                    self.ZipEmbedding = paramSaved
-                    updateConfig = True
 
                 # If required, i.e. couldn't update all data from user configuration, then save default.
                 if updateConfig:
@@ -218,7 +209,6 @@ class Config():
             "MaxEmbedRatio" : self.MaxEmbedRatio,
             "IncludePasswd" : self.IncludePasswd,
             "KeepPassword" : self.KeepPassword,
-            "ZipEmbedding" : self.ZipEmbedding
         }
 
         # Open file for writing.

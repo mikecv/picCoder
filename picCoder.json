@@ -22,6 +22,5 @@
     },
     "MaxEmbedRatio": 0.5,
     "IncludePasswd": 0,
-    "KeepPassword": 1,
-    "ZipEmbedding": 0
+    "KeepPassword": 1
 }

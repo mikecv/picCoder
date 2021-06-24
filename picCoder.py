@@ -33,7 +33,6 @@ from about import *
 # *******************************************
 # TODO List
 #
-# Update user guide page.
 # *******************************************
 
 # Program version.
