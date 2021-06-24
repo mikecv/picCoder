@@ -28,6 +28,7 @@ from about import *
 # *******************************************
 # Program history.
 # 0.1   MDC 09/03/2021  Original.
+# 0.2   MDC 24/06/2021  Bug fixes.
 # *******************************************
 
 # *******************************************
@@ -36,7 +37,7 @@ from about import *
 # *******************************************
 
 # Program version.
-progVersion = "0.1"
+progVersion = "0.2 (RC1)"
 
 # Program date (for About dialog).
 progDate = "2021"
@@ -183,11 +184,16 @@ class UI(QMainWindow):
     # *******************************************
     # Check if there is a user handle in configuration.
     # This is the handle printed in message bubbles for 'this' user.
+    # If set to "" then change to "Unknown" in configuration and notify user.
     # *******************************************
     def checkMsgHandle(self):
         if config.MyHandle == "":
             logger.warning("User configuration does not have a handle for messaging.")
-            showPopup("Warning", "Embedded Messaging", "No message handle in configuration.\nUpdate parameter \"MyHandle\" in picCoder.json")
+            # Change handle to "Unknown" so not an empty string, and save to configuration.
+            config.MyHandle = "Unknown"
+            config.saveConfig()
+            # Advise user that handle unknown and to update in configuration.
+            showPopup("Warning", "Embedded Messaging", "Unknown message handle in configuration.\nUpdate parameter \"MyHandle\" in picCoder.json")
 
     # *******************************************
     # Open File control selected.
@@ -340,7 +346,7 @@ class UI(QMainWindow):
         logger.debug("User selected Embed File menu control.")
 
         # Initialise embedding flags.
-        canImbed = False
+        canEmbed = False
         protected = False
         password = ""
 
@@ -369,13 +375,13 @@ class UI(QMainWindow):
                     logger.warning("Password not confirmed.")
                     showPopup("Warning", "picCoder Embedding File", "Password not confirmed. Please try again.")
                 else:
-                    canImbed = True
+                    canEmbed = True
         # No password required, so can imbed.
         else:
-            canImbed = True
+            canEmbed = True
  
         # If all clear can proceed with embedding.
-        if canImbed == True:
+        if canEmbed == True:
 
             # Configure and launch file selection dialog.
             dialog = QFileDialog(self)
@@ -463,7 +469,7 @@ class UI(QMainWindow):
         logger.debug("User selected Embed Conversation menu control.")
 
         # Initialise embedding flags.
-        canImbed = False
+        canEmbed = False
         protected = False
         password = ""
 
@@ -471,7 +477,7 @@ class UI(QMainWindow):
         if ((config.KeepPassword == True) and (self.stegPic.picPassword == True)):
             protected = True
             password = self.stegPic.password
-            canImbed = True
+            canEmbed = True
 
         # Check if password protection is ticked.
         elif self.includePassword == True:
@@ -497,14 +503,14 @@ class UI(QMainWindow):
                     logger.warning("Password not confirmed.")
                     showPopup("Warning", "picCoder Embedding Conversation", "Password not confirmed. Please try again.")
                 else:
-                    canImbed = True
+                    canEmbed = True
         # No password required, so can imbed.
         else:
-            canImbed = True
+            canEmbed = True
  
         # Either using existing password or adding a new one, or no password required.
         # Either way, can proceed with embedding.
-        if canImbed == True:
+        if canEmbed == True:
             # Need to do a quick check of conversation size, as might not fit or look right.
             # Size of conversation to embed.
             convLength = 0
@@ -579,44 +585,68 @@ class UI(QMainWindow):
     def exportConversation(self):
         logger.debug("User selected Export Conversation menu control.")
 
-        # Configure and launch file selection dialog.
-        dialog = QFileDialog(self)
-        dialog.setWindowTitle("Select file to export conversation to...")
-        dialog.setFileMode(QFileDialog.AnyFile)
-        dialog.setNameFilter("*.txt")
-        dialog.setDefaultSuffix('.txt')
-        dialog.setViewMode(QFileDialog.List)
-        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        # Initialise export flag.
+        canExport = True
 
-        # If returned filename then open/create.
-        if dialog.exec_():
-            filenames = dialog.selectedFiles()
+        # If password protected present dialog to get password.
+        if self.stegPic.picPassword == True:
+            # Show password dialog.
+            pw = PasswordDialog("Enter password to export embedded conversation...")
+            # Get user selection.
+            protected, password = pw.getPassword()
 
-            # If have a filename then open.
-            if filenames[0] != "":
-                # Open file for writing
-                xf = open(filenames[0], "w")
+            if protected == False:
+                # Embedded file is not password protected.
+                logger.debug("Embedded file has no password protection.")
+            elif password != self.stegPic.password:
+                # Wrong password entered.
+                logger.warning("Password incorrect.")
+                showPopup("Warning", "picCoder Exporting Embedded Conversation", "Incorrect password entered.")
+                canExport = False
 
-                # Export conversation to the file.
-                xf.write("***************************************************************\n")
-                xf.write("         ____  ____  ___  ___  _____  ____  ____  ____ \n")
-                xf.write("        (  _ \(_  _)/ __)/ __)(  _  )(  _ \( ___)(  _ \\\n")
-                xf.write("         )___/ _)(_( (__( (__  )(_)(  )(_) ))__)  )   /\n")
-                xf.write("        (__)  (____)\___)\___)(_____)(____/(____)(_)\_)\n")
-                xf.write("                      CONVERSATION EXPORT\n")
-                xf.write("***************************************************************\n\n")
-                xf.write("***************************************************************\n")
-                xf.write(f'piCoder encoded image : {os.path.basename(self.stegPic.picFile)}\n')
-                xf.write(f'Date / time of export : {datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")}\n')
-                xf.write("***************************************************************\n\n")
+        # If no password, or password entered correctly then can export.
+        if canExport == True:
 
-                for idx, msg in enumerate(self.stegPic.conversation.messages):
-                    xf.write(f'Message : {(idx+1):03d}\n')
-                    xf.write(f'Author  : {msg.writer}\n')
-                    xf.write(f'Text    : {msg.msgText}\n\n')
-    
-                # Close file after writing.
-                xf.close()
+            # Configure and launch file selection dialog.
+            dialog = QFileDialog(self)
+            dialog.setWindowTitle("Select file to export conversation to...")
+            dialog.setFileMode(QFileDialog.AnyFile)
+            dialog.setNameFilter("*.txt")
+            dialog.setDefaultSuffix('.txt')
+            dialog.setViewMode(QFileDialog.List)
+            dialog.setAcceptMode(QFileDialog.AcceptSave)
+
+            # If returned filename then open/create.
+            if dialog.exec_():
+                filenames = dialog.selectedFiles()
+
+                # If have a filename then open.
+                if filenames[0] != "":
+                    # Open file for writing
+                    xf = open(filenames[0], "w")
+
+                    # Export conversation to the file.
+                    xf.write("***************************************************************\n")
+                    xf.write("         ____  ____  ___  ___  _____  ____  ____  ____ \n")
+                    xf.write("        (  _ \(_  _)/ __)/ __)(  _  )(  _ \( ___)(  _ \\\n")
+                    xf.write("         )___/ _)(_( (__( (__  )(_)(  )(_) ))__)  )   /\n")
+                    xf.write("        (__)  (____)\___)\___)(_____)(____/(____)(_)\_)\n")
+                    xf.write("                      CONVERSATION EXPORT\n")
+                    xf.write("***************************************************************\n\n")
+                    xf.write("***************************************************************\n")
+                    xf.write(f'piCoder encoded image : {os.path.basename(self.stegPic.picFile)}\n')
+                    xf.write(f'Date / time of export : {datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")}\n')
+                    xf.write("***************************************************************\n")
+
+                    for idx, msg in enumerate(self.stegPic.conversation.messages):
+                        xf.write("\n*************************************\n")
+                        xf.write(f'Message : {(idx+1):03d}\n')
+                        xf.write(f'{msg.writer} : {msg.msgTime}\n')
+                        xf.write("*************************************\n")
+                        xf.write(f'{msg.msgText}\n')
+        
+                    # Close file after writing.
+                    xf.close()
 
     # *******************************************
     # Calback for extract embedded file button.
@@ -699,19 +729,27 @@ class UI(QMainWindow):
     def extractEmbeddedConversation(self):
         logger.debug("User selected control to extract embedded conversation.")
 
-        # Show password dialog.
-        pw = PasswordDialog("Enter password to extract embedded conversation...")
-        # Get user selection.
-        protected, password = pw.getPassword()
+        # Initialise extraction flag.
+        canExtract = True
 
-        if protected == False:
-            # Embedded file is not password protected.
-            logger.debug("Embedded file has no password protection.")
-        elif password != self.stegPic.password:
-            # Wrong password entered.
-            logger.warning("Password incorrect.")
-            showPopup("Warning", "picCoder Extracting Embedded Conversation", "Incorrect password entered.")
-        else:
+        # If password protected present dialog to get password.
+        if self.stegPic.picPassword == True:
+            # Show password dialog.
+            pw = PasswordDialog("Enter password to extract embedded conversation...")
+            # Get user selection.
+            protected, password = pw.getPassword()
+
+            if protected == False:
+                # Embedded file is not password protected.
+                logger.debug("Embedded file has no password protection.")
+            elif password != self.stegPic.password:
+                # Wrong password entered.
+                logger.warning("Password incorrect.")
+                showPopup("Warning", "picCoder Extracting Embedded Conversation", "Incorrect password entered.")
+                canExtract = False
+
+        # If no password, or password entered correctly then can extract.
+        if canExtract == True:
 
             # Extracting embedded conversation statusbar message.
             self.statusBar.showMessage("Extracting embedded conversation...", 5000)
@@ -725,8 +763,8 @@ class UI(QMainWindow):
             self.haveOpenConversation = True
             self.haveEmbeddedConversation = True
 
-        # Update menu item visibility.
-        self.checkMenuItems()
+            # Update menu item visibility.
+            self.checkMenuItems()
 
     # *******************************************
     # About control selected.

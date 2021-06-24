@@ -33,6 +33,11 @@ class ChangeLogDialog(QDialog):
 
         # Update change log.
         self.changeLogText.textCursor().insertHtml("<h1><b>CHANGE LOG</b></h1><br>")
+        self.changeLogText.textCursor().insertHtml("<h2><b>Version 0.2</b></h2>")
+        self.changeLogText.textCursor().insertHtml("<ul>" \
+            "<li>Changed blank user handle to \"Unknown\" and then notified user to change configuration.</li>" \
+            "<li>Reworked exporting of conversation and added description to User Guide.</li>" \
+            "</ul><br>")
         self.changeLogText.textCursor().insertHtml("<h2><b>Version 0.1</b></h2>")
         self.changeLogText.textCursor().insertHtml("<ul>" \
             "<li>Initial draft release.</li>" \
