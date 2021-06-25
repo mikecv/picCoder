@@ -154,7 +154,7 @@ class Steganography():
         self.colCount = self.bitmap.colorCount()
         # Qt returns 0 for colour count of 32.
         if self.colCount == 0:
-            self.colCount == 32
+            self.colCount = 32
         # Only support 3 colour planes.
         self.colPlanes = 3
         self.log.debug(f'Image width : {self.picWidth}; height : {self.picHeight}; colour count : {self.colCount}; colour planes : {self.colPlanes}')
@@ -280,7 +280,7 @@ class Steganography():
                             msgNum = int(self.codeBytes.decode('utf-8'))
                             # Check if message number is incrementing correctly.
                             if msgNum != (idx+1):
-                                self.log.error(f'Message number out of sequence : {msgNum}')
+                                self.log.error(f'Message number out of sequence, expected : {idx+1}, read : {msgNum}')
                                 break
                             else:
                                 self.log.info(f'Processing message number : {msgNum}')

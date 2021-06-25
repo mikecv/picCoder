@@ -34,10 +34,11 @@ from about import *
 # *******************************************
 # TODO List
 #
+# Support for messages not in utf-8 coding.
 # *******************************************
 
 # Program version.
-progVersion = "0.2 (RC1)"
+progVersion = "0.2 (RC2)"
 
 # Program date (for About dialog).
 progDate = "2021"
@@ -535,7 +536,7 @@ class UI(QMainWindow):
                 showPopup("Warning", "picCoder Embedding Conversation", "Conversation to embed would exceed allowed embedding ratio.")
             else:
                 # Embed conversation.
-                logger.debug(f'Embedding conversion.')
+                logger.debug(f'Embedding conversation.')
                 self.stegPic.embedConversationIntoImage(protected, password)
 
                 # Embedding conversation statusbar message.
