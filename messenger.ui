@@ -127,7 +127,7 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <widget class="QTextEdit" name="messageEdit">
+     <widget class="QPlainTextEdit" name="messageEdit">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -141,6 +141,9 @@
         <width>500</width>
         <height>100</height>
        </size>
+      </property>
+      <property name="inputMethodHints">
+       <set>Qt::ImhMultiLine</set>
       </property>
      </widget>
      <widget class="QWidget" name="verticalLayoutWidget_2">

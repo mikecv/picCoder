@@ -238,16 +238,26 @@ class ConversationDialog(QDialog):
             # Clear the contents of the text edit box.
             self.messageEdit.clear()
         else:
+            # Read contents of text edit box and add as new message to conversation (if supported).
+            msgText = self.messageEdit.toPlainText().encode('utf-8').decode('utf-8')
+            # Only support Unicode messages as lengths too hard to handle otherwise.
+            # Check if string length and encoded length match, if not don't add message.
+            if len(msgText) == len(self.messageEdit.toPlainText().encode('utf-8')):
+                if msgText != "":
+                    # Message good, add to conversation.
+                    self.conversation.addMsg(self.config.MyHandle, msgText)
 
-            # Read contents of text edit box and add as new message to conversation.
-            if self.messageEdit.toPlainText != "":
-                self.conversation.addMsg(self.config.MyHandle, self.messageEdit.toPlainText())
-
-                # Repopulate conversation, now with additional message.
-                self.populateMessages()
-
-            # Clear the contents of the text edit box.
-            self.messageEdit.clear()
+                    # Repopulate conversation, now with additional message.
+                    self.populateMessages()
+                    self.messageEdit.clear()
+                else:
+                    # Message blank, so don't added.
+                    # Clear the contents of the text edit box.
+                    self.messageEdit.clear()
+            else:
+                self.logger.debug("Message not Unicode, string and ytf-8 encoded length don't match.")
+                self.messageEdit.clear()
+                self.messageEdit.insertPlainText("Sorry, only Unicode message encoding is supported.")
 
     # *******************************************
     # User clicked to clear message.

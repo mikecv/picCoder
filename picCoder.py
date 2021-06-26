@@ -34,11 +34,10 @@ from about import *
 # *******************************************
 # TODO List
 #
-# Support for messages not in utf-8 coding.
 # *******************************************
 
 # Program version.
-progVersion = "0.2 (RC2)"
+progVersion = "0.2 (RC3)"
 
 # Program date (for About dialog).
 progDate = "2021"

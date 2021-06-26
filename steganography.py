@@ -333,8 +333,14 @@ class Steganography():
                                                     if (self.bytesRead != bytesToRead):
                                                         self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
                                                     else:
-                                                        msgText = self.codeBytes.decode('utf-8')
-                                                        self.log.info(f'Message text : {msgText}')
+                                                        self.log.debug(f'Message bytes : {self.bytesRead}')
+                                                        try:
+                                                            msgText = self.codeBytes.decode('utf-8')
+                                                            self.log.info(f'Message text : {msgText}')
+                                                        except:
+                                                            # This shouldn't happen but useful to show if it does.
+                                                            msgText = "<font color=\"#ff0000\"><i>Sorry, message encoding not supported.</i></font>"
+                                                            self.log.warning("Message encoding not supported.")
 
                                                         # Add message to conversion object.
                                                         self.conversation.addMsg(nameWriter, msgText, msgTime)
