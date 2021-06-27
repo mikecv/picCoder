@@ -5,6 +5,7 @@ import datetime
 import os
 
 from constants import *
+from utils import *
 
 # *******************************************
 # Consealing and retrieving data in/from image pixel colour.
@@ -334,13 +335,8 @@ class Steganography():
                                                         self.log.error(f'Expected bytes : {bytesToRead}; bytes read : {self.bytesRead}')
                                                     else:
                                                         self.log.debug(f'Message bytes : {self.bytesRead}')
-                                                        try:
-                                                            msgText = self.codeBytes.decode('utf-8')
-                                                            self.log.info(f'Message text : {msgText}')
-                                                        except:
-                                                            # This shouldn't happen but useful to show if it does.
-                                                            msgText = "<font color=\"#ff0000\"><i>Sorry, message encoding not supported.</i></font>"
-                                                            self.log.warning("Message encoding not supported.")
+                                                        msgText = self.codeBytes.decode('utf-8')
+                                                        self.log.info(f'Message text : {msgText}')
 
                                                         # Add message to conversion object.
                                                         self.conversation.addMsg(nameWriter, msgText, msgTime)
@@ -717,8 +713,9 @@ class Steganography():
 
         for idx, msg in enumerate(self.conversation.messages):
             # Construct the message.
+            # Use byte length of encoded string message so that full string is encoded in image.
             frmtString = ('%%0%dd%%0%dd%%s%%0%dd%%s%%0%dd%%s') % (NUMSMSBYTES, NAMELENBYTES, TIMELENBYTES, SMSLENBYTES)
-            msgDetail = frmtString % ((idx+1), len(msg.writer), msg.writer, len(msg.msgTime), msg.msgTime, len(msg.msgText), msg.msgText)
+            msgDetail = frmtString % ((idx+1), len(msg.writer), msg.writer, len(msg.msgTime), msg.msgTime, blen(msg.msgText), msg.msgText)
             self.log.info(f'Composed code for message  : {msgDetail}')
             self.log.info('Embedding message encoding data into image.')
             self.writeDataToImage(bytearray(msgDetail, encoding='utf-8'))

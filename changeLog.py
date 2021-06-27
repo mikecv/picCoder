@@ -36,8 +36,7 @@ class ChangeLogDialog(QDialog):
         self.changeLogText.textCursor().insertHtml("<h2><b>Version 0.2</b></h2>")
         self.changeLogText.textCursor().insertHtml("<ul>" \
             "<li>Changed message edit box to be plain text.</li>" \
-            "<li>Only Unicode (utf-8) text supported in conversation messages, " \
-                "too complicated with encoding messages into images otherwise.</li>" \
+            "<li>Added some support for message text in other than Unicode text.</li>" \
             "<li>Changed blank user handle to \"Unknown\" and then notified user to change configuration.</li>" \
             "<li>Reworked exporting of conversation and added description to User Guide.</li>" \
             "</ul><br>")

@@ -9,6 +9,7 @@ import sys
 import random
 
 from popup import *
+from utils import *
 
 # *******************************************
 # Determine resource path being the relative path to the resource file.
@@ -231,33 +232,20 @@ class ConversationDialog(QDialog):
         # Size of conversation is restricted by emedded data ratio as applicable to embedding files.
         # Have further restriction on number of messages in a conversation,
         # This restriction is so that application in its current design is responsive.
-        if self.conversation.numMessages() == self.config.MaxMessages:
-            self.logger.warning(f'Message not sent as would exceed message limit: {self.config.MaxMessages}')
-            showPopup("Warning", "Sending Message", f'Message not sent as would exceed message limit of {self.config.MaxMessages} messages.')
+        # Read contents of text edit box and add as new message to conversation.
+        msgText = self.messageEdit.toPlainText().encode('utf-8').decode('utf-8')
+        if msgText != "":
+            # Message good, add to conversation.
+            self.conversation.addMsg(self.config.MyHandle, msgText)
 
-            # Clear the contents of the text edit box.
+            # Repopulate conversation, now with additional message.
+            # Then clear the edit box for the next message.
+            self.populateMessages()
             self.messageEdit.clear()
         else:
-            # Read contents of text edit box and add as new message to conversation (if supported).
-            msgText = self.messageEdit.toPlainText().encode('utf-8').decode('utf-8')
-            # Only support Unicode messages as lengths too hard to handle otherwise.
-            # Check if string length and encoded length match, if not don't add message.
-            if len(msgText) == len(self.messageEdit.toPlainText().encode('utf-8')):
-                if msgText != "":
-                    # Message good, add to conversation.
-                    self.conversation.addMsg(self.config.MyHandle, msgText)
-
-                    # Repopulate conversation, now with additional message.
-                    self.populateMessages()
-                    self.messageEdit.clear()
-                else:
-                    # Message blank, so don't added.
-                    # Clear the contents of the text edit box.
-                    self.messageEdit.clear()
-            else:
-                self.logger.debug("Message not Unicode, string and ytf-8 encoded length don't match.")
-                self.messageEdit.clear()
-                self.messageEdit.insertPlainText("Sorry, only Unicode message encoding is supported.")
+            # Message blank, so don't added.
+            # Clear the contents of the text edit box.
+            self.messageEdit.clear()
 
     # *******************************************
     # User clicked to clear message.

@@ -38,7 +38,7 @@
   It is a novelty in that it demonstrates how information can be hidden in plain sight.</p>
 <p>You could use it to house your secret information embedded in your computer wallpaper where no one would think of looking if they were searching your computer for secrets.
   The secret information is there in plain sight, if only you could see subtle variations in colour and be able to recognise patterns.
-  Maybe the people that can hear music by looking at the groves on an LP record could see your secrets, but they would be the only ones.
+  Maybe the people that can hear music by looking at the grooves on an LP record could see your secrets, but they would be the only ones.
 </p>
   
 <h3>Features</h3>
@@ -112,11 +112,11 @@
   a filename to save the extract file to (the default filename will be the name of the file that was embedded).</p>
 <p>Note that if the file was embedded with a password a dialog will be presented for the user to enter the password;
   if the password entered is not correct the file selection dialog will not be presented and the embedded file will not be extracted or saved.
-  Refer also to section section <span style="background: #c0c0c0"><a href="#EmbeddingFile">Embedding Files</a></span> which deals with
+  Refer also to section <span style="background: #c0c0c0"><a href="#EmbeddingFile">Embedding Files</a></span> which deals
   embedding files with and without passwords.</p>
 
 <p>Assuming that a filename to save the extract file to has been entered, extracting the file will commence; a progress bar will show the progress,
-  and disappear when extraction is complete is complete.</p>
+  and disappear when extraction is complete.</p>
 
 <p>If the extracted and saved file is an accepted image file (various formats) the application will display the image in a separate dialog
   as illustrated below.</p>
@@ -135,8 +135,6 @@
 <a id="EmbeddedConversations"></a>
 <h2>Embedded Conversations</h2>
 
-<p><b>NOTE</b> Currently, messages in conversations must be composed of Unicode (UTF-8) encoded text.</p>
-
 <a id="StartingConversation"></a>
 <h3>Starting a New Conversation</h3>
 
@@ -148,7 +146,7 @@
   <img src="startConversation.png" alt="Start new conversation">
   <br>  
 
-<p>This will display a empty <b>Conversation Editor</b> dialog as illustration below.</p>
+<p>This will display an empty <b>Conversation Editor</b> dialog as illustration below.</p>
   <br>
   <br>  
   <img src="newConversationDlg.png" alt="New conversation dialog">
@@ -160,10 +158,8 @@
 <p>The <b>Conversation Editor</b> dialog has an edit window at the bottom where a message can be edited,
   and a window above where committed messages are displayed.</p>
 
-<p>The messaging editing window accepts rich text, so html tags can be used,
-  although at this release this type of formatting must be done manually as illustration below.
-  <b>NOTE</b> Currently, messages in conversations must be composed of Unicode (UTF-8) encoded text,
-  so unfortunately non-latin based alphabets are not supported.</p>
+<p>The message editing window accepts rich text, so html tags can be used,
+  although at this release this type of formatting must be done manually as illustration below.</p>
 
   <br>
   <br>  
@@ -171,8 +167,8 @@
   <br>  
 
 <p>To commit a message select the <font color="#2a6099"><i>Tick</i></font> icon.
-  To clear the edit window select the red <font color="#2a6099"><i>Cross</i></font> icon.
-  If the time between messages is less than a configured period the messages are grouped icon.</p>
+  To clear the edit window select the red <font color="#2a6099"><i>Cross</i></font> icon.</p>
+<p>If the time between messages is less than a configured period the messages are grouped icon.</p>
   <br>
   <br>  
   <img src="populatedMessage.png" alt="First populated message">
@@ -182,12 +178,14 @@
   the date and time of the message, and the message text it self.
   Notice the rendering of the <b>bold</b> rich text that was entered in the edit window.</p>
 
-<p>Additional messages can be added in the same way.
-  As each message is entered and committed they are rendered in the upper window as illustrated below.</p>
-  <br>
-  <br>  This bearly noticeable difference was expected as the application checks what percentage of the image colour information has been manipulated.
-  In this case the embedded file was relatively small so the ratio of colour data manipulated was only 4.21 as can be seen in the logs as illustrated below
-<p>As illustrated above, if the time between messages is less than a configured period the messages are grouped,
+  <p>Additional messages can be added in the same way.
+    As each message is entered and committed they are rendered in the upper window as illustrated below.</p>
+    <br>
+    <br>  
+    <img src="populatedMessage-2.png" alt="Additional populated message">
+    <br>
+
+<p>As illustrated above if the time between messages is less than a configured period the messages are grouped,
   and in this case only the first message in the group shows the author's handle and message timestamp.
   The time between messages for message grouping is specified in the configuration parameter <font color="#2a6099"><i>SameMsgTime</i></font>.</p>
 
@@ -227,9 +225,9 @@
   See section <span style="background: #c0c0c0"><a href="#SavingImage">Saving Encoded Image</a></span> for a description of saving an encoded image.
   Note that saving an encoded image is the same regardless of what type of data was stored in it.</p>
 
-<p>If all goes to plan the recipiant of the image will extract the embedded conversation and see your messages</p>
+<p>If all goes to plan the recipiant of the image will extract the embedded conversation and see your messages.</p>
 <p><i></i>Note that if the original conversation was encodded with a password, all additions to the conversation <b>will</b> be encodded with a password as well,
-  regadless of what the current embed with password setting.</i></p>
+  regadless of the current <i>embed with password</i> setting.</i></p>
 <p>If a password is encodded in the image a dialog will be presented for the user to enter the password as illustrated below.</p>
     <br>
     <br>  
@@ -293,7 +291,7 @@
   <br>  
 
 <p>This will launch a file browser were the file to embed can be selected.
-  After the file to embed has been selected embedding will commence; a progress bar will show the progress as illustrated below,
+  After the file to embed has been selected, embedding will commence; a progress bar will show the progress as illustrated below,
   and disappear when embedding is complete.</p>
   <br>
   <br>  
@@ -318,7 +316,7 @@
   <br>  
 
 <p>This will present a dialog showing the starting raw image with the file embedded into it.
-  If all is okay the difference should not be noticeable (unless you know what you are looking for.
+  If all is okay the difference should not be noticeable (unless you know what you are looking for).
   The starting raw image (left) and image with embedded file (right) are illustrated side by side below.</p>
   <br>
   <br>  
@@ -326,7 +324,7 @@
   <br>  
 
 <p>This bearly noticeable difference was expected as the application checks what percentage of the image colour information has been manipulated.
-  In this case the embedded file was relatively small so the ratio of colour data manipulated was only 4.21 as can be seen in the logs as illustrated below.</p>
+  In this case the embedded file was relatively small so the ratio of colour data manipulated was only 4.21% as can be seen in the logs as illustrated below.</p>
   <br>
   <br>  
   <img src="embedRatioLow.png" alt="Embed ratio low">
@@ -358,7 +356,7 @@
 
 <p>The moral to the story is don't embed too much data into an image.
   If you need to embed more data you need a starting raw image with more pixels.
-  Note that it the number of pixels and colour planes that matters and not the physical file size of the starting raw image.</p>
+  Note that it is the number of pixels and colour planes that matters and not the physical file size of the starting raw image.</p>
 
 <a id="SavingImage"></a>
 <h2>Saving Encoded Image</h2>
@@ -375,14 +373,14 @@
   <br>
 
 <p>This will present a file selection dialog where the filename of the picCoded image (.png) can be selected or entered.
-  After the filename to save the picCoded image to has been selected / entered savinging will commence.
+  After the filename to save the picCoded image to has been selected / entered, saving of the image with embedded data will commence.
   This is relatively quick, so no progress bar is shown.</p>
   
 <a id="ConfigurationSettings"></a>
 <h2>Configuration Settings</h2>
 
 <p>Application configuration exists in a file called <font color="#2a6099"><i>picCoder.json</i></font>.
-  For the current release the configuration file can be edited by the user as required, or will be generated will default configuration if it does not exist.</p>
+  For the current release the configuration file can be edited by the user as required, or will be generated with default configuration if it does not exist.</p>
 <p>Configuration data includes a configuration version specified by parameter <font color="#2a6099"><i>ConfigVersion</i></font>.
   Configuration will be updated if the application configuration version is different to that in the local configuration file.</p>
 <p>An example configuration file is illustrated below.</p>   
@@ -392,7 +390,7 @@
 <br>
 
 <p>In the configuration file as illustrated above, the only parameter that should be updated by the user as not part of the default configuration is parameter <font color="#2a6099"><i>MyHandle</i></font>.
-  This is the name shown in conversations for messages by the used.
+  This is the name shown in conversations for messages by the user.
   If this parameter is left blank (the default) the user will be prompted to update it.</p>   
 <p>All other parameters include default values and are provided to customise some functionality, for example:
   The rendering of messages in conversations, or default behaviour related to the inclusion of passwords when embedding data into images.</p>   

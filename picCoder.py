@@ -21,6 +21,7 @@ from previewImage import *
 from password import *
 from progressBar import *
 from popup import *
+from utils import *
 from changeLog import *
 from userGuide import *
 from about import *
@@ -37,7 +38,7 @@ from about import *
 # *******************************************
 
 # Program version.
-progVersion = "0.2 (RC3)"
+progVersion = "0.2"
 
 # Program date (for About dialog).
 progDate = "2021"
@@ -521,7 +522,7 @@ class UI(QMainWindow):
                 convLength += TIMELENBYTES
                 convLength += len(msg.msgTime)
                 convLength += SMSLENBYTES
-                convLength += len(msg.msgText)
+                convLength += blen(msg.msgText)
 
             # PicCoder embeded data size.
             # In the case of the password allow for maximum length password at this stage.
