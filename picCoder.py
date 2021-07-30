@@ -30,15 +30,17 @@ from about import *
 # Program history.
 # 0.1   MDC 09/03/2021  Original.
 # 0.2   MDC 24/06/2021  Bug fixes.
+# 0.3   MDC 22/07/2021  Bug fixes.
 # *******************************************
 
 # *******************************************
 # TODO List
 #
+# Logging with foreign language text not working.
 # *******************************************
 
 # Program version.
-progVersion = "0.2"
+progVersion = "0.3"
 
 # Program date (for About dialog).
 progDate = "2021"

@@ -13,7 +13,7 @@ class Config():
         self.cf = configFile
 
         # Version of configuration.
-        self.ConfigVersion = 1
+        self.ConfigVersion = 2
 
         # Logger configuration values
         self.DebugLevel = 10
@@ -40,7 +40,8 @@ class Config():
             "SameMsgTime" : 15,
             "BubbleRadius" : 20,
             "BorderColMax" : 70,
-            "FillColMin" : 225
+            "FillColMin" : 225,
+            "FontSizePx" : 14
         }
 
         # Maximum embedded file size ratio.
@@ -161,6 +162,12 @@ class Config():
                     self.SmsRender["FillColMin"] = config["SmsRender"]["FillColMin"]
                 except Exception:
                     self.SmsRender["FillColMin"] = paramSaved
+                    updateConfig = True
+                try:
+                    paramSaved = self.SmsRender["FontSizePx"]
+                    self.SmsRender["FontSizePx"] = config["SmsRender"]["FontSizePx"]
+                except Exception:
+                    self.SmsRender["FontSizePx"] = paramSaved
                     updateConfig = True
                 try:
                     paramSaved = self.MaxEmbedRatio

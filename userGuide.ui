@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>800</height>
+    <width>818</width>
+    <height>847</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -20,7 +20,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>picCoder Change Log</string>
+   <string>picCoder User Guide</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>

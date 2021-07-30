@@ -147,7 +147,7 @@ class ConversationDialog(QDialog):
             # Pad out so my messages on the right, others on the left.
             if msg.writer == self.config.MyHandle:
                 hBox.addStretch()
-                lbl.setStyleSheet(f'border : 3px solid {borderCol}; background : {fillCol}; padding :10px;'
+                lbl.setStyleSheet(f'border : 3px solid {borderCol}; background : {fillCol}; font-size : {self.config.SmsRender["FontSizePx"]}px; padding :10px;'
                             f'border-top-left-radius : {topRadius}px;'
                             f'border-top-right-radius : {topRadius}px;'
                             f'border-bottom-left-radius : {botRadius}px;'
@@ -155,7 +155,7 @@ class ConversationDialog(QDialog):
                         )
                 hBox.addWidget(lbl)
             else:
-                lbl.setStyleSheet(f'border : 3px solid {borderCol}; background : {fillCol}; padding :10px;'
+                lbl.setStyleSheet(f'border : 3px solid {borderCol}; background : {fillCol}; font-size : {self.config.SmsRender["FontSizePx"]}px; padding :10px;'
                             f'border-top-left-radius : {topRadius}px;'
                             f'border-top-right-radius : {topRadius}px;'
                             f'border-bottom-left-radius : {botRadius}px;'

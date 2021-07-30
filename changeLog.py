@@ -33,6 +33,11 @@ class ChangeLogDialog(QDialog):
 
         # Update change log.
         self.changeLogText.textCursor().insertHtml("<h1><b>CHANGE LOG</b></h1><br>")
+        self.changeLogText.textCursor().insertHtml("<h2><b>Version 0.3</b></h2>")
+        self.changeLogText.textCursor().insertHtml("<ul>" \
+            "<li>Made size of conversation text configurable. Configuration version up to 2.</li>" \
+            "<li>Fixed dialog names.</li>" \
+            "</ul><br>")
         self.changeLogText.textCursor().insertHtml("<h2><b>Version 0.2</b></h2>")
         self.changeLogText.textCursor().insertHtml("<ul>" \
             "<li>Changed message edit box to be plain text.</li>" \

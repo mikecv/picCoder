@@ -1,5 +1,5 @@
 {
-    "ConfigVersion": 1,
+    "ConfigVersion": 2,
     "DebugLevel": 10,
     "LogFileSize": 100000,
     "LogBackups": 3,
@@ -18,7 +18,8 @@
         "SameMsgTime": 15,
         "BubbleRadius": 20,
         "BorderColMax": 70,
-        "FillColMin": 225
+        "FillColMin": 225,
+        "FontSizePx": 12
     },
     "MaxEmbedRatio": 0.5,
     "IncludePasswd": 0,
