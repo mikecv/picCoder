@@ -123,6 +123,9 @@ class Steganography():
         self.toEmbedFilePath = ""
         self.toEmbedFileSize = 0
 
+        # Initialise approximate embedding capacity of image.
+        self.capacity = 0
+
         # Initialise conversation to accept embedded conversation.
         self.conversation = Conversation()
 
@@ -173,6 +176,9 @@ class Steganography():
         self.bytesWritten = 0
         self.codeBytes = []
 
+        # Check approximate embedding capacity of image.
+        self.calcEmbeddingCapacity()
+
         # Check if image file is picCode encoded.
         self.checkForCode()
 
@@ -181,10 +187,22 @@ class Steganography():
             self.getpicCodedData()
 
     # *******************************************
+    # Check embedding capacity of image.
+    # Embedding capacity is approximate as preamble is not fixed.
+    # *******************************************
+    def calcEmbeddingCapacity(self):
+        self.log.info(f'Calculating image embedding capacity for embed ratio : {self.cfg.MaxEmbedRatio}')
+
+        # Embedding capacity pixels * colours * colourBits * MaxEmbedRatio / 8 bitsPerByte
+        self.capacity = int(self.picWidth * self.picHeight * 3 * self.cfg.MaxEmbedRatio)
+        self.log.debug(f'Approximate embedding capacity, including preamble (Bytes) : {self.capacity}')
+
+    # *******************************************
     # Check if picture file is encoded.
     # Only checks the coding header.
     # *******************************************
     def checkForCode(self):
+        self.log.info("Checking image for picCoder preamble...")
 
         # Check if file even large enough to hold a code.
         self.fileSize = os.path.getsize(self.picFile)

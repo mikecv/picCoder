@@ -31,12 +31,15 @@ from about import *
 # 0.1   MDC 09/03/2021  Original.
 # 0.2   MDC 24/06/2021  Bug fixes.
 # 0.3   MDC 22/07/2021  Bug fixes.
+#                       Bug fixes with conversation export.
+#                       Added approximate embedding capacity to status bar.
 # *******************************************
 
 # *******************************************
 # TODO List
 #
 # Logging with foreign language text not working.
+# Update help to describe approximate embeded capacity indication.
 # *******************************************
 
 # Program version.
@@ -159,6 +162,9 @@ class UI(QMainWindow):
         # Can drop image file anywhere on the main window.
         self.setAcceptDrops(True)
 
+        # Show data embed capacity (if known)
+        self.showEmbedCapacity()
+
         # Show appliction window.
         self.show()
 
@@ -272,6 +278,9 @@ class UI(QMainWindow):
         self.picImageLbl.setPixmap(self.stegPic.bitmap.scaled(self.picImageLbl.width(), self.picImageLbl.height(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
         self.picImageLbl.adjustSize()
         self.picImageLbl.show()
+
+        # Update approximate embedding capacity of the image.
+        self.capacityLbl.setText(f'[ {int(self.stegPic.capacity):,} Bytes ]')
 
         # Initialise embedded data types flags.
         self.haveEmbededFile = False
@@ -626,7 +635,7 @@ class UI(QMainWindow):
                 # If have a filename then open.
                 if filenames[0] != "":
                     # Open file for writing
-                    xf = open(filenames[0], "w")
+                    xf = open(filenames[0], "w", encoding="utf-8")
 
                     # Export conversation to the file.
                     xf.write("***************************************************************\n")
@@ -646,7 +655,8 @@ class UI(QMainWindow):
                         xf.write(f'Message : {(idx+1):03d}\n')
                         xf.write(f'{msg.writer} : {msg.msgTime}\n')
                         xf.write("*************************************\n")
-                        xf.write(f'{msg.msgText}\n')
+                        mt = msg.msgText.encode('utf-8').decode('utf-8')
+                        xf.write(f'{mt}\n')
         
                     # Close file after writing.
                     xf.close()
@@ -768,6 +778,18 @@ class UI(QMainWindow):
 
             # Update menu item visibility.
             self.checkMenuItems()
+
+    # *******************************************
+    # Show embedding capacity on status bar.
+    # *******************************************
+    def showEmbedCapacity(self):
+        boldFont=QtGui.QFont()
+        boldFont.setBold(True)
+        self.capacityLbl = QLabel()
+        self.capacityLbl.setStyleSheet("color: black; ")
+        self.capacityLbl.setFont(boldFont)
+        self.capacityLbl.setText("[  -  ]")
+        self.statusBar.addPermanentWidget(self.capacityLbl)
 
     # *******************************************
     # About control selected.
