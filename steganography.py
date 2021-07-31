@@ -354,7 +354,6 @@ class Steganography():
                                                     else:
                                                         self.log.debug(f'Message bytes : {self.bytesRead}')
                                                         msgText = self.codeBytes.decode('utf-8')
-                                                        self.log.info(f'Message text : {msgText}')
 
                                                         # Add message to conversion object.
                                                         self.conversation.addMsg(nameWriter, msgText, msgTime)

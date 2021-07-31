@@ -19,7 +19,7 @@
         "BubbleRadius": 20,
         "BorderColMax": 70,
         "FillColMin": 225,
-        "FontSizePx": 12
+        "FontSizePx": 14
     },
     "MaxEmbedRatio": 0.5,
     "IncludePasswd": 0,
