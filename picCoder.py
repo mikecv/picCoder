@@ -38,8 +38,6 @@ from about import *
 # *******************************************
 # TODO List
 #
-# Logging with foreign language text not working.
-# Update help to describe approximate embeded capacity indication.
 # *******************************************
 
 # Program version.
@@ -786,7 +784,7 @@ class UI(QMainWindow):
         boldFont=QtGui.QFont()
         boldFont.setBold(True)
         self.capacityLbl = QLabel()
-        self.capacityLbl.setStyleSheet("color: black; ")
+        self.capacityLbl.setStyleSheet("color: white; ")
         self.capacityLbl.setFont(boldFont)
         self.capacityLbl.setText("[  -  ]")
         self.statusBar.addPermanentWidget(self.capacityLbl)

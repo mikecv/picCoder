@@ -39,6 +39,7 @@ class ChangeLogDialog(QDialog):
             "<li>Fixed dialog names.</li>" \
             "<li>Fixed bug with export of conversation with non-Unicode text.</li>" \
             "<li>Added approximate embedding capacity for image to status bar.</li>" \
+            "<li>Updates to help information.</li>" \
             "</ul><br>")
         self.changeLogText.textCursor().insertHtml("<h2><b>Version 0.2</b></h2>")
         self.changeLogText.textCursor().insertHtml("<ul>" \
